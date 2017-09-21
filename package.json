@@ -1,0 +1,39 @@
+{
+  "name": "login.dfe.directories",
+  "version": "0.0.1",
+  "description": "API to return list of users",
+  "dependencies": {
+    "body-parser": "^1.18.1",
+    "express": "^4.15.4",
+    "express-ejs-layouts": "^2.3.1",
+    "fs": "0.0.1-security",
+    "ioredis": "^3.1.4",
+    "jsonwebtoken": "^8.0.1",
+    "path": "^0.12.7",
+    "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.4.1",
+    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-plugin-import": "^2.7.0",
+    "ioredis-mock": "^2.4.0",
+    "mocha": "^3.5.3",
+    "sinon": "^3.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DFE-Digital/login.dfe.directories.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DFE-Digital/login.dfe.directories/issues"
+  },
+  "scripts": {
+    "test": "./generate-certs.sh; ./node_modules/.bin/mocha --reporter spec",
+    "setup": "./generate-certs.sh",
+    "dev": "PORT=4432;NODE_ENV=dev; node src/index.js"
+  },
+  "homepage": "https://github.com/DFE-Digital/login.dfe.directories#readme"
+}

@@ -2,6 +2,7 @@
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const UserAdapter = require('./../users');
 
 const router = express.Router();
 
@@ -15,7 +16,6 @@ const routeExport = (secret) => {
         message: 'No token provided.'
       };
     }
-
     // check header or url parameters or post parameters for token
     if (req.headers.authorization === undefined || req.headers.authorization.split(' ').length !== 2) {
       return res.status(403).send(getFailureMessage());
@@ -23,7 +23,6 @@ const routeExport = (secret) => {
     var token = req.headers.authorization.split(' ')[1];
 
     if (token) {
-
       jwt.verify(token, secret, function (err, decoded) {
         if (err) {
           return res.json({success: false, message: 'Failed to authenticate token.'});
@@ -38,8 +37,12 @@ const routeExport = (secret) => {
     }
   });
 
-  router.get('/users', function (req, res) {
-    res.send('user data');
+  router.get('/users/:id', function (req, res) {
+    const userAdapter = new UserAdapter();
+    userAdapter.find(req.params.id).then((user) =>{
+      res.send(user);
+    });
+
   });
 
   return router;

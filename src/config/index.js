@@ -5,5 +5,6 @@ module.exports = {
     port: process.env.PORT ? process.env.PORT : 4433,
     protocol: (process.env.NODE_ENV ? process.env.NODE_ENV : 'dev') == 'dev' ? 'https' : 'http'
   },
-  secret : process.env.JWT_SECRET
+  secret : process.env.JWT_SECRET,
+  redisurl : process.env.REDIS_CONNECTION_URL,
 };

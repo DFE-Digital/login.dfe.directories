@@ -11,9 +11,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.set('secret', config.secret)
-
-app.use('/api',api(app.get('secret')));
+app.use('/api',api(config.secret));
 
 if (config.hostingEnvironment.env === 'dev') {
   app.proxy = true;

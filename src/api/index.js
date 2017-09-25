@@ -6,7 +6,6 @@ const UserAdapter = require('./../users');
 
 const router = express.Router();
 
-
 const routeExport = (secret) => {
 
   router.use((req, res, next) => {
@@ -20,7 +19,7 @@ const routeExport = (secret) => {
     if (req.headers.authorization === undefined || req.headers.authorization.split(' ').length !== 2) {
       return res.status(403).send(getFailureMessage());
     }
-    var token = req.headers.authorization.split(' ')[1];
+    let token = req.headers.authorization.split(' ')[1];
 
     if (token) {
       jwt.verify(token, secret, function (err, decoded) {
@@ -46,6 +45,6 @@ const routeExport = (secret) => {
   });
 
   return router;
-}
+};
 
 module.exports = routeExport;

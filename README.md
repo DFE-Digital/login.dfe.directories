@@ -11,7 +11,7 @@ Install deps
 npm i
 ```
 
-Setup Keystore & devlopment ssl certs
+Setup Keystore & development ssl certs
 ```
 npm run setup
 ```

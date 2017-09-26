@@ -7,4 +7,5 @@ module.exports = {
   },
   secret : process.env.JWT_SECRET,
   redisurl : process.env.REDIS_CONNECTION_URL,
+  mongoConnection : process.env.MONGO_CONNECTION_URL,
 };

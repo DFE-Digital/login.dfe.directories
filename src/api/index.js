@@ -30,18 +30,15 @@ const routeExport = (secret) => {
           next();
         }
       });
-
     } else {
       return res.status(403).send(getFailureMessage());
     }
   });
 
-  router.get('/users/:id', function (req, res) {
+  router.get('/users/:id', async function (req, res) {
     const userAdapter = new UserAdapter();
-    userAdapter.find(req.params.id).then((user) =>{
-      res.send(user);
-    });
-
+    const user = await userAdapter.find(req.params.id);
+    res.send(user);
   });
 
   return router;

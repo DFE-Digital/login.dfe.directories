@@ -2,26 +2,26 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const file = require('fs');
 const path = require('path');
-const UsersFileAdapter = require('../../src/users/UsersFileAdapter');
+const UserFileAdapter = require('../../src/user/UserFileAdapter');
 
 const users = '[{"id": "test@localuser.com", "first_name": "Test", "last_name" : "Tester"}, {"id": "demo@localuser.com", "first_name": "Demo", "last_name" : "Strator"}]';
 
 describe('When using the UsersFileAdapter', () => {
-  describe('and finding users by Id', function () {
+  describe('and finding user by Id', function () {
 
     let adapter;
     let sandbox;
 
     beforeEach(function () {
-      adapter = new UsersFileAdapter();
+      adapter = new UserFileAdapter();
       sandbox = sinon.sandbox.create();
     });
     afterEach(function () {
       sandbox.restore();
     });
-    it('the users are read from the users.json in app_data', function () {
+    it('the user are read from the user.json in app_data', function () {
       const mock = sinon.mock(file);
-      mock.expects('readFileSync').withArgs(path.resolve('./app_data/users.json'), {encoding: 'utf8' }).once().returns('[{}]');
+      mock.expects('readFileSync').withArgs(path.resolve('./app_data/user.json'), {encoding: 'utf8' }).once().returns('[{}]');
 
       adapter.find('test@user');
 

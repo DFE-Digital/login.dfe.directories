@@ -1,9 +1,9 @@
 'use strict';
 
-class UsersAdapter {
+class UserAdapter {
   async find(id) {
     return Promise.resolve({});
   }
 }
 
-module.exports = UsersAdapter;
+module.exports = UserAdapter;

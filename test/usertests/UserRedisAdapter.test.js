@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const RedisMock = require('ioredis-mock').default;
-const UserStorage = require('../../src/users/UsersRedisAdapter');
+const UserStorage = require('../../src/user/UserRedisAdapter');
 
 const users = '[{"id": "test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}, {"id": "demo3@localuser.com", "first_name": "Demo", "last_name" : "Strator"}]';
 
@@ -19,7 +19,7 @@ describe('When using redis storage service', () => {
     afterEach(() => {
       sandbox.restore();
     });
-    it('the users are retrieved from redis', () =>{
+    it('the user are retrieved from redis', () =>{
       redis.set('Users','[{"id": "test@localuser.com"}]');
 
       return userStorage.find('test@localuser.com').then((actual)=>{

@@ -1,12 +1,12 @@
 'use strict';
 
-const UsersAdapter = require('./UsersAdapter');
+const UserAdapter = require('./UserAdapter');
 const redis = require('ioredis');
 const config = require('./../config');
 
 let client;
 
-class UsersRedisAdapter extends UsersAdapter{
+class UserRedisAdapter extends UserAdapter{
   constructor(redisClient){
     super();
     if(redisClient === null || redisClient === undefined){
@@ -40,4 +40,4 @@ class UsersRedisAdapter extends UsersAdapter{
 
 }
 
-module.exports = UsersRedisAdapter;
+module.exports = UserRedisAdapter;

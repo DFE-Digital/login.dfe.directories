@@ -1,6 +1,6 @@
 'use strict';
 
-const UsersAdapter = require('./UsersAdapter');
+const UserAdapter = require('./UserAdapter');
 const mongoose = require('mongoose');
 const config = require('./../config');
 
@@ -11,7 +11,7 @@ const schema = new mongoose.Schema({
   last_name: String
 });
 
-class UserMongoAdapter extends UsersAdapter{
+class UserMongoAdapter extends UserAdapter{
 
   find(email) {
     return new Promise((resolve, reject) => {

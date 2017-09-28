@@ -8,4 +8,10 @@ module.exports = {
   secret : process.env.JWT_SECRET,
   redisurl : process.env.REDIS_CONNECTION_URL,
   mongoConnection : process.env.MONGO_CONNECTION_URL,
+  ldapConfiguration :{
+    url: process.env.LDAP_URL,
+    baseDN: process.env.LDAP_BASE_DN,
+    username: process.env.LDAP_USERNAME,
+    password: process.env.LDAP_PASSWORD },
+  RequestVerificationCertification: process.env.REQUEST_VERIFICATION_CERT_LOCATION
 };

@@ -15,7 +15,7 @@ class UserAzureActiveDirectoryAdapter extends UserAdapter {
   }
 
   async find(username) {
-    const request = promisify(activeDirectory.userExists);
+    const request = promisify(activeDirectory.findUser);
 
     return request(null, username);
   }

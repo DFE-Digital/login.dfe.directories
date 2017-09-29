@@ -1,17 +1,19 @@
 const expect = require('chai').expect;
 const proxyquire = require('proxyquire')
 
+const user = '{"email": "test@localuser.com", "first_name": "Test", "last_name" : "Tester"}';
+
 describe('When using the UserAzureActiveDirectoryAdapter', () => {
   describe('and finding user by email', function () {
     it('the user is read from active directory', async function () {
       let expectedUserName = 'test';
 
       const activeDirectoryStub = function() {
-        this.userExists = function(options, userName, callback) {
+        this.findUser = function(options, userName, callback) {
           if(userName === expectedUserName){
-            callback(null, true);
+            callback(null, user);
           }else {
-            callback(null, false);
+            callback(null, null);
           }
         }
       };
@@ -20,7 +22,7 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
       var adapter = new UserAzureActiveDirectoryAdapter();
       let actual = await adapter.find(expectedUserName);
 
-      expect(actual).to.equal(true);
+      expect(actual).to.equal(user);
     });
   });
   describe('and authenticating', function () {

@@ -3,6 +3,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const UserAdapter = require('../user');
+const config = require('./../config')
 
 const router = express.Router();
 
@@ -35,8 +36,8 @@ const routeExport = (secret) => {
     }
   });
 
-  router.get('/user/:id', async function (req, res) {
-    const userAdapter = new UserAdapter();
+  router.get('/:uuid/user/:id', async function (req, res) {
+    const userAdapter = UserAdapter(config, req.params.uuid);
     const user = await userAdapter.find(req.params.id);
     res.send(user);
   });

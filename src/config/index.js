@@ -13,5 +13,20 @@ module.exports = {
     baseDN: process.env.LDAP_BASE_DN,
     username: process.env.LDAP_USERNAME,
     password: process.env.LDAP_PASSWORD },
-  RequestVerificationCertification: process.env.REQUEST_VERIFICATION_CERT_LOCATION
+  RequestVerificationCertification: process.env.REQUEST_VERIFICATION_CERT_LOCATION,
+  adapters:
+    [{
+      uuid: '8850a16c-4258-4d69-86b7-95b69cd5cd15',
+      type: 'file'
+    },{
+      uuid: 'ff080eff-b525-4215-a11f-f5b37eefad45',
+      type: 'mongo'
+    },{
+      uuid: '9af9f8a2-ceec-461f-8db4-ff37073903df',
+      type: 'redis'
+    },{
+      uuid: '76841484-ba65-4195-ab73-9571cae5d4ca',
+      type: 'azuread'
+    }]
+
 };

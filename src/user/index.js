@@ -11,6 +11,7 @@ const getUserAdapter = (config, uuid) => {
     return null;
   }
 
+  assert(config.RequestVerificationCertification, 'The certificate location for requestverification must be provided');
 
   if(userAdapterType.type === 'file'){
     return new userFileAdapter();

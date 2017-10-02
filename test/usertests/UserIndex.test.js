@@ -26,7 +26,7 @@ describe('When constructing the User index', () => {
       uuid: '76841484-ba65-4195-ab73-9571cae5d4ca',
       type: 'azuread',
       expectedAdapter: UserAzureActiveDirectoryAdapter
-    }],redisurl: 'testurl',mongoConnection:'testmongoconnection',
+    }],redisurl: 'testurl',mongoConnection:'testmongoconnection',RequestVerificationCertification: 'cert',
     ldapConfiguration:{
       url:'test',
       baseDN:'base',

@@ -91,7 +91,7 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
 
       expect(actual).to.equal(true);
     })
-    it('then false is returned if the signature is not valid', async function(){
+    it('then a message is returned if the signature is not valid', async function(){
       const requestVerificationStub = function() {
         this.verifyRequest = function(contents, cert, sig){
           return false;
@@ -100,9 +100,12 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
       var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'login.dfe.request-verification': requestVerificationStub});
 
       var adapter = new UserAzureActiveDirectoryAdapter();
-      let actual = await adapter.authenticate('test','password',null);
-
-      expect(actual).to.equal(false);
+      try{
+        await adapter.authenticate('test','password',null);
+      }catch(e)
+      {
+        expect(e).to.equal('Can not verify request');
+      }
     })
   });
   it('and it is constructed from the config options', function(){

@@ -1,6 +1,5 @@
 const UserAdapter = require('./UserAdapter');
 const ActiveDirectory = require('activedirectory');
-const {promisify} = require('util');
 const config = require('./../config')
 const RequestVerification = require('login.dfe.request-verification');
 
@@ -15,21 +14,34 @@ class UserAzureActiveDirectoryAdapter extends UserAdapter {
   }
 
   async find(username) {
-    const request = promisify(activeDirectory.findUser);
+    return new Promise((resolve, reject)=>{
+      activeDirectory.findUser(undefined,username,(err, user) => {
+        if(err){
+          return reject(err);
+        }
+        return resolve(user);
+      });
+    });
 
-    return request(null, username);
   }
 
   authenticate(username, password, sig) {
+    return new Promise((resolve,reject)=>{
+      const contents = JSON.stringify({username: username, password: password});
 
-    const contents = JSON.stringify({username: username, password: password});
+      if (requestVerification.verifyRequest(contents, config.RequestVerificationCertification, sig)) {
+        activeDirectory.authenticate(username, password ,(err,result)=>{
+          if(err){
+            return reject(err);
+          }
 
-    if (requestVerification.verifyRequest(contents, config.RequestVerificationCertification, sig)) {
-      const request = promisify(activeDirectory.authenticate);
-      return request(username, password);
-    } else {
-      return false;
-    }
+          return resolve(result);
+
+        });
+      }
+      return reject('Can not verify request');
+    })
+
   }
 }
 

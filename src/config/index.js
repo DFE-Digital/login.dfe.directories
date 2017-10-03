@@ -27,6 +27,9 @@ module.exports = {
     },{
       id: '76841484-ba65-4195-ab73-9571cae5d4ca',
       type: 'azuread'
-    }]
+    }],
+  auth:{
+    type:'secret'
+  }
 
 };

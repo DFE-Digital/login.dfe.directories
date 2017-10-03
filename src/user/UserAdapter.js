@@ -19,7 +19,7 @@ class UserAdapter {
 
       const request = promisify(crypto.pbkdf2);
 
-      const derivedKey = request(password, user.salt, 100000, 512, 'sha512');
+      const derivedKey = request(password, user.salt, 10000, 512, 'sha512');
 
       if (derivedKey.toString('hex') === user.password) {
         return true;

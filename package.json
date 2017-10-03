@@ -9,7 +9,7 @@
     "express-ejs-layouts": "^2.3.1",
     "fs": "0.0.1-security",
     "ioredis": "^3.1.4",
-    "jsonwebtoken": "^8.0.1",
+    "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#master",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#master",
     "mongoose": "^4.11.13",
     "path": "^0.12.7",

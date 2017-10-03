@@ -11,19 +11,19 @@ describe('When constructing the User index', () => {
 
   const configStub = {adapters:
     [{
-      uuid: '8850a16c-4258-4d69-86b7-95b69cd5cd15',
+      id: '8850a16c-4258-4d69-86b7-95b69cd5cd15',
       type: 'file',
       expectedAdapter: UserFileAdapter
     },{
-      uuid: 'ff080eff-b525-4215-a11f-f5b37eefad45',
+      id: 'ff080eff-b525-4215-a11f-f5b37eefad45',
       type: 'mongo',
       expectedAdapter: UserMongoAdapter
     },{
-      uuid: '9af9f8a2-ceec-461f-8db4-ff37073903df',
+      id: '9af9f8a2-ceec-461f-8db4-ff37073903df',
       type: 'redis',
       expectedAdapter: UserRedisAdapter
     },{
-      uuid: '76841484-ba65-4195-ab73-9571cae5d4ca',
+      id: '76841484-ba65-4195-ab73-9571cae5d4ca',
       type: 'azuread',
       expectedAdapter: UserAzureActiveDirectoryAdapter
     }],redisurl: 'testurl',mongoConnection:'testmongoconnection',RequestVerificationCertification: 'cert',
@@ -41,7 +41,7 @@ describe('When constructing the User index', () => {
     const userIndex = proxyquire('../../src/user/index', {'assert': assertStub});
 
     configStub.adapters.map((adapter) =>{
-      return expect(userIndex(configStub, adapter.uuid)).to.be.an.instanceOf(adapter.expectedAdapter);
+      return expect(userIndex(configStub, adapter.id)).to.be.an.instanceOf(adapter.expectedAdapter);
     });
   })
   it('then if there is no adapter found null is returned', () => {
@@ -51,7 +51,7 @@ describe('When constructing the User index', () => {
   })
   it('then if the config is missing for the required adapter an assertion is thrown', () =>{
     configStub.adapters.map((adapter) =>{
-      return expect(UserIndex(configStub, adapter.uuid)).to.be.an.instanceOf(adapter.expectedAdapter);
+      return expect(UserIndex(configStub, adapter.id)).to.be.an.instanceOf(adapter.expectedAdapter);
     });
   })
 });

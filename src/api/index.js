@@ -38,8 +38,23 @@ const routeExport = (secret) => {
 
   router.get('/:uuid/user/:id', async function (req, res) {
     const userAdapter = UserAdapter(config, req.params.uuid);
-    const user = await userAdapter.find(req.params.id);
-    res.send(user);
+    try{
+      const user = await userAdapter.find(req.params.id);
+      res.send(user);
+    }catch(e){
+      res.status(500).send(e);
+    }
+  });
+
+  router.post('/:uuid/user/authenticate', async function(req,res){
+    const userAdapter = UserAdapter(config, req.params.uuid);
+    try{
+      const result = await userAdapter.authenticate(req.body.username, req.body.password, req.body.sig)
+      res.send(result);
+    }
+    catch(e){
+      res.status(500).send(e);
+    }
   });
 
   return router;

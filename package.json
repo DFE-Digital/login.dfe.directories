@@ -37,7 +37,7 @@
   "scripts": {
     "test": "./generate-certs.sh; ./node_modules/.bin/mocha --reporter spec",
     "setup": "./generate-certs.sh",
-    "dev": "PORT=4432;NODE_ENV=dev; node src/index.js"
+    "dev": "PORT=4432 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js "
   },
   "homepage": "https://github.com/DFE-Digital/login.dfe.directories#readme"
 }

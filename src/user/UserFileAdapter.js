@@ -8,7 +8,7 @@ const path = require('path');
 class UserFileAdapter extends UserAdapter{
   async find(id) {
 
-    const usersJson = file.readFileSync(path.resolve('app_data/user.json'), {encoding : 'utf8'});
+    const usersJson = file.readFileSync(path.resolve('app_data/users.json'), {encoding : 'utf8'});
 
     if(!usersJson){
       return null;

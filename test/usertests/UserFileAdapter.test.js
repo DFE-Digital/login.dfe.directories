@@ -19,9 +19,9 @@ describe('When using the UsersFileAdapter', () => {
     afterEach(function () {
       sandbox.restore();
     });
-    it('the user are read from the user.json in app_data', function () {
+    it('the user are read from the users.json in app_data', function () {
       const mock = sinon.mock(file);
-      mock.expects('readFileSync').withArgs(path.resolve('./app_data/user.json'), {encoding: 'utf8' }).once().returns('[{}]');
+      mock.expects('readFileSync').withArgs(path.resolve('./app_data/users.json'), {encoding: 'utf8' }).once().returns('[{}]');
 
       adapter.find('test@user');
 

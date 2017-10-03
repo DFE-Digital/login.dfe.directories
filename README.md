@@ -21,6 +21,11 @@ Run
 npm run dev
 ```
 
+## Request Verification
+
+The directories API uses request verification and must share the public key from where the request was made. The 
+environment variable ```REQUEST_VERIFICATION_CERT_LOCATION ``` must be set to use any adapter. This is the relative path to the certificate.
+
 ## Mongo User Adapter
 
 To use the mongo user adapter you must specify the ``` MONGO_CONNNECTION_URL ``` this is the connection to your mongo instance
@@ -39,3 +44,11 @@ The document for user must have a "email" field as shown below
 }
 
 ```
+
+### Azure Active Directory Adapter
+
+To use the azure active directory adapter you must specify:
+ 1) ``` LDAP_URL ``` the ldaps:// url for your active directory.
+ 1) ``` LDAP_BASE_DN ``` the base DN for the active directory
+ 1) ``` LDAP_USERNAME ``` the username used for authentication when connecting to the active directory
+ 1) ``` LDAP_PASSWORD ``` the password for the above user used for authentication when connecting to the active directory

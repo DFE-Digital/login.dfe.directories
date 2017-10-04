@@ -84,7 +84,7 @@ eg
 
 or 
 
-``` POST: /api/:directoryId/user/:username ```
+``` POST: /api/:directoryId/user/authenticate ```
 
 where the body should be
 

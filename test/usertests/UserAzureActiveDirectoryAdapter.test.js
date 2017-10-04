@@ -7,7 +7,9 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
   describe('and finding user by email', function () {
     it('the user is read from active directory', async function () {
       let expectedUserName = 'test';
-
+      const configStub = {ldapConfiguration:{
+        url : "testUrl"
+      }};
       const activeDirectoryStub = function() {
         this.findUser = function(options, userName, callback) {
           if(userName === expectedUserName){
@@ -19,94 +21,46 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
       };
       var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub});
 
-      var adapter = new UserAzureActiveDirectoryAdapter();
+      var adapter = new UserAzureActiveDirectoryAdapter(configStub);
       let actual = await adapter.find(expectedUserName);
 
       expect(actual).to.equal(user);
     });
   });
   describe('and authenticating', function () {
-    it('then the username and password are checked against the active directory', async function(){
+    it('then the username and password are checked against the active directory', async function () {
       let expectedUserName = 'test';
       let expectedPassword = 'p@ssw0rd';
-
-      const activeDirectoryStub = function() {
-        this.authenticate = function(userName, password, callback) {
-          if(userName === expectedUserName && password === expectedPassword){
+      const configStub = {ldapConfiguration:{
+        url : "testUrl"
+      }};
+      const activeDirectoryStub = function () {
+        this.authenticate = function (userName, password, callback) {
+          if (userName === expectedUserName && password === expectedPassword) {
             callback(null, true);
-          }else {
+          } else {
             callback(null, false);
           }
         }
       };
 
-      const requestVerificationStub = function() {
-        this.verifyRequest = function(contents, cert, sig){
+      const requestVerificationStub = function () {
+        this.verifyRequest = function (contents, cert, sig) {
           return true;
         }
       };
 
-      var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub,'login.dfe.request-verification': requestVerificationStub});
+      var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {
+        'activedirectory': activeDirectoryStub,
+        'login.dfe.request-verification': requestVerificationStub
+      });
 
-      var adapter = new UserAzureActiveDirectoryAdapter();
-      let actual = await adapter.authenticate(expectedUserName,expectedPassword,null);
-
-      expect(actual).to.equal(true);
-
-    })
-    it('then the signature is validated', async function(){
-      let expectedUserName = 'test';
-      let expectedPassword = 'p@ssw0rd';
-      let expectedSignature = "sig";
-      let expectedCertLocation = 'mycert';
-
-      const configStub = {RequestVerificationCertification: expectedCertLocation};
-
-      const activeDirectoryStub = function() {
-        this.authenticate = function(userName, password, callback) {
-          if(userName === expectedUserName && password === expectedPassword){
-            callback(null, true);
-          }else {
-            callback(null, false);
-          }
-        }
-      };
-
-      const requestVerificationStub = function() {
-        this.verifyRequest = function(contents, cert, sig){
-
-          var content = JSON.stringify({ username: expectedUserName, password: expectedPassword });
-
-          if(content === contents && sig === expectedSignature && cert === expectedCertLocation){
-            return true;
-          }
-          return false;
-        }
-      };
-
-      var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub,'login.dfe.request-verification': requestVerificationStub, './../config' : configStub});
-
-      var adapter = new UserAzureActiveDirectoryAdapter();
-      let actual = await adapter.authenticate(expectedUserName,expectedPassword,expectedSignature);
+      var adapter = new UserAzureActiveDirectoryAdapter(configStub);
+      let actual = await adapter.authenticate(expectedUserName, expectedPassword, null);
 
       expect(actual).to.equal(true);
-    })
-    it('then a message is returned if the signature is not valid', async function(){
-      const requestVerificationStub = function() {
-        this.verifyRequest = function(contents, cert, sig){
-          return false;
-        }
-      };
-      var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'login.dfe.request-verification': requestVerificationStub});
 
-      var adapter = new UserAzureActiveDirectoryAdapter();
-      try{
-        await adapter.authenticate('test','password',null);
-      }catch(e)
-      {
-        expect(e).to.equal('Can not verify request');
-      }
-    })
+    });
   });
   it('and it is constructed from the config options', function(){
 
@@ -138,9 +92,9 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
       }
     };
 
-    var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub, './../config' : configStub});
+    var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub});
 
-    new UserAzureActiveDirectoryAdapter();
+    new UserAzureActiveDirectoryAdapter(configStub);
 
     expect(actualUrl).to.equal(expectedUrl);
     expect(actualPassword).to.equal(expectedPassword);
@@ -148,4 +102,3 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
     expect(actualUsername).to.equal(expectedUsername);
   });
 })
-;

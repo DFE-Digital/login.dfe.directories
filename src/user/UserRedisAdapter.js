@@ -2,15 +2,16 @@
 
 const UserAdapter = require('./UserAdapter');
 const redis = require('ioredis');
-const config = require('./../config');
 
 let client;
+let configuration;
 
 class UserRedisAdapter extends UserAdapter{
-  constructor(redisClient){
+  constructor(redisClient,config){
     super();
+    configuration = config;
     if(redisClient === null || redisClient === undefined){
-      client = new redis(config.redisurl);
+      client = new redis(configuration.redisurl);
     } else{
       client = redisClient;
     }
@@ -32,8 +33,6 @@ class UserRedisAdapter extends UserAdapter{
 
           resolve(user === undefined ? null : user);
         }
-
-
       });
     });
   }

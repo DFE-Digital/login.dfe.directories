@@ -76,15 +76,15 @@ adapters:
 
 the api calls then follow the pattern of:
 
-``` GET: /api/:directoryId/user/:username ```
+``` GET: /:directoryId/user/:username ```
 
 eg
 
-``` /api/test2/user/test@user.com ``` to find a user by username using mongo db 
+``` /test2/user/test@user.com ``` to find a user by username using mongo db 
 
 or 
 
-``` POST: /api/:directoryId/user/:username ```
+``` POST: /:directoryId/user/:username ```
 
 where the body should be
 

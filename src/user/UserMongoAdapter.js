@@ -2,7 +2,7 @@
 
 const UserAdapter = require('./UserAdapter');
 const mongoose = require('mongoose');
-const config = require('./../config');
+let config;
 
 
 const schema = new mongoose.Schema({
@@ -12,7 +12,10 @@ const schema = new mongoose.Schema({
 });
 
 class UserMongoAdapter extends UserAdapter{
-
+  constructor(configuration){
+    super();
+    config = configuration;
+  }
   find(email) {
     return new Promise((resolve, reject) => {
       mongoose.connect(config.mongoConnection, { useMongoClient: true}).then(() =>{

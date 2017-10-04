@@ -2,13 +2,13 @@
 
 const express = require('express');
 const UserAdapter = require('../user');
-const config = require('./../config')
 const apiAuth = require('login.dfe.api.auth');
 
 const router = express.Router();
+let config;
+const routeExport = (configuration) => {
 
-const routeExport = () => {
-
+  config = configuration;
   router.use(apiAuth(router,config));
 
   router.get('/:directoryId/user/:id', async function (req, res) {

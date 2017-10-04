@@ -12,15 +12,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-app.use('/api',api());
+app.use('/',api(config));
 
 if (config.hostingEnvironment.env === 'dev') {
   app.proxy = true;
 
   const https = require('https');
   const options = {
-    key: fs.readFileSync('./ssl/localhost.key'),
-    cert: fs.readFileSync('./ssl/localhost.cert'),
+    key: config.hostingEnvironment.sslKey,
+    cert: config.hostingEnvironment.sslCert,
     requestCert: false,
     rejectUnauthorized: false,
   };
@@ -30,7 +30,7 @@ if (config.hostingEnvironment.env === 'dev') {
     console.log(`Dev server listening on https://${config.hostingEnvironment.host}:${config.hostingEnvironment.port}`);
   });
 } else {
-  app.listen(config.hostingEnvironment.port, () => {
-    console.log(`Dev server listening on http://${config.hostingEnvironment.host}:${config.hostingEnvironment.port}`);
+  app.listen(process.env.PORT, () => {
+    console.log(`Server listening on http://${config.hostingEnvironment.host}:${process.env.PORT}`);
   });
 }

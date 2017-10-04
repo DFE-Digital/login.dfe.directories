@@ -12,9 +12,7 @@ class UserAdapter {
   async find(id) {
     return Promise.resolve({});
   }
-  async authenticate(username, password, sig) {
-    const contents = JSON.stringify({username: username, password: password});
-    if (requestVerification.verifyRequest(contents, config.RequestVerificationCertification, sig)) {
+  async authenticate(username, password) {
       const user = this.find(username);
 
       const request = promisify(crypto.pbkdf2);
@@ -24,8 +22,7 @@ class UserAdapter {
       if (derivedKey.toString('hex') === user.password) {
         return true;
       }
-    }
-    return false;
+
   }
 }
 

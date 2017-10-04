@@ -19,8 +19,8 @@ if (config.hostingEnvironment.env === 'dev') {
 
   const https = require('https');
   const options = {
-    key: fs.readFileSync('./ssl/localhost.key'),
-    cert: fs.readFileSync('./ssl/localhost.cert'),
+    key: config.hostingEnvironment.sslKey,
+    cert: config.hostingEnvironment.sslCert,
     requestCert: false,
     rejectUnauthorized: false,
   };

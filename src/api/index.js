@@ -25,7 +25,12 @@ const routeExport = () => {
     const userAdapter = UserAdapter(config, req.params.directoryId);
     try{
       const result = await userAdapter.authenticate(req.body.username, req.body.password, req.body.sig)
-      res.send(result);
+
+      if(result){
+        res.send(req.body.username);
+      }else {
+        res.status(401);
+      }
     }
     catch(e){
       res.status(500).send(e);

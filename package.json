@@ -39,5 +39,8 @@
     "setup": "./generate-certs.sh",
     "dev": "PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js "
   },
+  "engines": {
+    "node": ">=8.0.0"
+  },
   "homepage": "https://github.com/DFE-Digital/login.dfe.directories#readme"
 }

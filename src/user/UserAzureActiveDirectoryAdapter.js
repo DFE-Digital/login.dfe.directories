@@ -1,5 +1,6 @@
 const UserAdapter = require('./UserAdapter');
 const ActiveDirectory = require('activedirectory');
+const UserModel = require('./UserModel');
 
 const RequestVerification = require('login.dfe.request-verification');
 
@@ -19,7 +20,13 @@ class UserAzureActiveDirectoryAdapter extends UserAdapter {
         if(err){
           return reject(err);
         }
-        return resolve(user);
+
+        var userModel = new UserModel();
+        userModel.sub = user.sAMAccountName;
+        userModel.given_name = user.givenName;
+        userModel.family_name = user.sn;
+        userModel.email = user.userPrincipalName;
+        return resolve(userModel);
       });
     });
 

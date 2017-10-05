@@ -17,8 +17,12 @@ class UserFileAdapter extends UserAdapter{
     const users = JSON.parse(usersJson);
 
 
-    const user = users.find((item) => item.id === id);
+    const user = users.find((item) => item.sub === id);
     return user === undefined ? null : user;
+  }
+
+  async authenticate(username, password) {
+    return Promise.resolve(true);
   }
 
 }

@@ -6,9 +6,10 @@ let config;
 
 
 const schema = new mongoose.Schema({
-  id: String,
-  first_name: String,
-  last_name: String
+  sub: String,
+  given_name: String,
+  family_name: String,
+  email: String
 });
 
 class UserMongoAdapter extends UserAdapter{
@@ -16,11 +17,11 @@ class UserMongoAdapter extends UserAdapter{
     super();
     config = configuration;
   }
-  find(email) {
+  find(id) {
     return new Promise((resolve, reject) => {
       mongoose.connect(config.mongoConnection, { useMongoClient: true}).then(() =>{
         const usersModel = mongoose.model('User', schema, 'Users');
-        usersModel.find({email : email}).then((user) =>{
+        usersModel.find({sub : id}).then((user) =>{
           resolve(user);
         });
       });

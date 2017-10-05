@@ -20,6 +20,13 @@ class UserModel {
   set family_name(value) {
     this.family_name = value;
   }
+
+  get email() {
+    return this.email;
+  }
+  set email(value) {
+    this.email = value;
+  }
   
 }
 

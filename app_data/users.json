@@ -1,1 +1,1 @@
-[{"id": "test@localuser.com", "first_name": "Test", "last_name" : "Tester"}, {"id": "demo@localuser.com", "first_name": "Demo", "last_name" : "Strator"}]
+[{"sub": "test@localuser.com", "given_name": "Test", "family_name" : "Tester"}, {"sub": "demo@localuser.com", "given_name": "Demo", "family_name" : "Strator"}]

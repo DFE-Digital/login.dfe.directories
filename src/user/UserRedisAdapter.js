@@ -29,7 +29,7 @@ class UserRedisAdapter extends UserAdapter{
         if(users === null || users === undefined){
           resolve(null);
         }else{
-          const user = users.find((item) => item.id === id);
+          const user = users.find((item) => item.sub === id);
 
           resolve(user === undefined ? null : user);
         }

@@ -32,6 +32,8 @@ class UserRedisAdapter extends UserAdapter {
 
           resolve(user === undefined ? null : user);
         }
+      }).then(()=> {
+        client.disconnect();
       });
     });
   }
@@ -51,6 +53,8 @@ class UserRedisAdapter extends UserAdapter {
 
           resolve(user === undefined ? null : user);
         }
+      }).then(()=> {
+        client.disconnect();
       });
     });
   }

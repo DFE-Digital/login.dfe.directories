@@ -28,12 +28,15 @@ class UserRedisAdapter extends UserAdapter {
         if (users === null || users === undefined) {
           resolve(null);
         } else {
-          const user = users.find((item) => item.sub === id);
+          const user = users.find(item => item.sub === id);
 
           resolve(user === undefined ? null : user);
         }
-      }).then(()=> {
-        client.disconnect();
+      }).then(() => {
+        try {
+          client.disconnect();
+        } catch (e) {
+        }
       });
     });
   }
@@ -49,16 +52,18 @@ class UserRedisAdapter extends UserAdapter {
         if (users === null || users === undefined) {
           resolve(null);
         } else {
-          const user = users.find((item) => item.email === username);
+          const user = users.find(item => item.email === username);
 
           resolve(user === undefined ? null : user);
         }
-      }).then(()=> {
-        client.disconnect();
+      }).then(() => {
+        try {
+          client.disconnect();
+        } catch (e) {
+        }
       });
     });
   }
-
 }
 
 module.exports = UserRedisAdapter;

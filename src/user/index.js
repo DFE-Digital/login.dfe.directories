@@ -17,19 +17,19 @@ const getUserAdapter = (config, direcotryId) => {
     return new userFileAdapter();
   }
   if(userAdapterType.type === 'redis'){
-    assert(config.redisurl, 'redisurl is required');
-    return new userRedisAdapter(undefined, config);
+    assert(userAdapterType.params.redisurl, 'redisurl is required');
+    return new userRedisAdapter(undefined, userAdapterType.params);
   }
   if(userAdapterType.type === 'mongo'){
-    assert(config.mongoConnection, 'mongo connection url is required');
-    return new userMongoAdapter(config);
+    assert(userAdapterType.params.mongoConnection, 'mongo connection url is required');
+    return new userMongoAdapter(userAdapterType.params);
   }
   if(userAdapterType.type === 'azuread'){
-    assert(config.ldapConfiguration.url,'ldapConfiguration.url is required');
-    assert(config.ldapConfiguration.baseDN,'ldapConfiguration.baseDN is required');
-    assert(config.ldapConfiguration.password,'ldapConfiguration.password is required');
-    assert(config.ldapConfiguration.username,'ldapConfiguration.username is required');
-    return new userAzureActiveDirectoryAdapter(config);
+    assert(userAdapterType.params.url,'url is required');
+    assert(userAdapterType.params.baseDN,'baseDN is required');
+    assert(userAdapterType.params.password,'password is required');
+    assert(userAdapterType.params.username,'username is required');
+    return new userAzureActiveDirectoryAdapter(userAdapterType.params);
   }
 
 };

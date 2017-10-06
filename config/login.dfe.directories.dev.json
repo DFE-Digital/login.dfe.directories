@@ -14,21 +14,28 @@
     "type": "file"
   },{
     "id": "ff080eff-b525-4215-a11f-f5b37eefad45",
-    "type": "mongo"
+    "type": "mongo",
+    "params": {
+      "mongoConnection": ""
+    }
   },{
     "id": "9af9f8a2-ceec-461f-8db4-ff37073903df",
-    "type": "redis"
+    "type": "redis",
+    "params": {
+      "redisurl": "redis://127.0.0.1:6379/0"
+    }
   },{
     "id": "76841484-ba65-4195-ab73-9571cae5d4ca",
-    "type": "azuread"
+    "type": "azuread",
+    "params": {
+      "url": "",
+      "baseDN": "",
+      "username": "",
+      "password": ""
+    }
   }],
   "auth":{
     "type" :"secret"
   },
-  "RequestVerificationCertification" : "-----BEGIN CERTIFICATE-----\nMIIDIDCCAgigAwIBAgIJAO6QWNF0HgLqMA0GCSqGSIb3DQEBBQUAMBQxEjAQBgNV\nBAMTCWxvY2FsaG9zdDAeFw0xNzA5MTMxNTIyMzFaFw0yNzA5MTExNTIyMzFaMBQx\nEjAQBgNVBAMTCWxvY2FsaG9zdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC\nggEBAMfpW7xYfnincIaiSzoKAEEZJOmm6rOhjjE4vH6pZMttRsE15foKHVC7VL/P\n/R0xCKiUXApQptVVrPAjcilRWAdbqai1Xn9RY5fGtbYHhWq6OgBzEdMpxiOGA57P\nlX9VSwYp5pQH3PDb6itVx4oWC2ttRSNobP1quItcn/nWXT4TGMwkxP8+NZwPwhuw\nDCGXymiIq8cX0wy1tnqQIhJuMkzy94XCSPUSlUKYZaAP0joHvx/m0ZQ/P3DGSFKJ\nLMBjMoOTrbj3eksXvavDS5Zp/Grc44/nhTvGxI05djizhgqT0bCVjeV88qbmGj4e\ncQphme+o4bhRX0VVG3Vq0M0ZGjECAwEAAaN1MHMwHQYDVR0OBBYEFJqgXGTBm2EG\niM1+NBo9yZbxYj+FMEQGA1UdIwQ9MDuAFJqgXGTBm2EGiM1+NBo9yZbxYj+FoRik\nFjAUMRIwEAYDVQQDEwlsb2NhbGhvc3SCCQDukFjRdB4C6jAMBgNVHRMEBTADAQH/\nMA0GCSqGSIb3DQEBBQUAA4IBAQBhBq4OTGfBtsmt81sOMPhyg1D6C/JUWhfe09X3\nCOEROVhcMvSgGeN0ykLkgo/3OYVFOd+IFyCcTSTYEdJ9dLdWZhxZeCSPoAxw56uV\nmUoYMJW6FU2sqOwEXtvPaIyMH6FeGV++vOk0lg1BGcJ8XLiJEsVcokS6BAL5uSmb\nRRJLrfmbJf+xIWc1useoX0avWWLsUo0TQePcLaBaZsDb6HkV+5/8R5daLvvh58uv\n5hR0T40KN0bBRpDNJapQBMJeIObAFb3Yy6ck9OicFq3BN5eO51rxUxuH7WGODz0w\nPCsIshlf1FpkFHunm3/e9JmnpJwZxkI6sFzhLX10QMYqkVMB\n-----END CERTIFICATE-----",
-  "ldapConfiguration" :{
-    "url": "",
-    "baseDN": "",
-    "username": "",
-    "password": "" }
+  "RequestVerificationCertification" : "-----BEGIN CERTIFICATE-----\nMIIDIDCCAgigAwIBAgIJAO6QWNF0HgLqMA0GCSqGSIb3DQEBBQUAMBQxEjAQBgNV\nBAMTCWxvY2FsaG9zdDAeFw0xNzA5MTMxNTIyMzFaFw0yNzA5MTExNTIyMzFaMBQx\nEjAQBgNVBAMTCWxvY2FsaG9zdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoC\nggEBAMfpW7xYfnincIaiSzoKAEEZJOmm6rOhjjE4vH6pZMttRsE15foKHVC7VL/P\n/R0xCKiUXApQptVVrPAjcilRWAdbqai1Xn9RY5fGtbYHhWq6OgBzEdMpxiOGA57P\nlX9VSwYp5pQH3PDb6itVx4oWC2ttRSNobP1quItcn/nWXT4TGMwkxP8+NZwPwhuw\nDCGXymiIq8cX0wy1tnqQIhJuMkzy94XCSPUSlUKYZaAP0joHvx/m0ZQ/P3DGSFKJ\nLMBjMoOTrbj3eksXvavDS5Zp/Grc44/nhTvGxI05djizhgqT0bCVjeV88qbmGj4e\ncQphme+o4bhRX0VVG3Vq0M0ZGjECAwEAAaN1MHMwHQYDVR0OBBYEFJqgXGTBm2EG\niM1+NBo9yZbxYj+FMEQGA1UdIwQ9MDuAFJqgXGTBm2EGiM1+NBo9yZbxYj+FoRik\nFjAUMRIwEAYDVQQDEwlsb2NhbGhvc3SCCQDukFjRdB4C6jAMBgNVHRMEBTADAQH/\nMA0GCSqGSIb3DQEBBQUAA4IBAQBhBq4OTGfBtsmt81sOMPhyg1D6C/JUWhfe09X3\nCOEROVhcMvSgGeN0ykLkgo/3OYVFOd+IFyCcTSTYEdJ9dLdWZhxZeCSPoAxw56uV\nmUoYMJW6FU2sqOwEXtvPaIyMH6FeGV++vOk0lg1BGcJ8XLiJEsVcokS6BAL5uSmb\nRRJLrfmbJf+xIWc1useoX0avWWLsUo0TQePcLaBaZsDb6HkV+5/8R5daLvvh58uv\n5hR0T40KN0bBRpDNJapQBMJeIObAFb3Yy6ck9OicFq3BN5eO51rxUxuH7WGODz0w\nPCsIshlf1FpkFHunm3/e9JmnpJwZxkI6sFzhLX10QMYqkVMB\n-----END CERTIFICATE-----"
 }

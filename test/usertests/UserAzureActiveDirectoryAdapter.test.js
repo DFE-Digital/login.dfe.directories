@@ -1,39 +1,48 @@
 const expect = require('chai').expect;
 const proxyquire = require('proxyquire')
 
-const user = '{"email": "test@localuser.com", "first_name": "Test", "last_name" : "Tester"}';
+const user = {
+  dn: 'test',
+  givenName: 'Test',
+  sn: 'Tester',
+  userPrincipalName: 'test@localuser.com'
+}; // '{"email": "test@localuser.com", "first_name": "Test", "last_name" : "Tester"}';
 
 describe('When using the UserAzureActiveDirectoryAdapter', () => {
   describe('and finding user by email', function () {
     it('the user is read from active directory', async function () {
-      let expectedUserName = 'test';
-      const configStub = {ldapConfiguration:{
-        url : "testUrl"
-      }};
-      const activeDirectoryStub = function() {
-        this.findUser = function(options, userName, callback) {
-          if(userName === expectedUserName){
+      const expectedUserName = 'test';
+      const configStub = {
+        url: 'testUrl',
+      };
+      const activeDirectoryStub = function () {
+        this.findUser = function (options, userName, callback) {
+          if (userName === expectedUserName) {
             callback(null, user);
-          }else {
+          } else {
             callback(null, null);
           }
-        }
+        };
       };
-      var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub});
+      const UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub});
 
-      var adapter = new UserAzureActiveDirectoryAdapter(configStub);
-      let actual = await adapter.find(expectedUserName);
+      const adapter = new UserAzureActiveDirectoryAdapter(configStub);
+      const actual = await adapter.find(expectedUserName);
 
-      expect(actual).to.equal(user);
+      expect(actual).to.not.be.null;
+      expect(actual.sub).to.equal(user.dn);
+      expect(actual.given_name).to.equal(user.givenName);
+      expect(actual.family_name).to.equal(user.sn);
+      expect(actual.email).to.equal(user.userPrincipalName);
     });
   });
   describe('and authenticating', function () {
     it('then the username and password are checked against the active directory', async function () {
-      let expectedUserName = 'test';
-      let expectedPassword = 'p@ssw0rd';
-      const configStub = {ldapConfiguration:{
-        url : "testUrl"
-      }};
+      const expectedUserName = 'test';
+      const expectedPassword = 'p@ssw0rd';
+      const configStub = {
+          url: 'testUrl',
+      };
       const activeDirectoryStub = function () {
         this.authenticate = function (userName, password, callback) {
           if (userName === expectedUserName && password === expectedPassword) {
@@ -41,7 +50,10 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
           } else {
             callback(null, false);
           }
-        }
+        };
+        this.findUser = function(opts, username, callback) {
+          callback(null, user);
+        };
       };
 
       const requestVerificationStub = function () {
@@ -50,43 +62,47 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
         }
       };
 
-      var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {
+      const UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {
         'activedirectory': activeDirectoryStub,
         'login.dfe.request-verification': requestVerificationStub
       });
 
-      var adapter = new UserAzureActiveDirectoryAdapter(configStub);
-      let actual = await adapter.authenticate(expectedUserName, expectedPassword, null);
+      const adapter = new UserAzureActiveDirectoryAdapter(configStub);
+      const actual = await adapter.authenticate(expectedUserName, expectedPassword, null);
 
-      expect(actual).to.equal(true);
+      expect(actual).to.not.be.null;
+      expect(actual.sub).to.equal(user.dn);
+      expect(actual.given_name).to.equal(user.givenName);
+      expect(actual.family_name).to.equal(user.sn);
+      expect(actual.email).to.equal(user.userPrincipalName);
 
     });
   });
-  it('and it is constructed from the config options', function(){
+  it('and it is constructed from the config options', function () {
 
-    let expectedUrl = 'testurl';
-    let expectedBasedDN = 'testBaseDN';
-    let expectedUsername = 'testusername';
-    let expectedPassword = 'testpassword';
-    const configStub = {ldapConfiguration:{
-      url : expectedUrl,
-      baseDN : expectedBasedDN,
+    const expectedUrl = 'testurl';
+    const expectedBasedDN = 'testBaseDN';
+    const expectedUsername = 'testusername';
+    const expectedPassword = 'testpassword';
+    const configStub = {
+      url: expectedUrl,
+      baseDN: expectedBasedDN,
       username: expectedUsername,
       password: expectedPassword
-    }};
+    };
     let actualUrl = '';
     let actualBaseDN = '';
     let actualUsername = '';
     let actualPassword = '';
 
-    const activeDirectoryStub = function(configuration) {
+    const activeDirectoryStub = function (configuration) {
 
       actualUrl = configuration.url;
       actualBaseDN = configuration.baseDN;
       actualUsername = configuration.username;
       actualPassword = configuration.password;
 
-      this.userExists = function(options, userName, callback) {
+      this.userExists = function (options, userName, callback) {
         actualUrl = this.url;
         callback(null, true);
       }

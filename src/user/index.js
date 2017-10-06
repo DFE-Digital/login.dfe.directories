@@ -17,8 +17,8 @@ const getUserAdapter = (config, direcotryId) => {
     return new userFileAdapter();
   }
   if(userAdapterType.type === 'redis'){
-    assert(config.redisurl, 'redisurl is required');
-    return new userRedisAdapter(undefined, config);
+    assert(userAdapterType.params.redisurl, 'redisurl is required');
+    return new userRedisAdapter(undefined, userAdapterType.params);
   }
   if(userAdapterType.type === 'mongo'){
     assert(config.mongoConnection, 'mongo connection url is required');

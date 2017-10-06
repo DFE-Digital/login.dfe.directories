@@ -2,16 +2,12 @@ const UserAdapter = require('./UserAdapter');
 const ActiveDirectory = require('activedirectory');
 const UserModel = require('./UserModel');
 
-const RequestVerification = require('login.dfe.request-verification');
-
 let activeDirectory;
-let requestVerification;
 
 class UserAzureActiveDirectoryAdapter extends UserAdapter {
   constructor(config) {
     super();
     activeDirectory = new ActiveDirectory(config);
-    requestVerification = new RequestVerification();
   }
 
   async find(id) {

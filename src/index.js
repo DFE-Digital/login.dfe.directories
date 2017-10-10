@@ -26,10 +26,10 @@ if (config.hostingEnvironment.env === 'dev') {
   const server = https.createServer(options, app);
 
   server.listen(config.hostingEnvironment.port, () => {
-    logger.log(`Dev server listening on https://${config.hostingEnvironment.host}:${config.hostingEnvironment.port}`);
+    logger.info(`Dev server listening on https://${config.hostingEnvironment.host}:${config.hostingEnvironment.port}`);
   });
 } else {
   app.listen(process.env.PORT, () => {
-    logger.log(`Server listening on http://${config.hostingEnvironment.host}:${process.env.PORT}`);
+    logger.info(`Server listening on http://${config.hostingEnvironment.host}:${process.env.PORT}`);
   });
 }

@@ -19,4 +19,4 @@ const routeExport = () => {
   return router;
 };
 
-module.exports = routeExport;
+module.exports = routeExport();

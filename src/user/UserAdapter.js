@@ -1,7 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const {promisify} = require('util');
+const { promisify } = require('util');
 const RequestVerification = require('login.dfe.request-verification');
 
 let requestVerification;

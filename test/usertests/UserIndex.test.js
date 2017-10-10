@@ -39,8 +39,7 @@ describe('When constructing the User index', () => {
           username: 'user',
           password: 'password',
         },
-      }],
-    RequestVerificationCertification: 'aa',
+      }]
   };
 
   it('then the UserAdapater is found based on the uuid', () => {

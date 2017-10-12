@@ -2,6 +2,7 @@
 
 const redis = require('ioredis');
 const config = require('./../config');
+const resetCode = require('./generateCode');
 let client;
 
 class RedisUserCodeStorage {
@@ -21,7 +22,7 @@ class RedisUserCodeStorage {
     }
   }
 
-  async GetUserPasswordResetCode(uid) {
+  async getUserPasswordResetCode(uid) {
     return new Promise((resolve) => {
       client.get(`UserResetCode_${uid}`).then((result) => {
         if(result === null || result === undefined){
@@ -40,5 +41,20 @@ class RedisUserCodeStorage {
     });
   }
 
+  async createUserPasswordResetCode(uid) {
+    return new Promise((resolve) => {
+
+      let userResetCode = {
+        uid : uid,
+        code : resetCode()
+      };
+      const content = JSON.stringify(userResetCode)
+
+      client.set(`UserResetCode_${uid}`,content).then(() => {
+        this.close();
+        resolve(userResetCode)
+      });
+    });
+  }
 }
 module.exports = RedisUserCodeStorage;

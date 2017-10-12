@@ -43,16 +43,31 @@ class RedisUserCodeStorage {
 
   async createUserPasswordResetCode(uid) {
     return new Promise((resolve) => {
-
+      if(uid === null || uid === undefined){
+        resolve(null);
+      }
+      let code = resetCode();
       let userResetCode = {
         uid : uid,
-        code : resetCode()
+        code : code
       };
       const content = JSON.stringify(userResetCode)
 
       client.set(`UserResetCode_${uid}`,content).then(() => {
         this.close();
         resolve(userResetCode)
+      });
+    });
+  }
+
+  async deleteUserPasswordResetCode(uid) {
+    return new Promise((resolve)=>{
+      if(uid === null || uid === undefined){
+        resolve(null);
+      }
+      client.del(`UserResetCode_${uid}`).then(()=>{
+        this.close();
+        resolve(uid);
       });
     });
   }

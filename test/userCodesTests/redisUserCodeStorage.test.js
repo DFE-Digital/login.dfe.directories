@@ -44,6 +44,11 @@ describe('When using redis user code storage', () => {
 
       expect(record).to.not.equal(null);
     });
+    it('then if the uid is not supplied then a record is not created',async () => {
+      const actual = await userStorage.createUserPasswordResetCode();
+
+      expect(actual).to.equal(null);
+    });
     it('then the code is set from the code generation tool', async ()=>{
 
       const redisStorage =  proxyquire('../../src/userCodes/redisUserCodeStorage', {
@@ -56,6 +61,32 @@ describe('When using redis user code storage', () => {
       const actual = await storage.createUserPasswordResetCode('321');
 
       expect(actual.code).to.equal('ABC123');
+    });
+  });
+  describe('then when i call deleteUserPasswordResetCode', () => {
+    let redis;
+    let userStorage;
+
+    beforeEach(() => {
+      redis = new RedisMock();
+      redis.disconnect = () => {};
+      userStorage = new userCodeStorage(redis);
+    });
+    it('then if the uid is not supplied the record is not deleted', async () => {
+      redis.set('UserResetCode_123','{"uid":"123","code":"ABC123"}');
+
+      await userStorage.deleteUserPasswordResetCode();
+
+      var record = await redis.get('UserResetCode_123');
+      expect(record).to.not.equal(null);
+    });
+    it('then the uid is used to find the record and delete it', async ()=> {
+      redis.set('UserResetCode_123','{"uid":"123","code":"ABC123"}');
+
+      await userStorage.deleteUserPasswordResetCode('123');
+
+      var record = await redis.get('UserResetCode_123');
+      expect(record).to.equal(null);
     });
 
   });

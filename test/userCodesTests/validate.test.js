@@ -29,7 +29,7 @@ describe('When validating a user code', () => {
         code: 'ABC123'
       }
     };
-  })
+  });
   it('then an empty response is returned and a bad request status code sent if there is no uid', async ()=> {
 
     //todo look at why when this fails it doesn't cause the test runner to stop

@@ -8,7 +8,7 @@ let client;
 class RedisUserCodeStorage {
   constructor(redisClient){
     if(redisClient === null || redisClient === undefined){
-      client = new redis(config.usercodes.redis.url);
+      client = new redis(config.userCodes.redisUrl);
     } else{
       client = redisClient;
     }
@@ -35,8 +35,6 @@ class RedisUserCodeStorage {
         } else {
           resolve(userCode === undefined ? null : userCode);
         }
-      }).then(() => {
-        this.close();
       });
     });
   }
@@ -54,7 +52,6 @@ class RedisUserCodeStorage {
       const content = JSON.stringify(userResetCode)
 
       client.set(`UserResetCode_${uid}`,content).then(() => {
-        this.close();
         resolve(userResetCode)
       });
     });
@@ -67,7 +64,7 @@ class RedisUserCodeStorage {
       }
       client.del(`UserResetCode_${uid}`).then(()=>{
         this.close();
-        resolve(uid);
+        resolve();
       });
     });
   }

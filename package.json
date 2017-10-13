@@ -23,6 +23,7 @@
     "eslint-plugin-import": "^2.7.0",
     "ioredis-mock": "^2.4.0",
     "mocha": "^3.5.3",
+    "node-mocks-http": "^1.6.6",
     "proxyquire": "^1.8.0",
     "sinon": "^3.3.0"
   },

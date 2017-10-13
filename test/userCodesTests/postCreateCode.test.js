@@ -47,12 +47,10 @@ describe('When getting a user code', () => {
 
     const postNew = proxyquire('./../../src/userCodes/postCreateCode', {'./redisUserCodeStorage': storageMock});
 
-    postNew(req, res).then((actual)=>{
-      expect(res._getData().code).to.deep.equal('ABC123')
-      expect(res._getData().uid).to.deep.equal('7654321')
-    });
+    await postNew(req, res);
 
-
+    expect(res._getData().code).to.deep.equal('ABC123');
+    expect(res._getData().uid).to.deep.equal('7654321')
   });
   it('then if a code exists for a uid the same one is returned', async () => {
 
@@ -60,10 +58,11 @@ describe('When getting a user code', () => {
 
     const postNew = proxyquire('./../../src/userCodes/postCreateCode', {'./redisUserCodeStorage': storageMock});
 
-    postNew(req, res).then((actual)=>{
-      expect(res._getData().code).to.deep.equal('ZXY789')
-      expect(res._getData().uid).to.deep.equal('7654321')
-    });
+    await postNew(req, res);
+
+    expect(res._getData().code).to.deep.equal('ZXY789')
+    expect(res._getData().uid).to.deep.equal('7654321')
+
 
   });
 });

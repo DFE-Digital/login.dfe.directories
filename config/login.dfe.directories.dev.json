@@ -35,7 +35,8 @@
     }
   }],
   "userCodes" :{
-    "redisUrl" :"redis://localhost:6379"
+    "redisUrl" :"redis://localhost:6379",
+    "staticCode" : false
   },
   "auth":{
     "type" :"secret"

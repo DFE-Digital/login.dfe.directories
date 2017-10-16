@@ -44,7 +44,7 @@ class RedisUserCodeStorage {
       if(!uid){
         resolve(null);
       }
-      let code = resetCode();
+      let code = config.userCodes.staticCode ? 'ABC123' : resetCode();
       let userResetCode = {
         uid : uid,
         code : code

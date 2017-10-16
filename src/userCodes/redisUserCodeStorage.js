@@ -2,7 +2,7 @@
 
 const redis = require('ioredis');
 const config = require('./../config');
-const resetCode = require('./generateCode');
+const resetCode = require('./generateResetCode');
 let client;
 
 class RedisUserCodeStorage {

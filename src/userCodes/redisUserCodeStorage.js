@@ -59,7 +59,7 @@ class RedisUserCodeStorage {
 
   async deleteUserPasswordResetCode(uid) {
     return new Promise((resolve)=>{
-      if(uid === null || uid === undefined){
+      if(!uid){
         resolve(null);
       }
       client.del(`UserResetCode_${uid}`).then(()=>{

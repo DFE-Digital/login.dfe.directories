@@ -6,6 +6,7 @@ const api = require('./api');
 const config = require('./config');
 const logger = require('./logger');
 const https = require('https');
+const userCodes = require('./userCodes');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 
 
 app.use('/', api);
+app.use('/userCodes', userCodes);
 
 if (config.hostingEnvironment.env === 'dev') {
   app.proxy = true;

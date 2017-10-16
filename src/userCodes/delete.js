@@ -4,8 +4,7 @@ const logger = require('../logger');
 
 const deleteCode = async (req,res) => {
   try{
-    if(req.params.uid === null || req.params.uid === undefined
-      || req.params.uid === '') {
+    if(!req.params.uid) {
       res.status(400).send();
       return;
     }

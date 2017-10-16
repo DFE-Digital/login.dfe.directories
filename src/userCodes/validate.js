@@ -4,8 +4,7 @@ const redisUserCodeStorage = require('./redisUserCodeStorage');
 
 const validate = async (req,res) => {
   try{
-    if(req.params.uid === null || req.params.uid === undefined || req.params.uid === ''
-      || req.params.code === null || req.params.code === undefined || req.params.code === '') {
+    if(!req.params.uid || !req.params.code) {
       res.status(400).send();
       return;
     }

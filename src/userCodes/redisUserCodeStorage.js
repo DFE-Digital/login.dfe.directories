@@ -2,7 +2,7 @@
 
 const redis = require('ioredis');
 const config = require('./../config');
-const resetCode = require('./generateCode');
+const resetCode = require('./generateResetCode');
 let client;
 
 class RedisUserCodeStorage {
@@ -44,7 +44,7 @@ class RedisUserCodeStorage {
       if(!uid){
         resolve(null);
       }
-      let code = resetCode();
+      let code = config.userCodes.staticCode ? 'ABC123' : resetCode();
       let userResetCode = {
         uid : uid,
         code : code

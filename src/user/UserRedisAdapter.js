@@ -2,6 +2,9 @@
 
 const UserAdapter = require('./UserAdapter');
 const redis = require('ioredis');
+const crypto = require('crypto');
+const {promisify} = require('util');
+const generateSalt = require('./generateSalt');
 
 let client;
 let configuration;
@@ -19,19 +22,14 @@ class UserRedisAdapter extends UserAdapter {
 
   async find(id) {
     return new Promise((resolve, reject) => {
-      client.get('Users').then((result) => {
+      client.get(`User_${id}`).then((result) => {
         if (result === null || result === undefined) {
           resolve(null);
         }
-        const users = JSON.parse(result);
+        const user = JSON.parse(result);
 
-        if (users === null || users === undefined) {
-          resolve(null);
-        } else {
-          const user = users.find(item => item.sub === id);
+        resolve(user === undefined ? null : user);
 
-          resolve(user === undefined ? null : user);
-        }
       }).then(() => {
         try {
           client.disconnect();
@@ -52,8 +50,8 @@ class UserRedisAdapter extends UserAdapter {
         if (users === null || users === undefined) {
           resolve(null);
         } else {
-          const user = users.find(item => item.email === username);
-
+          const userRef = users.find(item => item.email === username);
+          const user = this.find(userRef.sub);
           resolve(user === undefined ? null : user);
         }
       }).then(() => {
@@ -63,6 +61,36 @@ class UserRedisAdapter extends UserAdapter {
         }
       });
     });
+  }
+
+  async changePassword(uid, newPassword) {
+
+    return new Promise((resolve) => {
+      client.get(`User_${uid}`).then((result) => {
+          if (result === null || result === undefined) {
+            resolve(false);
+          }
+          const user = JSON.parse(result);
+
+          if (!user) {
+            resolve(false);
+          } else {
+
+            const salt = generateSalt();
+            crypto.pbkdf2(newPassword, salt, 10000, 512, 'sha512', (err, result) => {
+              user.salt = salt;
+              user.password = result.toString('base64');
+
+              client.set(`User_${uid}`,JSON.stringify(user)).then(() => {
+                resolve(true);
+              });
+
+            });
+          }
+        }
+      );
+    });
+
   }
 }
 

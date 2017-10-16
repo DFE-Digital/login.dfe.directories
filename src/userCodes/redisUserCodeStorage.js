@@ -7,7 +7,7 @@ let client;
 
 class RedisUserCodeStorage {
   constructor(redisClient){
-    if(redisClient === null || redisClient === undefined){
+    if(!redisClient){
       client = new redis(config.userCodes.redisUrl);
     } else{
       client = redisClient;
@@ -25,7 +25,7 @@ class RedisUserCodeStorage {
   async getUserPasswordResetCode(uid) {
     return new Promise((resolve) => {
       client.get(`UserResetCode_${uid}`).then((result) => {
-        if(result === null || result === undefined){
+        if(!result){
           resolve(null);
         }
 
@@ -41,7 +41,7 @@ class RedisUserCodeStorage {
 
   async createUserPasswordResetCode(uid) {
     return new Promise((resolve) => {
-      if(uid === null || uid === undefined){
+      if(!uid){
         resolve(null);
       }
       let code = resetCode();

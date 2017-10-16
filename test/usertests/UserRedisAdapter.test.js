@@ -1,44 +1,74 @@
 const expect = require('chai').expect;
-const sinon = require('sinon');
 const RedisMock = require('ioredis-mock').default;
 const UserStorage = require('../../src/user/UserRedisAdapter');
-
-const users = '[{"sub": "test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}, {"sub": "demo3@localuser.com", "first_name": "Demo", "last_name" : "Strator"}]';
+const proxyquire = require('proxyquire');
+const { promisify } = require('util');
+const crypto = require('crypto');
 
 describe('When using redis storage service', () => {
+
   describe('then when I call find', () => {
     let redis;
-    let sandbox;
     let userStorage;
 
     beforeEach(() => {
-      sandbox = sinon.sandbox.create();
+
       redis = new RedisMock();
       userStorage = new UserStorage(redis);
     });
-    afterEach(() => {
-      sandbox.restore();
-    });
 
-    it('the user are retrieved from redis', () =>{
-      redis.set('Users','[{"sub": "test@localuser.com"}]');
+    it('the user are retrieved from redis', async () =>{
+      redis.set('Users','[{"sub": "12345", "email":"test@localuser.com"}]');
+      redis.set('User_12345','{"sub": "test@localuser.com"}');
 
-      return userStorage.find('test@localuser.com').then((actual)=>{
-        expect(actual).to.not.equal(undefined);
-        expect(JSON.stringify(actual)).to.equal('{"sub":"test@localuser.com"}');
-      });
+      var actual = await userStorage.findByUsername('test@localuser.com');
+
+      expect(actual).to.not.equal(undefined);
+      expect(JSON.stringify(actual)).to.equal('{"sub":"test@localuser.com"}');
     });
-    it('then null is returned if there is no data', () => {
-      return userStorage.find('test@localuser.com').then((actual)=>{
-        expect(actual).to.equal(null);
-      });
+    it('then null is returned if there is no data', async () => {
+      var actual = await userStorage.findByUsername('test@localuser.com');
+
+      expect(actual).to.equal(null);
     });
-    it('then the json is parsed and returned', () => {
-      redis.set('Users',users);
-      return userStorage.find('test3@localuser.com').then((actual)=>{
-        expect(actual).to.not.equal(null);
-        expect(actual.first_name).to.equal('Tester');
-      });
+    it('then the json is parsed and returned', async () => {
+      redis.set('Users','[{"sub": "12345", "email":"test3@localuser.com"}]');
+      redis.set('User_12345','{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
+
+      var actual = await userStorage.findByUsername('test3@localuser.com');
+
+      expect(actual).to.not.equal(null);
+      expect(actual.first_name).to.equal('Tester');
+
     });
   });
+  describe('then when I call change password', () => {
+    let redis;
+    let userStorage;
+
+    beforeEach(() => {
+      redis = new RedisMock();
+      userStorage = new UserStorage(redis);
+    });
+    it('if the user does not exist false is returned', async () => {
+      redis.set('User_test3@localuser.com','[{"sub": "test@localuser.com"}]');
+
+      var actual = await userStorage.changePassword('test@localuser.com','my-new-password');
+
+      expect(actual).to.equal(false);
+    });
+    it('if the user exists the record is updated', async () => {
+      redis.set('User_test3@localuser.com', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing", "salt":"123456768"}');
+
+      var actual = await userStorage.changePassword('test3@localuser.com','my-new-password');
+
+      expect(actual).to.equal(true);
+      var findResult = await userStorage.find('test3@localuser.com')
+      expect(findResult).to.not.equal(null);
+      const request = promisify(crypto.pbkdf2);
+      const saltBuffer = Buffer.from(findResult.salt, 'utf8');
+      const derivedKey = await request('my-new-password', saltBuffer, 10000, 512, 'sha512');
+      expect(findResult.password).to.equal(derivedKey.toString('base64'));
+    });
+  })
 });

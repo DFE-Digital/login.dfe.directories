@@ -39,8 +39,21 @@ describe('When using redis user code storage', () => {
       userStorage = new userCodeStorage(redis);
     });
     it('then the uid is used to create the record',async () => {
-      await userStorage.createUserPasswordResetCode('321');
-      var record = await redis.get('UserResetCode_321');
+      const redisStorage =  proxyquire('../../src/userCodes/redisUserCodeStorage', {
+        './generateResetCode': () => {
+          return 'ABC123';
+        },
+        './../config':
+          {
+            userCodes:{
+              staticCode:false
+            }
+          },
+      });
+      const storage = new redisStorage(redis);
+
+      await storage.createUserPasswordResetCode('321');
+      const record = await redis.get('UserResetCode_321');
 
       expect(record).to.not.equal(null);
     });
@@ -52,10 +65,32 @@ describe('When using redis user code storage', () => {
     it('then the code is set from the code generation tool', async ()=>{
 
       const redisStorage =  proxyquire('../../src/userCodes/redisUserCodeStorage', {
-        './generateCode': () => {
+        './generateResetCode': () => {
           return 'ABC123';
         },
+        './../config':
+          {
+            userCodes:{
+              staticCode:false
+            }
+          },
       });
+      const storage = new redisStorage(redis);
+
+      const actual = await storage.createUserPasswordResetCode('321');
+
+      expect(actual.code).to.equal('ABC123');
+    });
+    it('then a static code is returned if the config is set', async () => {
+      const redisStorage =  proxyquire('../../src/userCodes/redisUserCodeStorage', {
+        './../config':
+          {
+            userCodes:{
+              staticCode:true
+            }
+          },
+      });
+
       const storage = new redisStorage(redis);
 
       const actual = await storage.createUserPasswordResetCode('321');

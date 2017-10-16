@@ -52,7 +52,7 @@ describe('When using redis user code storage', () => {
     it('then the code is set from the code generation tool', async ()=>{
 
       const redisStorage =  proxyquire('../../src/userCodes/redisUserCodeStorage', {
-        './generateCode': () => {
+        './generateResetCode': () => {
           return 'ABC123';
         },
       });

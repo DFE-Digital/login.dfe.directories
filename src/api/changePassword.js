@@ -5,7 +5,7 @@ const logger = require('../logger');
 const changePassword = async (req, res) => {
   const userAdapter = UserAdapter(config, req.params.directoryId);
   try {
-    const user = await userAdapter.changePassword(req.params.id, req.params.password);
+    const user = await userAdapter.changePassword(req.body.uid, req.body.password);
     if (!user) {
       res.status(404).send();
     }

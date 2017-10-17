@@ -28,7 +28,21 @@ environment variable ```REQUEST_VERIFICATION_CERT_LOCATION ``` must be set to us
 
 ## Mongo User Adapter
 
-To use the mongo user adapter you must specify the ``` MONGO_CONNNECTION_URL ``` this is the connection to your mongo instance
+To use the mongo user adapter you must specify an adapter configuration with mongo connection as shown below:
+
+``` 
+"adapters":
+  [{
+    "id": "ff080eff-b525-4215-a11f-f5b37eefad45",
+    "type": "mongo",
+    "params": {
+      "mongoConnection": ""
+    }
+  ]
+```
+ 
+ 
+ the ``` mongoConnection ``` is the connection to your mongo instance
 
 A collection call Users must be created.
 
@@ -52,6 +66,52 @@ To use the azure active directory adapter you must specify:
  1) ``` LDAP_BASE_DN ``` the base DN for the active directory
  1) ``` LDAP_USERNAME ``` the username used for authentication when connecting to the active directory
  1) ``` LDAP_PASSWORD ``` the password for the above user used for authentication when connecting to the active directory
+ 
+ 
+ ### Redis User Adapter
+ 
+ To use the redis user adapter you must specify the following adapter configuration
+ 
+ ``` 
+ "adapters":
+   [{
+     "id": "9af9f8a2-ceec-461f-8db4-ff37073903df",
+     "type": "redis",
+     "params": {
+       "redisurl": ""
+     }
+   ]
+ ```
+  
+ The redis url is the connection to your repository. Within this a collection called Users should be created with the following keys
+ 
+```
+[
+	{
+		"sub": "11d62132-6570-4e63-9dcb-137cc35e7543",
+		"email": "foo@example.com"
+	},
+	{
+		"sub": "a8e11610-eb2d-4ead-a199-b5acea3b8628",
+		"email": "test@tester.com"
+	}
+]
+```
+
+Then a corresponding User_[Sub] record should be created as shown
+
+```
+{
+	"sub": "11d62132-6570-4e63-9dcb-137cc35e7543",
+	"email": "foo@example.com",
+	"given_name": "Roger",
+	"family_name": "Johnson",
+	"password": "xxxx",
+	"salt": "zzzzzzz"
+}
+```
+
+In this instance the document would be called **User_11d62132-6570-4e63-9dcb-137cc35e7543**
  
  ### Available API methods
  

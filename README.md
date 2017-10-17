@@ -113,6 +113,18 @@ Then a corresponding User_[Sub] record should be created as shown
 
 In this instance the document would be called **User_11d62132-6570-4e63-9dcb-137cc35e7543**
  
+To use the password reset functionality the user codes configuration needs adding as shown
+
+```
+"userCodes" :{
+    "redisUrl" :"redis://localhost:6379",
+    "staticCode" : false
+  },
+```
+This will then store a code to be used for actions like password reset. If the staticCode param is set to true, then every code
+will return as ABC123. 
+ 
+ 
  ### Available API methods
  
 To determine which user adapter to use, a mapping must be created in config that looks like the below:
@@ -151,8 +163,47 @@ where the body should be
 ```
 {
     "username":"test@test.com",
-    "password":"Password1",
-    "sig":"123466"
+    "password":"Password1"
 }
 ```
-where sig is the signature that is validated with the request.
+
+For change password
+
+``` POST: /:directoryId/user/changepassword ```
+
+where the body should be
+
+```
+{
+    "uid": "123ASDFVCD",
+    "password": "my-new-password"
+}
+```
+
+Where uid is the users id, and password is the value you wish to change the users password to
+
+
+#### User codes API
+
+There is also an endpoint available for requesting and validating user codes
+
+``` PUT: /upsert  ```
+
+Where the body should be:
+
+```
+{
+    "uid": "123ASDFVCD"
+}
+```
+
+This will then return back a code in the body
+
+
+``` GET: /validate/:uid/:code  ```
+
+This will return true or false depending on whether the code is valid or not
+
+``` DELETE: /:uid  ```
+
+This will delete a code associated to the uid

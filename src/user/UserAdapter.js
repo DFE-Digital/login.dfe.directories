@@ -31,6 +31,9 @@ class UserAdapter {
     }
     return null;
   }
+  async changePassword(uid, newPassword){
+    return Promise.resolve(null);
+  }
 }
 
 module.exports = UserAdapter;

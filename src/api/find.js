@@ -2,10 +2,15 @@ const UserAdapter = require('../user');
 const config = require('../config');
 const logger = require('../logger');
 
-const findById = async (req, res) => {
+const find = async (req, res) => {
   const userAdapter = UserAdapter(config, req.params.directoryId);
   try {
-    const user = await userAdapter.find(req.params.id);
+    let user = await userAdapter.find(req.params.id);
+
+    if(!user){
+      user = await userAdapter.findByUsername(req.params.id);
+    }
+
     if (!user) {
       res.status(404).send();
     }
@@ -23,4 +28,4 @@ const findById = async (req, res) => {
   }
 };
 
-module.exports = findById;
+module.exports = find;

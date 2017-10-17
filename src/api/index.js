@@ -5,7 +5,7 @@ const apiAuth = require('login.dfe.api.auth');
 const config = require('./../config');
 const authenticate = require('./authenticate');
 const changePassword = require('./changePassword');
-const findById = require('./findById');
+const find = require('./find');
 
 const router = express.Router();
 
@@ -14,7 +14,7 @@ const routeExport = () => {
   router.use(apiAuth(router, config));
 
   // Map routed to functions.
-  router.get('/:directoryId/user/:id', findById);
+  router.get('/:directoryId/user/:id', find);
   router.post('/:directoryId/user/authenticate', authenticate);
   router.post('/:directoryId/user/:id/changepassword', changePassword);
 

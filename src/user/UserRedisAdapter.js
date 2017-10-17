@@ -5,15 +5,6 @@ const Redis = require('ioredis');
 const crypto = require('crypto');
 const generateSalt = require('./generateSalt');
 
-const find = async (id, client) => {
-  const result = await client.get(`User_${id}`);
-  if (!result) {
-    return null;
-  }
-  const user = JSON.parse(result);
-  return user || null;
-};
-
 const findByUsername = async (username, client) => {
   const result = await client.get('Users');
   if (!result) {
@@ -29,6 +20,20 @@ const findByUsername = async (username, client) => {
   const user = await find(userRef.sub, client);
   return user || null;
 };
+
+const find = async (id, client) => {
+  const result = await client.get(`User_${id}`);
+  if (!result) {
+    const userByUsername = findByUsername(id,client);
+    if(userByUsername){
+      return userByUsername
+    }
+    return null;
+  }
+  const user = JSON.parse(result);
+  return user || null;
+};
+
 
 const changePassword = async (uid, newPassword, client) => {
   const result = await client.get(`User_${uid}`);

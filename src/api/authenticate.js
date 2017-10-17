@@ -8,7 +8,6 @@ const authenticate = async (req, res) => {
     const result = await userAdapter.authenticate(
       req.body.username,
       req.body.password,
-      req.body.sig,
     );
 
     if (result) {

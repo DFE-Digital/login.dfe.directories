@@ -169,13 +169,12 @@ where the body should be
 
 For change password
 
-``` POST: /:directoryId/user/changepassword ```
+``` POST: /:directoryId/user/:id/changepassword ```
 
 where the body should be
 
 ```
 {
-    "uid": "123ASDFVCD",
     "password": "my-new-password"
 }
 ```

@@ -16,7 +16,7 @@ const routeExport = () => {
   // Map routed to functions.
   router.get('/:directoryId/user/:id', findById);
   router.post('/:directoryId/user/authenticate', authenticate);
-  router.post('/:directoryId/user/changepassword', changePassword);
+  router.post('/:directoryId/user/:id/changepassword', changePassword);
 
   return router;
 };

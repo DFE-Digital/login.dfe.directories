@@ -7,10 +7,6 @@ const find = async (req, res) => {
   try {
     let user = await userAdapter.find(req.params.id);
 
-    if(!user){
-      user = await userAdapter.findByUsername(req.params.id);
-    }
-
     if (!user) {
       res.status(404).send();
     }

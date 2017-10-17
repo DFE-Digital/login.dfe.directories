@@ -64,24 +64,27 @@ class UserRedisAdapter extends UserAdapter {
   async find(id) {
     try {
       return await find(id, this.client);
-    } catch(e) {
+    } catch (e) {
       this.client.disconnect();
+      throw (e);
     }
   }
 
   async findByUsername(username) {
     try {
       return await findByUsername(username, this.client);
-    } catch(e) {
+    } catch (e) {
       this.client.disconnect();
+      throw (e);
     }
   }
 
   async changePassword(uid, newPassword) {
     try {
       return await changePassword(uid, newPassword, this.client);
-    } catch(e) {
+    } catch (e) {
       this.client.disconnect();
+      throw (e);
     }
   }
 }

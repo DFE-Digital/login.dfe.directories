@@ -169,7 +169,7 @@ where the body should be
 
 For change password
 
-``` POST: /:directoryId/user/:uid/changepassword ```
+``` POST: /:directoryId/user/:id/changepassword ```
 
 where the body should be
 

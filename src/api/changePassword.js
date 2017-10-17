@@ -6,11 +6,11 @@ const changePassword = async (req, res) => {
   const userAdapter = UserAdapter(config, req.params.directoryId);
   try {
 
-    if(!req.params.uid || !req.body.password) {
+    if(!req.params.id || !req.body.password) {
       res.status(400).send()
     }
 
-    const user = await userAdapter.changePassword(req.params.uid, req.body.password);
+    const user = await userAdapter.changePassword(req.params.id, req.body.password);
     if (!user) {
       res.status(404).send();
     }

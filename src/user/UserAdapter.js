@@ -2,15 +2,8 @@
 
 const crypto = require('crypto');
 const { promisify } = require('util');
-const RequestVerification = require('login.dfe.request-verification');
-
-let requestVerification;
 
 class UserAdapter {
-  constructor() {
-    requestVerification = new RequestVerification();
-  }
-
   async find(id) {
     return Promise.resolve(null);
   }

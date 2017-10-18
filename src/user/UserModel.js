@@ -1,12 +1,11 @@
 class UserModel {
-
   get sub() {
     return this._sub;
   }
   set sub(value) {
     this._sub = value;
   }
-  
+
   get given_name() {
     return this._given_name;
   }
@@ -27,7 +26,6 @@ class UserModel {
   set email(value) {
     this._email = value;
   }
-  
 }
 
 module.exports = UserModel;

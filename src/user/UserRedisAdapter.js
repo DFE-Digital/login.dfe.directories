@@ -49,7 +49,6 @@ const changePassword = async (uid, newPassword, client) => {
   return !!client.set(`User_${uid}`, JSON.stringify(user));
 };
 
-
 class UserRedisAdapter extends UserAdapter {
   constructor(redisClient, config) {
     super();

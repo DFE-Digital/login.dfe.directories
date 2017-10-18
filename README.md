@@ -192,11 +192,13 @@ Where the body should be:
 
 ```
 {
-    "uid": "123ASDFVCD"
+    "uid": "123ASDFVCD",
+    "clientId": "client1"
 }
 ```
 
-This will then return back a code in the body
+This will then return back a code in the body. The client relates to the directory store for 
+the user and application they are accessing
 
 
 ``` GET: /validate/:uid/:code  ```

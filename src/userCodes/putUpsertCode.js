@@ -5,7 +5,7 @@ const redisUserCodeStorage = require('./redisUserCodeStorage');
 const put = async (req,res) => {
 
   try{
-    if(!req.body.uid) {
+    if(!req.body.uid || !req.body.clientId) {
       res.status(400).send();
       return;
     }
@@ -15,7 +15,7 @@ const put = async (req,res) => {
     const code = await storage.getUserPasswordResetCode(uid);
 
     if(!code){
-      storage.createUserPasswordResetCode(uid).then((codeResult)=>{
+      storage.createUserPasswordResetCode(uid, req.body.clientId).then((codeResult)=>{
         storage.close();
         res.send(codeResult);
         return;

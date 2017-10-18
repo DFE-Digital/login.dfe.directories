@@ -32,12 +32,20 @@ describe('When getting a user code', () => {
     res = httpMocks.createResponse();
     req = {
       body: {
-        uid: '7654321'
+        uid: '7654321',
+        clientId: 'client1'
       }
     };
   });
   it('then an empty response is returned if the uid is not passed and the status code set to bad request', async () => {
     req.body.uid = '';
+
+    await put(req, res);
+
+    expect(res.statusCode).to.equal(400);
+  });
+  it('then an empty response is returned if the client is not passed and the status code set to bad request', async () => {
+    req.body.clientId = '';
 
     await put(req, res);
 

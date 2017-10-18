@@ -39,7 +39,7 @@ class RedisUserCodeStorage {
     });
   }
 
-  async createUserPasswordResetCode(uid) {
+  async createUserPasswordResetCode(uid, clientId) {
     return new Promise((resolve) => {
       if(!uid){
         resolve(null);
@@ -47,7 +47,8 @@ class RedisUserCodeStorage {
       let code = config.userCodes.staticCode ? 'ABC123' : resetCode();
       let userResetCode = {
         uid : uid,
-        code : code
+        code : code,
+        clientId: clientId
       };
       const content = JSON.stringify(userResetCode)
 

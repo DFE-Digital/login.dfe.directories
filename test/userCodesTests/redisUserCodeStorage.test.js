@@ -38,7 +38,7 @@ describe('When using redis user code storage', () => {
       redis.disconnect = () => {};
       userStorage = new userCodeStorage(redis);
     });
-    it('then the uid is used to create the record',async () => {
+    it('then the uid is used to create the record and properties stored against the record',async () => {
       const redisStorage =  proxyquire('../../src/userCodes/redisUserCodeStorage', {
         './generateResetCode': () => {
           return 'ABC123';
@@ -52,10 +52,14 @@ describe('When using redis user code storage', () => {
       });
       const storage = new redisStorage(redis);
 
-      await storage.createUserPasswordResetCode('321');
+      await storage.createUserPasswordResetCode('321','client1');
       const record = await redis.get('UserResetCode_321');
 
       expect(record).to.not.equal(null);
+      const resetCode = JSON.parse(record);
+      expect(resetCode.clientId).to.equal('client1');
+      expect(resetCode.uid).to.equal('321');
+      expect(resetCode.code).to.equal('ABC123');
     });
     it('then if the uid is not supplied then a record is not created',async () => {
       const actual = await userStorage.createUserPasswordResetCode();

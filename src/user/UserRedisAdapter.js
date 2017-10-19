@@ -27,7 +27,7 @@ const findByUsername = async (username, client) => {
     return null;
   }
 
-  const userRef = users.find(async item => await item.email === username);
+  const userRef = users.find(item => item.email === username);
   const user = await find(userRef.sub, client);
   return user || null;
 };

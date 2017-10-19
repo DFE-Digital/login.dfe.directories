@@ -5,8 +5,8 @@ const UserFileAdapter = require('./UserFileAdapter');
 const UserAzureActiveDirectoryAdapter = require('./UserAzureActiveDirectoryAdapter');
 
 
-const getUserAdapter = (config, direcotryId) => {
-  const userAdapterType = config.adapters.find(id => id.id === direcotryId);
+const getUserAdapter = (config) => {
+  const userAdapterType = config.adapter;
   if (userAdapterType === null || userAdapterType === undefined) {
     return null;
   }

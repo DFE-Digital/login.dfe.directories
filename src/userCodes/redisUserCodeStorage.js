@@ -1,72 +1,72 @@
 'use strict'
 
-const redis = require('ioredis');
+const Redis = require('ioredis');
 const config = require('./../config');
 const resetCode = require('./generateResetCode');
-let client;
+
+const find = async (uid, client) => {
+  const result = await client.get(`UserResetCode_${uid}`);
+  if (!result) {
+    return null;
+  }
+  const userCode = JSON.parse(result);
+  return userCode || null;
+};
+
+const createCode = async (uid, clientId, client) => {
+  if(!uid || !clientId){
+    return(null);
+  }
+  let code = config.userCodes.staticCode ? 'ABC123' : resetCode();
+  let userResetCode = {
+    uid : uid,
+    code : code,
+    clientId: clientId
+  };
+  const content = JSON.stringify(userResetCode)
+
+  await client.set(`UserResetCode_${uid}`,content);
+  return userResetCode;
+};
+
+const deleteCode = async (uid, client) => {
+  if(!uid){
+    return null;
+  }
+  await client.del(`UserResetCode_${uid}`);
+}
 
 class RedisUserCodeStorage {
-  constructor(redisClient){
-    if(!redisClient){
-      client = new redis(config.userCodes.redisUrl);
-    } else{
-      client = redisClient;
-    }
-  }
-
-  close() {
-    try{
-      client.disconnect();
-    }catch(e){
-      console.log(e)
+  constructor(redisClient) {
+    if (redisClient === null || redisClient === undefined) {
+      this.client = new Redis(config.userCodes.redisUrl);
+    } else {
+      this.client = redisClient;
     }
   }
 
   async getUserPasswordResetCode(uid) {
-    return new Promise((resolve) => {
-      client.get(`UserResetCode_${uid}`).then((result) => {
-        if(!result){
-          resolve(null);
-        }
-
-        const userCode = JSON.parse(result);
-        if (userCode === null || userCode === undefined) {
-          resolve(null);
-        } else {
-          resolve(userCode === undefined ? null : userCode);
-        }
-      });
-    });
+    try {
+      return await find(uid,this.client);
+    } catch(e) {
+      this.client.disconnect();
+    }
   }
 
-  async createUserPasswordResetCode(uid) {
-    return new Promise((resolve) => {
-      if(!uid){
-        resolve(null);
-      }
-      let code = config.userCodes.staticCode ? 'ABC123' : resetCode();
-      let userResetCode = {
-        uid : uid,
-        code : code
-      };
-      const content = JSON.stringify(userResetCode)
-
-      client.set(`UserResetCode_${uid}`,content).then(() => {
-        resolve(userResetCode)
-      });
-    });
+  async createUserPasswordResetCode(uid, clientId) {
+    try {
+      return await createCode(uid,clientId, this.client);
+    } catch(e){
+      this.client.disconnect();
+    }
   }
 
   async deleteUserPasswordResetCode(uid) {
-    return new Promise((resolve)=>{
-      if(!uid){
-        resolve(null);
-      }
-      client.del(`UserResetCode_${uid}`).then(()=>{
-        this.close();
-        resolve();
-      });
-    });
+    try {
+      return await deleteCode(uid, this.client);
+    } catch(e) {
+      this.client.disconnect();
+    }
   }
 }
 module.exports = RedisUserCodeStorage;

@@ -2,22 +2,21 @@ const UserAdapter = require('./UserAdapter');
 const ActiveDirectory = require('activedirectory');
 const UserModel = require('./UserModel');
 
-let activeDirectory;
 
 class UserAzureActiveDirectoryAdapter extends UserAdapter {
   constructor(config) {
     super();
-    activeDirectory = new ActiveDirectory(config);
+    this.activeDirectory = new ActiveDirectory(config);
   }
 
   async find(id) {
     return new Promise((resolve, reject) => {
-      activeDirectory.findUser(undefined, id, (err, user) => {
+      this.activeDirectory.findUser(undefined, id, (err, user) => {
         if (err) {
           return reject(err);
         }
 
-        var userModel = new UserModel();
+        const userModel = new UserModel();
         userModel.sub = user.dn;
         userModel.given_name = user.givenName;
         userModel.family_name = user.sn;
@@ -28,12 +27,12 @@ class UserAzureActiveDirectoryAdapter extends UserAdapter {
   }
   async findByUsername(username) {
     return new Promise((resolve, reject) => {
-      activeDirectory.findUser(undefined, username, (err, user) => {
+      this.activeDirectory.findUser(undefined, username, (err, user) => {
         if (err) {
           return reject(err);
         }
 
-        var userModel = new UserModel();
+        const userModel = new UserModel();
         userModel.sub = user.dn;
         userModel.given_name = user.givenName;
         userModel.family_name = user.sn;
@@ -45,7 +44,7 @@ class UserAzureActiveDirectoryAdapter extends UserAdapter {
 
   authenticate(username, password) {
     return new Promise((resolve, reject) => {
-      activeDirectory.authenticate(username, password, (err, result) => {
+      this.activeDirectory.authenticate(username, password, (err, result) => {
         if (err) {
           return reject(err);
         }
@@ -61,8 +60,7 @@ class UserAzureActiveDirectoryAdapter extends UserAdapter {
             reject(err1);
           });
       });
-    })
-
+    });
   }
 }
 

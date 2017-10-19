@@ -5,6 +5,8 @@ const Redis = require('ioredis');
 const crypto = require('crypto');
 const generateSalt = require('./generateSalt');
 
+let redisCclient;
+
 const find = async (id, client) => {
   const result = await client.get(`User_${id}`);
   if (!result) {
@@ -49,39 +51,43 @@ const changePassword = async (uid, newPassword, client) => {
   return !!client.set(`User_${uid}`, JSON.stringify(user));
 };
 
-
 class UserRedisAdapter extends UserAdapter {
-  constructor(redisClient, config) {
+  constructor(client, config) {
     super();
-    this.configuration = config;
-    if (redisClient === null || redisClient === undefined) {
-      this.client = new Redis(this.configuration.redisurl);
+
+    if (!client) {
+      if (!redisCclient) {
+        redisCclient = new Redis(config.redisurl);
+      }
     } else {
-      this.client = redisClient;
+      redisCclient = client;
     }
   }
 
   async find(id) {
     try {
-      return await find(id, this.client);
-    } catch(e) {
+      return await find(id, redisCclient);
+    } catch (e) {
       this.client.disconnect();
+      throw (e);
     }
   }
 
   async findByUsername(username) {
     try {
-      return await findByUsername(username, this.client);
-    } catch(e) {
+      return await findByUsername(username, redisCclient);
+    } catch (e) {
       this.client.disconnect();
+      throw (e);
     }
   }
 
   async changePassword(uid, newPassword) {
     try {
-      return await changePassword(uid, newPassword, this.client);
-    } catch(e) {
+      return await changePassword(uid, newPassword, redisCclient);
+    } catch (e) {
       this.client.disconnect();
+      throw (e);
     }
   }
 }

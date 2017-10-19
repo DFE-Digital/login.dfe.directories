@@ -21,24 +21,19 @@ Run
 npm run dev
 ```
 
-## Request Verification
-
-The directories API uses request verification and must share the public key from where the request was made. The 
-environment variable ```REQUEST_VERIFICATION_CERT_LOCATION ``` must be set to use any adapter. This is the relative path to the certificate.
-
 ## Mongo User Adapter
 
 To use the mongo user adapter you must specify an adapter configuration with mongo connection as shown below:
 
 ``` 
-"adapters":
-  [{
+"adapter":
+  {
     "id": "ff080eff-b525-4215-a11f-f5b37eefad45",
     "type": "mongo",
     "params": {
       "mongoConnection": ""
     }
-  ]
+  
 ```
  
  
@@ -73,14 +68,14 @@ To use the azure active directory adapter you must specify:
  To use the redis user adapter you must specify the following adapter configuration
  
  ``` 
- "adapters":
-   [{
+ "adapter":
+   {
      "id": "9af9f8a2-ceec-461f-8db4-ff37073903df",
      "type": "redis",
      "params": {
        "redisurl": ""
      }
-   ]
+   
  ```
   
  The redis url is the connection to your repository. Within this a collection called Users should be created with the following keys
@@ -127,23 +122,50 @@ will return as ABC123.
  
  ### Available API methods
  
-To determine which user adapter to use, a mapping must be created in config that looks like the below:
+To determine which user adapter to use, an adapter type must be added of one of the following supported types:
+
+1) file - *uses users.json in app_data*
+2) mongo
+3) redis
+4) azure
+
+This can then be in the following format for each type
 
 ```
-adapters:
-    [{
-      id: 'test1',
-      type: 'file'
-    },{
-      id: 'test2',
-      type: 'mongo'
-    },{
-      id: 'test3',
-      type: 'redis'
-    },{
-      id: 'test4',
-      type: 'azuread'
-    }],
+adapter: {
+  type: 'file'
+},
+```
+
+
+```
+adapter: {
+  "type": "mongo",
+  "params": {
+    "mongoConnection": ""
+  }
+}
+```
+
+```
+adapter: {
+   "type": "azuread",
+   "params": {
+     "url": "",
+     "baseDN": "",
+     "username": "",
+     "password": ""
+   }
+ },
+
+```
+
+```
+adapter: {
+    "type": "redis",
+    "params": {
+      "redisurl": "redis://127.0.0.1:6379/0"
+}
 ```
 
 the api calls then follow the pattern of:

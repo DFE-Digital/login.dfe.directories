@@ -4,10 +4,12 @@ const httpMocks = require('node-mocks-http');
 const proxyquire = require('proxyquire');
 
 describe('When getting a user code', () => {
+  const expectedEmailAddress = 'test@unit.local';
   let req;
   let res;
   let getResponse = null;
   let createResponse = {uid:'7654321',code:'ABC123'}
+  let emailObject;
 
   class storageMock  {
     constructor(){
@@ -28,11 +30,35 @@ describe('When getting a user code', () => {
     }
   }
 
+  const userMock = {
+    async find() {
+      return {
+        email: expectedEmailAddress
+      };
+    }
+  };
+
+  class notificationMock {
+    constructor() {
+
+    }
+    async sendPasswordReset(email, code){
+      emailObject = {
+        email,
+        code
+      };
+    }
+  }
+
+
+
   beforeEach(() => {
+    getResponse = null;
     res = httpMocks.createResponse();
     req = {
       body: {
-        uid: '7654321'
+        uid: '7654321',
+        clientId: 'client1'
       }
     };
   });
@@ -43,9 +69,26 @@ describe('When getting a user code', () => {
 
     expect(res.statusCode).to.equal(400);
   });
+  it('then an empty response is returned if the client is not passed and the status code set to bad request', async () => {
+    req.body.clientId = '';
+
+    await put(req, res);
+
+    expect(res.statusCode).to.equal(400);
+  });
   it('then a code is generated if the uid is supplied', async () => {
 
-    const putNew = proxyquire('./../../src/userCodes/putUpsertCode', {'./redisUserCodeStorage': storageMock});
+    const putNew = proxyquire('./../../src/userCodes/putUpsertCode', {
+      './redisUserCodeStorage': storageMock,
+      'login.dfe.notifications.client':notificationMock,
+      './../user':userMock,
+      './../config':
+        {
+          notifications:{
+            connectionString:''
+          }
+        },
+    });
 
     await putNew(req, res);
 
@@ -56,7 +99,17 @@ describe('When getting a user code', () => {
 
     getResponse = {uid:'7654321',code:'ZXY789'};
 
-    const putNew = proxyquire('./../../src/userCodes/putUpsertCode', {'./redisUserCodeStorage': storageMock});
+    const putNew = proxyquire('./../../src/userCodes/putUpsertCode', {
+      './redisUserCodeStorage': storageMock,
+      'login.dfe.notifications.client':notificationMock,
+      './../user':userMock,
+      './../config':
+        {
+          notifications:{
+            connectionString:''
+          }
+        },
+    });
 
     await putNew(req, res);
 
@@ -64,5 +117,23 @@ describe('When getting a user code', () => {
     expect(res._getData().uid).to.deep.equal('7654321');
 
 
+  });
+  it('then an email is sent with the code', async () => {
+    const putNew = proxyquire('./../../src/userCodes/putUpsertCode', {
+      './redisUserCodeStorage': storageMock,
+      'login.dfe.notifications.client':notificationMock,
+      './../user':userMock,
+      './../config':
+        {
+          notifications:{
+            connectionString:''
+          }
+        },
+    });
+
+    await putNew(req, res);
+
+    expect(emailObject.code).to.equal('ABC123')
+    expect(emailObject.email).to.equal(expectedEmailAddress);
   });
 });

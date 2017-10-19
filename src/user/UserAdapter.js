@@ -4,7 +4,6 @@ const crypto = require('crypto');
 const { promisify } = require('util');
 
 class UserAdapter {
-
   async find(id) {
     return Promise.resolve(null);
   }

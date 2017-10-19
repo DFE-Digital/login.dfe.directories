@@ -81,7 +81,7 @@ describe('When using redis user code storage', () => {
       });
       const storage = new redisStorage(redis);
 
-      const actual = await storage.createUserPasswordResetCode('321');
+      const actual = await storage.createUserPasswordResetCode('321','client1');
 
       expect(actual.code).to.equal('ABC123');
     });
@@ -97,7 +97,7 @@ describe('When using redis user code storage', () => {
 
       const storage = new redisStorage(redis);
 
-      const actual = await storage.createUserPasswordResetCode('321');
+      const actual = await storage.createUserPasswordResetCode('321', 'client1');
 
       expect(actual.code).to.equal('ABC123');
     });

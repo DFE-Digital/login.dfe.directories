@@ -1,9 +1,9 @@
-const UserAdapter = require('../adapter/index');
-const config = require('../../config/index');
-const logger = require('../../logger/index');
+const UserAdapter = require('./../adapter');
+const config = require('./../../../infrastructure/config')();
+const logger = require('./../../../infrastructure/logger');
 
 const authenticate = async (req, res) => {
-  const userAdapter = UserAdapter(config, req.params.directoryId);
+  const userAdapter = UserAdapter(config);
   try {
     const result = await userAdapter.authenticate(
       req.body.username,

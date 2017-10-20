@@ -1,8 +1,8 @@
 'use strict'
 
 const Redis = require('ioredis');
-const config = require('./../config');
-const resetCode = require('./generateResetCode');
+const config = require('./../../../infrastructure/config')();
+const resetCode = require('./../utils/generateResetCode');
 const staticUserCode = 'ABC123';
 
 const find = async (uid, client) => {

@@ -1,6 +1,6 @@
 'use strict';
-const logger = require('../logger');
-const redisUserCodeStorage = require('./redisUserCodeStorage');
+const logger = require('./../../../infrastructure/logger');
+const redisUserCodeStorage = require('./../data/redisUserCodeStorage');
 
 const validate = async (req,res) => {
   try{

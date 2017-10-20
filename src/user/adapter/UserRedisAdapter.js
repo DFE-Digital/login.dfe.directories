@@ -3,7 +3,7 @@
 const UserAdapter = require('./UserAdapter');
 const Redis = require('ioredis');
 const crypto = require('crypto');
-const generateSalt = require('./generateSalt');
+const generateSalt = require('../utils/generateSalt');
 
 let redisCclient;
 

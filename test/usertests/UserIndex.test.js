@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 const proxyquire = require('proxyquire');
-const UserIndex = require('../../src/user/index');
-const UserRedisAdapter = require('../../src/user/UserRedisAdapter');
+const UserIndex = require('../../src/user/adapter/index');
+const UserRedisAdapter = require('../../src/user/adapter/UserRedisAdapter');
 
 
 describe('When constructing the User index', () => {

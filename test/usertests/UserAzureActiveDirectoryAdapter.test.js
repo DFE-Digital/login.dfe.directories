@@ -24,7 +24,7 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
           }
         };
       };
-      const UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub});
+      const UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/adapter/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub});
 
       const adapter = new UserAzureActiveDirectoryAdapter(configStub);
       const actual = await adapter.find(expectedUserName);
@@ -62,7 +62,7 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
         }
       };
 
-      const UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {
+      const UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/adapter/UserAzureActiveDirectoryAdapter', {
         'activedirectory': activeDirectoryStub,
         'login.dfe.request-verification': requestVerificationStub
       });
@@ -108,7 +108,7 @@ describe('When using the UserAzureActiveDirectoryAdapter', () => {
       }
     };
 
-    var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub});
+    var UserAzureActiveDirectoryAdapter = proxyquire('../../src/user/adapter/UserAzureActiveDirectoryAdapter', {'activedirectory': activeDirectoryStub});
 
     new UserAzureActiveDirectoryAdapter(configStub);
 

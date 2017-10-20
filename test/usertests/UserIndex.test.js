@@ -21,7 +21,7 @@ describe('When constructing the User index', () => {
     const assertStub = function () {
       return true;
     };
-    const userIndex = proxyquire('../../src/user/index', {'assert': assertStub});
+    const userIndex = proxyquire('../../src/user/adapter/index', {'assert': assertStub});
 
     expect(userIndex(configStub)).to.be.an.instanceOf(UserRedisAdapter);
   });
@@ -38,7 +38,7 @@ describe('When constructing the User index', () => {
       }
     };
     configStub.adapter.params.redisurl = '';
-    const userIndex = proxyquire('../../src/user/index', {'assert': assertStub});
+    const userIndex = proxyquire('../../src/user/adapter/index', {'assert': assertStub});
 
     userIndex(configStub);
 

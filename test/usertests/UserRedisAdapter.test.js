@@ -31,13 +31,21 @@ describe('When using redis storage service', () => {
       expect(actual).to.equal(null);
     });
     it('then the json is parsed and returned', async () => {
-      redis.set('Users', '[{"sub": "12345", "email":"test3@localuser.com"}]');
+      redis.set('Users', '[{"sub": "54321", "email":"test4@localuser.com"},{"sub": "12345", "email":"test3@localuser.com"}]');
       redis.set('User_12345', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
 
       const actual = await userStorage.findByUsername('test3@localuser.com');
 
       expect(actual).to.not.equal(null);
       expect(actual.first_name).to.equal('Tester');
+    });
+    it('then if the user is not found then null is returned', async () => {
+      redis.set('Users', '[{"sub": "54321", "email":"test4@localuser.com"},{"sub": "12345", "email":"test3@localuser.com"}]');
+      redis.set('User_12345', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
+
+      const actual = await userStorage.findByUsername('test4@localuser.com');
+
+      expect(actual).to.equal(null);
     });
   });
   describe('then when I call change password', () => {

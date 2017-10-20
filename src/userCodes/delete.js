@@ -1,5 +1,5 @@
 'use strict';
-const redisUserCodeStorage = require('./redisUserCodeStorage');
+const RedisUserCodeStorage = require('./redisUserCodeStorage');
 const logger = require('../logger');
 
 const deleteCode = async (req,res) => {
@@ -9,7 +9,7 @@ const deleteCode = async (req,res) => {
       return;
     }
     const uid = req.params.uid;
-    const storage = new redisUserCodeStorage();
+    const storage = new RedisUserCodeStorage();
 
     const code = await storage.deleteUserPasswordResetCode(uid);
     res.status(200).send(code);

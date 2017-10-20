@@ -1,9 +1,9 @@
-const UserAdapter = require('../adapter/index');
-const config = require('../../config/index');
-const logger = require('../../logger/index');
+const UserAdapter = require('./../adapter');
+const config = require('./../../../infrastructure/config')();
+const logger = require('./../../../infrastructure/logger');
 
 const changePassword = async (req, res) => {
-  const userAdapter = UserAdapter(config, req.params.directoryId);
+  const userAdapter = UserAdapter(config);
   try {
 
     if(!req.params.id || !req.body.password) {

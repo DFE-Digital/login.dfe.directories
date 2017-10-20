@@ -1,9 +1,9 @@
 'use strict';
-const logger = require('../logger');
-const redisUserCodeStorage = require('./redisUserCodeStorage');
+const logger = require('./../../../infrastructure/logger');
+const redisUserCodeStorage = require('./../data/redisUserCodeStorage');
 const NotificatonClient = require('login.dfe.notifications.client');
-const userAdapter = require('./../user/adapter');
-const config = require('./../config');
+const userAdapter = require('./../../user/adapter');
+const config = require('./../../../infrastructure/config')();
 
 const put = async (req,res) => {
 

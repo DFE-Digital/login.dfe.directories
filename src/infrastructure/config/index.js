@@ -42,4 +42,4 @@ const fetchConfig = () => {
   return null;
 };
 
-module.exports = fetchConfig();
+module.exports = fetchConfig;

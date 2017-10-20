@@ -2,11 +2,11 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const api = require('./user/api');
-const config = require('./config');
-const logger = require('./logger');
+const api = require('./app/user/api');
+const config = require('./infrastructure/config')();
+const logger = require('./infrastructure/logger');
 const https = require('https');
-const userCodes = require('./userCodes');
+const userCodes = require('./app/userCodes/api');
 
 const app = express();
 

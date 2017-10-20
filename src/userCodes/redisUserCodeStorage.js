@@ -3,6 +3,7 @@
 const Redis = require('ioredis');
 const config = require('./../config');
 const resetCode = require('./generateResetCode');
+const staticUserCode = 'ABC123';
 
 const find = async (uid, client) => {
   const result = await client.get(`UserResetCode_${uid}`);
@@ -17,7 +18,8 @@ const createCode = async (uid, clientId, client) => {
   if(!uid || !clientId){
     return(null);
   }
-  let code = config.userCodes.staticCode ? 'ABC123' : resetCode();
+
+  let code = config.userCodes.staticCode ? staticUserCode : resetCode();
   let userResetCode = {
     uid : uid,
     code : code,

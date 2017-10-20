@@ -5,7 +5,7 @@ const Redis = require('ioredis');
 const crypto = require('crypto');
 const generateSalt = require('./../utils/generateSalt');
 
-let redisCclient;
+let redisClient;
 
 const find = async (id, client) => {
   const result = await client.get(`User_${id}`);
@@ -61,17 +61,17 @@ class UserRedisAdapter extends UserAdapter {
     super();
 
     if (!client) {
-      if (!redisCclient) {
-        redisCclient = new Redis(config.redisurl);
+      if (!redisClient) {
+        redisClient = new Redis(config.redisurl);
       }
     } else {
-      redisCclient = client;
+      redisClient = client;
     }
   }
 
   async find(id) {
     try {
-      return await find(id, redisCclient);
+      return await find(id, redisClient);
     } catch (e) {
       this.client.disconnect();
       throw (e);
@@ -80,7 +80,7 @@ class UserRedisAdapter extends UserAdapter {
 
   async findByUsername(username) {
     try {
-      return await findByUsername(username, redisCclient);
+      return await findByUsername(username, redisClient);
     } catch (e) {
       this.client.disconnect();
       throw (e);
@@ -89,7 +89,7 @@ class UserRedisAdapter extends UserAdapter {
 
   async changePassword(uid, newPassword) {
     try {
-      return await changePassword(uid, newPassword, redisCclient);
+      return await changePassword(uid, newPassword, redisClient);
     } catch (e) {
       this.client.disconnect();
       throw (e);

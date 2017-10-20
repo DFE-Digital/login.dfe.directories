@@ -2,7 +2,7 @@
 const logger = require('../logger');
 const redisUserCodeStorage = require('./redisUserCodeStorage');
 const NotificatonClient = require('login.dfe.notifications.client');
-const userAdapter = require('./../user');
+const userAdapter = require('../user/adapter/index');
 const config = require('./../config');
 
 const put = async (req,res) => {

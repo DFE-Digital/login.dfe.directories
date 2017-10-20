@@ -1,6 +1,6 @@
-const UserAdapter = require('../user');
-const config = require('../config');
-const logger = require('../logger');
+const UserAdapter = require('../adapter/index');
+const config = require('../../config/index');
+const logger = require('../../logger/index');
 
 const authenticate = async (req, res) => {
   const userAdapter = UserAdapter(config, req.params.directoryId);

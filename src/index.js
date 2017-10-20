@@ -2,7 +2,7 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const api = require('./api');
+const api = require('./user/api');
 const config = require('./config');
 const logger = require('./logger');
 const https = require('https');

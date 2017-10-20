@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 const RedisMock = require('ioredis-mock').default;
-const UserStorage = require('../../src/user/UserRedisAdapter');
+const UserStorage = require('../../src/user/adapter/UserRedisAdapter');
 const proxyquire = require('proxyquire');
 const { promisify } = require('util');
 const crypto = require('crypto');

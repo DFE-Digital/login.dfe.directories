@@ -73,7 +73,6 @@ class UserRedisAdapter extends UserAdapter {
     try {
       return await find(id, redisCclient);
     } catch (e) {
-      this.client.disconnect();
       throw (e);
     }
   }
@@ -82,7 +81,6 @@ class UserRedisAdapter extends UserAdapter {
     try {
       return await findByUsername(username, redisCclient);
     } catch (e) {
-      this.client.disconnect();
       throw (e);
     }
   }
@@ -91,7 +89,6 @@ class UserRedisAdapter extends UserAdapter {
     try {
       return await changePassword(uid, newPassword, redisCclient);
     } catch (e) {
-      this.client.disconnect();
       throw (e);
     }
   }

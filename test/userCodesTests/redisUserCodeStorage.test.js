@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 const RedisMock = require('ioredis-mock').default;
-const userCodeStorage = require('../../src/userCodes/redisUserCodeStorage');
+const userCodeStorage = require('../../src/app/userCodes/data/redisUserCodeStorage');
 const proxyquire = require('proxyquire');
 
 describe('When using redis user code storage', () => {

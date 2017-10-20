@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const put = require('./../../src/userCodes/putUpsertCode');
+const put = require('../../src/app/userCodes/api/putUpsertCode');
 const httpMocks = require('node-mocks-http');
 const proxyquire = require('proxyquire');
 

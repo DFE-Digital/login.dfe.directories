@@ -1,5 +1,5 @@
 const expect = require('chai').expect;
-const deleteUserCode = require('./../../src/userCodes/delete');
+const deleteUserCode = require('../../src/app/userCodes/api/delete');
 const httpMocks = require('node-mocks-http');
 const proxyquire = require('proxyquire');
 

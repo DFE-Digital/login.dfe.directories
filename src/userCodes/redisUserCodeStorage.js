@@ -42,7 +42,7 @@ class RedisUserCodeStorage {
   constructor(client) {
     if (!client) {
       if (!redisClient) {
-        redisClient = new Redis(config.redisurl);
+        redisClient = new Redis(config.adapter.params.redisurl);
       }
     } else {
       redisClient = client;
@@ -74,3 +74,6 @@ class RedisUserCodeStorage {
   }
 }
 module.exports = RedisUserCodeStorage;
+
+
+

@@ -81,7 +81,7 @@ describe('When getting a user code', () => {
     const putNew = proxyquire('./../../src/userCodes/putUpsertCode', {
       './redisUserCodeStorage': storageMock,
       'login.dfe.notifications.client':notificationMock,
-      './../user':userMock,
+      './../user/adapter':userMock,
       './../config':
         {
           notifications:{
@@ -102,7 +102,7 @@ describe('When getting a user code', () => {
     const putNew = proxyquire('./../../src/userCodes/putUpsertCode', {
       './redisUserCodeStorage': storageMock,
       'login.dfe.notifications.client':notificationMock,
-      './../user':userMock,
+      './../user/adapter':userMock,
       './../config':
         {
           notifications:{
@@ -122,7 +122,7 @@ describe('When getting a user code', () => {
     const putNew = proxyquire('./../../src/userCodes/putUpsertCode', {
       './redisUserCodeStorage': storageMock,
       'login.dfe.notifications.client':notificationMock,
-      './../user':userMock,
+      './../user/adapter':userMock,
       './../config':
         {
           notifications:{

@@ -17,7 +17,7 @@ describe('When using the UsersFileAdapter', () => {
       readFileCallbackInvoker = (callback) => {
         callback(null, users);
       };
-      const UserFileAdapter = proxyquire('../../src/user/UserFileAdapter', {
+      const UserFileAdapter = proxyquire('../../src/user/adapter/UserFileAdapter', {
         'fs': {
           readFile: function(path, opts, callback) {
             readFilePath = path;

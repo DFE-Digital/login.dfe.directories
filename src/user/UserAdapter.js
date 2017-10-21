@@ -14,6 +14,7 @@ class UserAdapter {
   async authenticate(username, password) {
     const user = await this.findByUsername(username);
 
+    if (!user) return null;
     const request = promisify(crypto.pbkdf2);
 
     const saltBuffer = Buffer.from(user.salt, 'utf8');

@@ -1,36 +1,36 @@
 'use strict';
+
 const logger = require('./../../../infrastructure/logger');
-const redisUserCodeStorage = require('./../data/redisUserCodeStorage');
+const RedisUserCodeStorage = require('./../data/redisUserCodeStorage');
 const NotificatonClient = require('login.dfe.notifications.client');
 const userAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config')();
 
-const put = async (req,res) => {
-
-  try{
-    if(!req.body.uid || !req.body.clientId) {
+const put = async (req, res) => {
+  try {
+    if (!req.body.uid || !req.body.clientId) {
       res.status(400).send();
       return;
     }
     const uid = req.body.uid;
-    const storage = new redisUserCodeStorage();
+    const storage = new RedisUserCodeStorage();
 
     let code = await storage.getUserPasswordResetCode(uid);
 
-    if(!code){
+    if (!code) {
       code = await storage.createUserPasswordResetCode(uid, req.body.clientId);
     }
 
     const client = new NotificatonClient({
-      connectionString: config.notifications.connectionString
+      connectionString: config.notifications.connectionString,
     });
 
     const user = await userAdapter.find(uid);
 
-    await client.sendPasswordReset(user.email, code.code)
+    await client.sendPasswordReset(user.email, code.code);
 
     res.send(code);
-  }catch (e) {
+  } catch (e) {
     logger.error(e);
     res.status(500).send(e);
   }

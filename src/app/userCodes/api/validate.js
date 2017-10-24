@@ -11,19 +11,19 @@ const validate = async (req,res) => {
     const uid = req.params.uid;
     const storage = new redisUserCodeStorage();
 
-    storage.getUserPasswordResetCode(uid).then((code) => {
-      storage.close();
-      if(code === null || code === undefined){
-        res.status(404).send();
-        return;
-      }
+    var code = await storage.getUserPasswordResetCode(uid);
 
-      if(code.code === req.params.code) {
-        res.status(200).send(code);
-        return;
-      }
+    if(code === null || code === undefined){
       res.status(404).send();
-    });
+      return;
+    }
+
+    if(code.code === req.params.code) {
+      res.status(200).send(code);
+      return;
+    }
+    res.status(404).send();
+
   } catch (e) {
     logger.error(e);
     res.status(500).send(e);

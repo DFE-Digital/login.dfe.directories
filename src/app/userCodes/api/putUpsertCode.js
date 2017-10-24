@@ -19,7 +19,6 @@ const put = async (req,res) => {
 
     if(!code){
       code = await storage.createUserPasswordResetCode(uid, req.body.clientId);
-      storage.close();
     }
 
     const client = new NotificatonClient({

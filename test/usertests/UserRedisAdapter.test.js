@@ -1,7 +1,5 @@
-const expect = require('chai').expect;
 const RedisMock = require('ioredis-mock').default;
-const UserStorage = require('../../src/user/adapter/UserRedisAdapter');
-const proxyquire = require('proxyquire');
+const UserStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
 const { promisify } = require('util');
 const crypto = require('crypto');
 
@@ -22,13 +20,13 @@ describe('When using redis storage service', () => {
 
       const actual = await userStorage.findByUsername('test@localuser.com');
 
-      expect(actual).to.not.equal(undefined);
-      expect(JSON.stringify(actual)).to.equal('{"sub":"test@localuser.com"}');
+      expect(actual).not.toBe(undefined);
+      expect(JSON.stringify(actual)).toBe('{"sub":"test@localuser.com"}');
     });
     it('then null is returned if there is no data', async () => {
       const actual = await userStorage.findByUsername('test@localuser.com');
 
-      expect(actual).to.equal(null);
+      expect(actual).toBe(null);
     });
     it('then the json is parsed and returned', async () => {
       redis.set('Users', '[{"sub": "54321", "email":"test4@localuser.com"},{"sub": "12345", "email":"test3@localuser.com"}]');
@@ -36,8 +34,8 @@ describe('When using redis storage service', () => {
 
       const actual = await userStorage.findByUsername('test3@localuser.com');
 
-      expect(actual).to.not.equal(null);
-      expect(actual.first_name).to.equal('Tester');
+      expect(actual).not.toBe(null);
+      expect(actual.first_name).toBe('Tester');
     });
     it('then if the user is not found then null is returned', async () => {
       redis.set('Users', '[{"sub": "54321", "email":"test4@localuser.com"},{"sub": "12345", "email":"test3@localuser.com"}]');
@@ -45,7 +43,7 @@ describe('When using redis storage service', () => {
 
       const actual = await userStorage.findByUsername('test4@localuser.com');
 
-      expect(actual).to.equal(null);
+      expect(actual).toBe(null);
     });
   });
   describe('then when I call change password', () => {
@@ -62,20 +60,20 @@ describe('When using redis storage service', () => {
 
       const actual = await userStorage.changePassword('test@localuser.com', 'my-new-password');
 
-      expect(actual).to.equal(false);
+      expect(actual).toBe(false);
     });
     it('if the user exists the record is updated', async () => {
       redis.set('User_test3@localuser.com', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing", "salt":"123456768"}');
 
       const actual = await userStorage.changePassword('test3@localuser.com', 'my-new-password');
 
-      expect(actual).to.equal(true);
+      expect(actual).toBe(true);
       const findResult = await userStorage.find('test3@localuser.com');
-      expect(findResult).to.not.equal(null);
+      expect(findResult).not.toBe(null);
       const request = promisify(crypto.pbkdf2);
       const saltBuffer = Buffer.from(findResult.salt, 'utf8');
       const derivedKey = await request('my-new-password', saltBuffer, 10000, 512, 'sha512');
-      expect(findResult.password).to.equal(derivedKey.toString('base64'));
+      expect(findResult.password).toBe(derivedKey.toString('base64'));
     });
   });
 });

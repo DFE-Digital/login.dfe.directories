@@ -3,7 +3,7 @@
 const logger = require('./../../../infrastructure/logger');
 const RedisUserCodeStorage = require('./../data/redisUserCodeStorage');
 const NotificatonClient = require('login.dfe.notifications.client');
-const userAdapter = require('./../../user/adapter');
+const UserAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config')();
 
 const put = async (req, res) => {
@@ -25,7 +25,7 @@ const put = async (req, res) => {
       connectionString: config.notifications.connectionString,
     });
 
-    const user = await userAdapter.find(uid);
+    const user = await UserAdapter(config).find(uid);
 
     await client.sendPasswordReset(user.email, code.code);
 

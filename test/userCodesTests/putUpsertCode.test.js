@@ -83,7 +83,9 @@ describe('When getting a user code', () => {
     expect(res.statusCode).toBe(400);
   });
   it('then a code is generated if the uid is supplied', async () => {
-    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => { resolve(null); }));
+    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
+      resolve(null);
+    }));
 
     await put(req, res);
 
@@ -91,7 +93,9 @@ describe('When getting a user code', () => {
     expect(res._getData().uid).toBe('7654321');
   });
   it('then if a code exists for a uid the same one is returned', async () => {
-    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => { resolve({ uid: '7654321', code: 'ABC123' }); }));
+    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
+      resolve({ uid: '7654321', code: 'ABC123' });
+    }));
 
     await put(req, res);
 

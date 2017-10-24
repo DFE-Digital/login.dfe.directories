@@ -1,26 +1,16 @@
-const expect = require('chai').expect;
-const validate = require('../../src/app/userCodes/api/validate');
+jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage');
+
+const validate = require('./../../src/app/userCodes/api/validate');
 const httpMocks = require('node-mocks-http');
-const proxyquire = require('proxyquire');
+
 
 describe('When validating a user code', () => {
   let req;
   let res;
+  let redisUserCodeStorage;
+  let getUserStub;
   let getResponse = {uid:'7654321',code:'ABC123'};
 
-  class storageMock  {
-    constructor(){
-
-    }
-    async getUserPasswordResetCode() {
-      return new Promise((resolve)=>{
-        resolve(getResponse);
-      })
-    }
-    close() {
-      return;
-    }
-  };
   beforeEach(() => {
     res = httpMocks.createResponse();
     req = {
@@ -29,6 +19,16 @@ describe('When validating a user code', () => {
         code: 'ABC123'
       }
     };
+
+    getUserStub = jest.fn().mockImplementation(()=>{ return new Promise((resolve)=>{      resolve(getResponse);    })});
+
+    redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+    redisUserCodeStorage.mockImplementation(() => {
+      return {
+        getUserPasswordResetCode : getUserStub
+      }
+    });
+
   });
   it('then an empty response is returned and a bad request status code sent if there is no uid', async ()=> {
 
@@ -39,7 +39,7 @@ describe('When validating a user code', () => {
       req.params.uid = valueToUse;
 
       await validate(req,res);
-      expect(res.statusCode).to.deep.equal(400);
+      expect(res.statusCode).toBe(400);
     });
 
 
@@ -52,7 +52,7 @@ describe('When validating a user code', () => {
       req.params.code = valueToUse;
 
       await validate(req,res);
-      expect(res.statusCode).to.deep.equal(400);
+      expect(res.statusCode).toBe(400);
     })
 
   });
@@ -60,22 +60,17 @@ describe('When validating a user code', () => {
 
     getResponse = {uid:'7654321',code:'ABC123'};
 
-    const postNew = proxyquire('./../../src/userCodes/validate', {'./redisUserCodeStorage': storageMock});
+    await validate(req, res);
 
-    await postNew(req, res);
-
-    expect(res._getData().code).to.deep.equal('ABC123');
-    expect(res._getData().uid).to.deep.equal('7654321');
+    expect(res._getData().code).toBe('ABC123');
+    expect(res._getData().uid).toBe('7654321');
 
   });
   it('then if the code does not match then a 404 response is returned', async () => {
     getResponse = {uid:'7654321',code:'ZXY789'};
 
-    const postNew = proxyquire('./../../src/userCodes/validate', {'./redisUserCodeStorage': storageMock});
+    await validate(req, res);
 
-    await postNew(req, res);
-
-    expect(res.statusCode).to.deep.equal(404);
-
-  })
+    expect(res.statusCode).toBe(404);
+  });
 });

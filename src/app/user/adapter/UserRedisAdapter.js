@@ -27,9 +27,9 @@ const findByUsername = async (username, client) => {
     return null;
   }
 
-  const userRef = users.find(item =>  item.email === username);
+  const userRef = users.find(item => item.email.toLowerCase() === username.toLowerCase());
 
-  if(!userRef) {
+  if (!userRef) {
     return null;
   }
 
@@ -73,7 +73,6 @@ class UserRedisAdapter extends UserAdapter {
     try {
       return await find(id, redisClient);
     } catch (e) {
-      this.client.disconnect();
       throw (e);
     }
   }
@@ -82,7 +81,6 @@ class UserRedisAdapter extends UserAdapter {
     try {
       return await findByUsername(username, redisClient);
     } catch (e) {
-      this.client.disconnect();
       throw (e);
     }
   }
@@ -91,7 +89,6 @@ class UserRedisAdapter extends UserAdapter {
     try {
       return await changePassword(uid, newPassword, redisClient);
     } catch (e) {
-      this.client.disconnect();
       throw (e);
     }
   }

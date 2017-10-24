@@ -1,8 +1,9 @@
-'use strict'
+'use strict';
 
 const Redis = require('ioredis');
 const config = require('./../../../infrastructure/config')();
 const resetCode = require('./../utils/generateResetCode');
+const logger = require('./../../../infrastructure/logger');
 const staticUserCode = 'ABC123';
 
 const find = async (uid, client) => {
@@ -16,7 +17,7 @@ const find = async (uid, client) => {
 
 const createCode = async (uid, clientId, client) => {
   if(!uid || !clientId){
-    return(null);
+    return null;
   }
 
   let code = config.userCodes.staticCode ? staticUserCode : resetCode();
@@ -25,7 +26,7 @@ const createCode = async (uid, clientId, client) => {
     code : code,
     clientId: clientId
   };
-  const content = JSON.stringify(userResetCode)
+  const content = JSON.stringify(userResetCode);
 
   await client.set(`UserResetCode_${uid}`,content);
   return userResetCode;
@@ -36,7 +37,7 @@ const deleteCode = async (uid, client) => {
     return null;
   }
   await client.del(`UserResetCode_${uid}`);
-}
+};
 
 class RedisUserCodeStorage {
   constructor(redisClient) {
@@ -51,7 +52,7 @@ class RedisUserCodeStorage {
     try {
       return await find(uid,this.client);
     } catch(e) {
-      this.client.disconnect();
+      logger.error(e);
     }
   }
 
@@ -59,7 +60,7 @@ class RedisUserCodeStorage {
     try {
       return await createCode(uid,clientId, this.client);
     } catch(e){
-      this.client.disconnect();
+      logger.error(e);
     }
   }
 
@@ -67,7 +68,7 @@ class RedisUserCodeStorage {
     try {
       return await deleteCode(uid, this.client);
     } catch(e) {
-      this.client.disconnect();
+      logger.error(e);
     }
   }
 }

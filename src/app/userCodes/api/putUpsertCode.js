@@ -7,6 +7,7 @@ const UserAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config')();
 
 const put = async (req, res) => {
+  const userAdapter = UserAdapter(config);
   try {
     if (!req.body.uid || !req.body.clientId) {
       res.status(400).send();
@@ -25,7 +26,7 @@ const put = async (req, res) => {
       connectionString: config.notifications.connectionString,
     });
 
-    const user = await UserAdapter(config).find(uid);
+    const user = await userAdapter.find(uid);
 
     await client.sendPasswordReset(user.email, code.code);
 

@@ -1,5 +1,11 @@
 {
   "name": "login.dfe.directories",
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "clearMocks": true,
+    "testRegex": ".*\\.test.js$"
+  },
   "version": "0.0.1",
   "description": "API to return list of users",
   "dependencies": {

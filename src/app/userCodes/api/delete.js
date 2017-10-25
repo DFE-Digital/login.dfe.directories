@@ -1,6 +1,6 @@
 'use strict';
-const RedisUserCodeStorage = require('./redisUserCodeStorage');
-const logger = require('../logger');
+const RedisUserCodeStorage = require('./../data/redisUserCodeStorage');
+const logger = require('./../../../infrastructure/logger');
 
 const deleteCode = async (req,res) => {
   try{

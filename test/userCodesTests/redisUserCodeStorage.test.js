@@ -26,7 +26,7 @@ describe('When using redis user code storage', () => {
     config.mockImplementation(configStub);
 
     redis = new RedisMock();
-    const userCodeStorage = require('../../src/app/userCodes/data/redisUserCodeStorage');
+    const userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
     userStorage = new userCodeStorage(redis);
   });
   describe('then when I call GetUserPasswordResetCode', () => {

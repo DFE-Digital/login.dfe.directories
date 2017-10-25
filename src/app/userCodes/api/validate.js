@@ -1,6 +1,6 @@
 'use strict';
 const logger = require('./../../../infrastructure/logger');
-const redisUserCodeStorage = require('./../data/redisUserCodeStorage');
+const RedisUserCodeStorage = require('./../data/redisUserCodeStorage');
 
 const validate = async (req,res) => {
   try{
@@ -9,7 +9,7 @@ const validate = async (req,res) => {
       return;
     }
     const uid = req.params.uid;
-    const storage = new redisUserCodeStorage();
+    const storage = new RedisUserCodeStorage();
 
     var code = await storage.getUserPasswordResetCode(uid);
 
@@ -18,7 +18,7 @@ const validate = async (req,res) => {
       return;
     }
 
-    if(code.code === req.params.code) {
+    if(code.code.toLowerCase() === req.params.code.toLowerCase()) {
       res.status(200).send(code);
       return;
     }

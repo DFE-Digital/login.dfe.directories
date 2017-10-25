@@ -30,7 +30,7 @@ describe('When constructing the User index', () => {
   it('then if there is no adapter found null is returned', () => {
     const actual = UserIndex({adapter:{}});
 
-    expect(actual).toBe(null);
+    expect(actual).toBeNull();
   });
   it('then if the config is missing for the required adapter an assertion is thrown', () => {
     let assert = require('assert');

@@ -20,13 +20,13 @@ describe('When using redis storage service', () => {
 
       const actual = await userStorage.findByUsername('test@localuser.com');
 
-      expect(actual).not.toBe(undefined);
+      expect(actual).not.toBeUndefined();
       expect(JSON.stringify(actual)).toBe('{"sub":"test@localuser.com"}');
     });
     it('then null is returned if there is no data', async () => {
       const actual = await userStorage.findByUsername('test@localuser.com');
 
-      expect(actual).toBe(null);
+      expect(actual).toBeNull();
     });
     it('then the json is parsed and returned', async () => {
       redis.set('Users', '[{"sub": "54321", "email":"test4@localuser.com"},{"sub": "12345", "email":"test3@localuser.com"}]');
@@ -34,7 +34,7 @@ describe('When using redis storage service', () => {
 
       const actual = await userStorage.findByUsername('test3@localuser.com');
 
-      expect(actual).not.toBe(null);
+      expect(actual).not.toBeNull();
       expect(actual.first_name).toBe('Tester');
     });
     it('then if the user is not found then null is returned', async () => {
@@ -69,7 +69,7 @@ describe('When using redis storage service', () => {
 
       expect(actual).toBe(true);
       const findResult = await userStorage.find('test3@localuser.com');
-      expect(findResult).not.toBe(null);
+      expect(findResult).not.toBeNull();
       const request = promisify(crypto.pbkdf2);
       const saltBuffer = Buffer.from(findResult.salt, 'utf8');
       const derivedKey = await request('my-new-password', saltBuffer, 10000, 512, 'sha512');

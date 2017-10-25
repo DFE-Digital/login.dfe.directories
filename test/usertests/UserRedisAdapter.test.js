@@ -43,7 +43,7 @@ describe('When using redis storage service', () => {
 
       const actual = await userStorage.findByUsername('test4@localuser.com');
 
-      expect(actual).toBe(null);
+      expect(actual).toBeNull();
     });
   });
   describe('then when I call change password', () => {

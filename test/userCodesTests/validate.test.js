@@ -9,56 +9,60 @@ describe('When validating a user code', () => {
   let res;
   let redisUserCodeStorage;
   let getUserStub;
-  let getResponse = {uid:'7654321',code:'ABC123'};
+  let getResponse = {uid: '7654321', code: 'ABC123'};
 
   beforeEach(() => {
     res = httpMocks.createResponse();
     req = {
-      params:{
+      params: {
         uid: '7654321',
         code: 'ABC123'
       }
     };
 
-    getUserStub = jest.fn().mockImplementation(()=>{ return new Promise((resolve)=>{      resolve(getResponse);    })});
+    getUserStub = jest.fn().mockImplementation(() => {
+      return new Promise((resolve) => {
+        resolve(getResponse);
+      })
+    });
 
     redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
     redisUserCodeStorage.mockImplementation(() => {
       return {
-        getUserPasswordResetCode : getUserStub
+        getUserPasswordResetCode: getUserStub
       }
     });
 
   });
-  it('then an empty response is returned and a bad request status code sent if there is no uid', async ()=> {
+  it('then an empty response is returned and a bad request status code sent if there is no uid', async () => {
 
     //todo look at why when this fails it doesn't cause the test runner to stop
-    const uidValues = ['',undefined,null];
+    const uidValues = ['', undefined, null];
 
-    await uidValues.map(async (valueToUse) =>{
+    await uidValues.map(async (valueToUse) => {
       req.params.uid = valueToUse;
 
-      await validate(req,res);
+      await validate(req, res);
       expect(res.statusCode).toBe(400);
     });
 
 
   });
-  it('then an empty response is returned and a bad request status code sent if there is no code', async ()=> {
+  it('then an empty response is returned and a bad request status code sent if there is no code', async () => {
     //todo look at why when this fails it doesn't cause the test runner to stop
-    const uidValues = ['',undefined,null];
+    const uidValues = ['', undefined, null];
 
-    await uidValues.map(async (valueToUse) =>{
+    await uidValues.map(async (valueToUse) => {
       req.params.code = valueToUse;
 
-      await validate(req,res);
+      await validate(req, res);
       expect(res.statusCode).toBe(400);
     })
 
   });
   it('then if a code exists for the uid and the code matches a successful response is returned', async () => {
 
-    getResponse = {uid:'7654321',code:'ABC123'};
+    getResponse = {uid: '7654321', code: 'ABC123'};
 
     await validate(req, res);
 
@@ -67,7 +71,7 @@ describe('When validating a user code', () => {
 
   });
   it('then if the code does not match then a 404 response is returned', async () => {
-    getResponse = {uid:'7654321',code:'ZXY789'};
+    getResponse = {uid: '7654321', code: 'ZXY789'};
 
     await validate(req, res);
 

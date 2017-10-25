@@ -52,6 +52,7 @@ class RedisUserCodeStorage {
       return await find(uid, this.client);
     } catch (e) {
       logger.error(e);
+      throw e;
     }
   }
 
@@ -60,6 +61,7 @@ class RedisUserCodeStorage {
       return await createCode(uid, clientId, this.client);
     } catch (e) {
       logger.error(e);
+      throw e;
     }
   }
 
@@ -68,6 +70,7 @@ class RedisUserCodeStorage {
       return await deleteCode(uid, this.client);
     } catch (e) {
       logger.error(e);
+      throw e;
     }
   }
 }

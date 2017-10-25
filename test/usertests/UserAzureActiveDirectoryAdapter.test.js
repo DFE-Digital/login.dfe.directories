@@ -1,7 +1,7 @@
 jest.mock('activedirectory');
 jest.mock('login.dfe.request-verification');
 
-const UserAzureActiveDirectoryAdapter = require('../../src/app/user/adapter/UserAzureActiveDirectoryAdapter');
+const UserAzureActiveDirectoryAdapter = require('./../../src/app/user/adapter/UserAzureActiveDirectoryAdapter');
 
 describe('When using the UserAzureActiveDirectoryAdapter', () => {
   const user = {

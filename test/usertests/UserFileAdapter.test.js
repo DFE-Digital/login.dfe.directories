@@ -40,7 +40,7 @@ describe('When using the UsersFileAdapter', () => {
       };
 
       return adapter.find('test@user').then( function(actual) {
-        expect(actual).toBe(null);
+        expect(actual).toBeNull();
       });
 
     });
@@ -52,7 +52,7 @@ describe('When using the UsersFileAdapter', () => {
     });
     it('null is returned if the Id is not found', function() {
       return adapter.find('user1a').then( function(actual) {
-        expect(actual).toBe(null);
+        expect(actual).toBeNull();
       });
     });
   });

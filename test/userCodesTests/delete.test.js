@@ -1,5 +1,5 @@
 jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage');
-const deleteUserCode = require('../../src/app/userCodes/api/delete');
+const deleteUserCode = require('./../../src/app/userCodes/api/delete');
 const httpMocks = require('node-mocks-http');
 
 describe('When deleting a user code', () => {

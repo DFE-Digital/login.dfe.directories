@@ -77,4 +77,13 @@ describe('When validating a user code', () => {
 
     expect(res.statusCode).toBe(404);
   });
+  it('then the code is not matched against case', async () => {
+    getResponse = {uid: '7654321', code: 'ABC123'};
+    req.params.code = 'abc123';
+
+    await validate(req, res);
+
+    expect(res._getData().code).toBe('ABC123');
+    expect(res._getData().uid).toBe('7654321');
+  });
 });

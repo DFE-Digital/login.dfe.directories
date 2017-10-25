@@ -1,6 +1,6 @@
 'use strict';
 
-const DEC_CHARSET = 'ABCDEFHJKLMNPRSTUV';
+const DEC_CHARSET = '46789BCDFGHJKLMNPRSTVWXY';
 const FULL_CHARSET = 'ABCDEFGHJKMNPQRSTWXYZabcdefghjkmnpqrstwxyz23456789-.><!@%&*+_';
 
 const generate = (length = 8, charset = DEC_CHARSET) => {

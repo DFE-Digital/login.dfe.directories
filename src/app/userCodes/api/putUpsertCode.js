@@ -1,12 +1,13 @@
 'use strict';
 
-const logger = require('../logger');
-const RedisUserCodeStorage = require('./redisUserCodeStorage');
+const logger = require('./../../../infrastructure/logger');
+const RedisUserCodeStorage = require('./../data/redisUserCodeStorage');
 const NotificatonClient = require('login.dfe.notifications.client');
-const userAdapter = require('./../user');
-const config = require('./../config');
+const UserAdapter = require('./../../user/adapter');
+const config = require('./../../../infrastructure/config')();
 
 const put = async (req, res) => {
+  const userAdapter = UserAdapter(config);
   try {
     if (!req.body.uid || !req.body.clientId) {
       res.status(400).send();

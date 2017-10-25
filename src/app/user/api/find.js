@@ -1,9 +1,9 @@
-const UserAdapter = require('../user');
-const config = require('../config');
-const logger = require('../logger');
+const UserAdapter = require('./../adapter');
+const config = require('./../../../infrastructure/config')();
+const logger = require('./../../../infrastructure/logger');
 
 const find = async (req, res) => {
-  const userAdapter = UserAdapter(config, req.params.directoryId);
+  const userAdapter = UserAdapter(config);
   try {
     let user = await userAdapter.find(req.params.id);
     if (!user) {

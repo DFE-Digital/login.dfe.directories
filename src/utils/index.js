@@ -1,7 +1,7 @@
 const generate = require('./generateCode');
 
 module.exports = {
-  DEC_CHARSSET: generate.DEC_CHARSSET,
+  DEC_CHARSET: generate.DEC_CHARSET,
   FULL_CHARSET: generate.FULL_CHARSET,
   generate: generate.generate
 };

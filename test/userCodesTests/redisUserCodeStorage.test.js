@@ -82,9 +82,7 @@ describe('When using redis user code storage', () => {
       });
 
       config.mockImplementation(configStub);
-      redis = new RedisMock();
-      const userCodeStorage = require('../../src/app/userCodes/data/redisUserCodeStorage');
-      userStorage = new userCodeStorage(redis);
+      
       const actual = await userStorage.createUserPasswordResetCode('321', 'client1');
 
       expect(actual.code).toBe('ABC123');

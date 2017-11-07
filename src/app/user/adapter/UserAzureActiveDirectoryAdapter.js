@@ -41,6 +41,9 @@ class UserAzureActiveDirectoryAdapter extends UserAdapter {
       });
     });
   }
+  async list(page = 1, pageSize = 10) {
+    return Promise.resolve([]);
+  }
 
   authenticate(username, password) {
     return new Promise((resolve, reject) => {

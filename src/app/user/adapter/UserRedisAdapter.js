@@ -84,6 +84,10 @@ class UserRedisAdapter extends UserAdapter {
       throw (e);
     }
   }
+  
+  async list(page = 1, pageSize = 10) {
+    return Promise.resolve([]);
+  }
 
   async changePassword(uid, newPassword) {
     try {

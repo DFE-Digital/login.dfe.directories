@@ -25,6 +25,9 @@ class UserMongoAdapter extends UserAdapter{
       });
     });
   }
+  async list(page = 1, pageSize = 10) {
+    return Promise.resolve([]);
+  }
 }
 
 module.exports = UserMongoAdapter;

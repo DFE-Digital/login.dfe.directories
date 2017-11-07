@@ -21,30 +21,38 @@ const getUsersCodes = async (userId) => {
 
 const routes = () => {
   router.get('/', async (req, res) => {
-    let page = 1;
-    if (req.query.page && parseInt(req.query.page, 10) !== NaN) {
-      page = parseInt(req.query.page, 10);
-    }
-    const usersAdapter = UsersAdapter(config);
-    const pageOfUsers = await usersAdapter.list(page);
-    if (!pageOfUsers) {
-      res.status(404).send();
-    }
-    const users = await Promise.all(pageOfUsers.users.map(async (user) => {
-      const codes = await getUsersCodes(user.sub);
+    try {
+      let page = 1;
+      if (req.query.page && parseInt(req.query.page, 10) !== NaN) {
+        page = parseInt(req.query.page, 10);
+      }
+      const usersAdapter = UsersAdapter(config);
+      const pageOfUsers = await usersAdapter.list(page);
+      if (!pageOfUsers) {
+        res.status(404).send();
+      }
+      const users = await Promise.all(pageOfUsers.users.map(async (user) => {
+        const codes = await getUsersCodes(user.sub);
 
-      return {
-        id: user.sub,
-        name: `${user.given_name} ${user.family_name.toUpperCase()}`,
-        email: user.email,
-        numCodes: codes.length,
-      };
-    }));
-    res.render('dev/views/launch', {
-      users,
-      numberOfPages: pageOfUsers.numberOfPages,
-      currentPage: page,
-    });
+        return {
+          id: user.sub,
+          name: `${user.given_name} ${user.family_name.toUpperCase()}`,
+          email: user.email,
+          numCodes: codes.length,
+        };
+      }));
+      res.render('dev/views/launch', {
+        users,
+        numberOfPages: pageOfUsers.numberOfPages,
+        currentPage: page,
+      });
+    } catch (e) {
+      if (e.type === 'E_NOTIMPLEMENTED') {
+        res.status(500).send(e.message);
+      } else {
+        throw e;
+      }
+    }
   });
 
   router.get('/user/:userid', async (req, res) => {

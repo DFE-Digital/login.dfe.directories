@@ -7,6 +7,9 @@ const config = require('./infrastructure/config')();
 const logger = require('./infrastructure/logger');
 const https = require('https');
 const userCodes = require('./app/userCodes/api');
+const dev = require('./app/dev');
+const expressLayouts = require('express-ejs-layouts');
+const path = require('path');
 
 const app = express();
 
@@ -14,6 +17,17 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
+if (config.hostingEnvironment.env === 'dev') {
+  app.use(expressLayouts);
+  app.set('view engine', 'ejs');
+  app.set('views', path.resolve(__dirname, 'app'));
+  app.set('layout', 'layouts/layout');
+
+  app.get('/', (req, res) => {
+    res.redirect('/manage');
+  });
+  app.use('/manage', dev);
+}
 app.use('/', api);
 app.use('/userCodes', userCodes);
 

@@ -1,0 +1,62 @@
+<div class="grid-row">
+    <div class="col-12">
+        <h1 class="heading-xlarge">
+            Development Launcher
+        </h1>
+        <p class="lede">Hello, these helper actions are only enabled in development mode and are used to facilitate development and debugging of this service.</p>
+
+        <h2 class="heading-medium">Users</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th># Codes</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for (let i = 0; i < locals.users.length; i++) { %>
+            <% const user = locals.users[i] %>
+            <tr>
+                <td><%=user.name%></td>
+                <td><%=user.email%></td>
+                <td><%=user.numCodes%></td>
+                <td>
+                    <span><a href="/manage/user/<%=user.id%>">View</a></span>
+                </td>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<% if (locals.numberOfPages > 1) { %>
+<div class="grid-row">
+    <div class="col-12">
+        <div class="pagination">
+            Page:
+            <% for (let p = 1; p <= locals.numberOfPages; p++) { %>
+            <div class="page">
+                <% if (p === locals.currentPage) { %>
+                <%=p%>
+                <% } else {%>
+                <a href="/manage?page=<%=p%>"><%=p%></a>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+<% } %>
+
+<style>
+    .pagination {
+        margin-top: 40px;
+        text-align: right;
+    }
+    .pagination .page {
+        display: inline-block;
+        margin-left: 10px;
+    }
+</style>

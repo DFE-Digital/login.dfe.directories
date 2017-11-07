@@ -1,0 +1,22 @@
+<div class="grid-row">
+    <div class="col-12">
+        <h1 class="heading-xlarge">
+            <%=user.given_name%> <%=user.family_name.toUpperCase()%> details
+        </h1>
+
+        <dl class="inline">
+            <dt>First name</dt>
+            <dd><%=user.given_name%></dd>
+            <dt>Last name</dt>
+            <dd><%=user.family_name%></dd>
+            <dt>Email</dt>
+            <dd><%=user.email%></dd>
+            <dt>Codes</dt>
+            <dd>
+                <% for (let i = 0; i < codes.length; i++) {%>
+                <span style="display:block;"><%=codes[i]%></span>
+                <% } %>
+            </dd>
+        </dl>
+    </div>
+</div>

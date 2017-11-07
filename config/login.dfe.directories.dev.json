@@ -2,6 +2,7 @@
 {
   "hostingEnvironment": {
     "env": "dev",
+    "useDevViews": true,
     "host": "localhost",
     "port": "4439",
     "protocol": "https",

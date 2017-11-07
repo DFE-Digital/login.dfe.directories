@@ -4,6 +4,7 @@ const UserAdapter = require('./UserAdapter');
 const Redis = require('ioredis');
 const crypto = require('crypto');
 const generateSalt = require('./../utils/generateSalt');
+const _ = require('lodash');
 
 let redisClient;
 
@@ -84,9 +85,31 @@ class UserRedisAdapter extends UserAdapter {
       throw (e);
     }
   }
-  
+
   async list(page = 1, pageSize = 10) {
-    return Promise.resolve([]);
+    const userList = await redisClient.get('Users');
+    if (!userList) {
+      return null;
+    }
+    const orderedUserList = JSON.parse(userList).sort((x, y) => {
+      if (x.email < y.email) {
+        return -1;
+      }
+      if (x.email > y.email) {
+        return 1;
+      }
+      return 0;
+    });
+    const pagesOfUsers = _.chunk(orderedUserList, pageSize);
+    if (page > pagesOfUsers.length) {
+      return null;
+    }
+
+    const users = await Promise.all(pagesOfUsers[page - 1].map(async item => find(item.sub, redisClient)));
+    return {
+      users,
+      numberOfPages: pagesOfUsers.length,
+    };
   }
 
   async changePassword(uid, newPassword) {

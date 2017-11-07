@@ -1,0 +1,29 @@
+<div class="grid-row">
+    <div class="col-12">
+        <a href="/manage" class="link-back">Back</a>
+    </div>
+</div>
+<div class="grid-row">
+    <div class="col-12">
+        <h1 class="heading-xlarge">
+            <%=user.given_name%> <%=user.family_name.toUpperCase()%>&apos;s details
+        </h1>
+
+        <dl class="rows">
+            <dt>First name</dt>
+            <dd><%=user.given_name%></dd>
+            <dt>Last name</dt>
+            <dd><%=user.family_name%></dd>
+            <dt>Email</dt>
+            <dd><%=user.email%></dd>
+            <% if (locals.codes.length > 0) { %>
+            <dt>Codes</dt>
+            <dd>
+                <% for (let i = 0; i < locals.codes.length; i++) {%>
+                <span style="display:block;"><%=codes[i]%></span>
+                <% } %>
+            </dd>
+            <% } %>
+        </dl>
+    </div>
+</div>

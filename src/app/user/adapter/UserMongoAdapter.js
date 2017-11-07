@@ -25,6 +25,11 @@ class UserMongoAdapter extends UserAdapter{
       });
     });
   }
+  async list(page = 1, pageSize = 10) {
+    const error = new Error('List method is not implemented for mongo');
+    error.type = 'E_NOTIMPLEMENTED';
+    throw error;
+  }
 }
 
 module.exports = UserMongoAdapter;

@@ -10,6 +10,9 @@ class UserAdapter {
   async findByUsername(username) {
     return Promise.resolve(null);
   }
+  async list(page = 1, pageSize = 10) {
+    return Promise.resolve([]);
+  }
 
   async authenticate(username, password) {
     const user = await this.findByUsername(username);

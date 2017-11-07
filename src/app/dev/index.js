@@ -5,6 +5,19 @@ const router = express.Router();
 
 const config = require('./../../infrastructure/config')();
 const UsersAdapter = require('./../user/adapter');
+const UserCodesAdapter = require('./../userCodes/data/redisUserCodeStorage');
+const codesAdapter = new UserCodesAdapter();
+
+const getUsersCodes = async (userId) => {
+  const codes = [];
+
+  const code = await codesAdapter.getUserPasswordResetCode(userId);
+  if (code) {
+    codes.push(code.code);
+  }
+
+  return codes;
+};
 
 const routes = () => {
   router.get('/', async (req, res) => {
@@ -14,8 +27,12 @@ const routes = () => {
     }
     const usersAdapter = UsersAdapter(config);
     const pageOfUsers = await usersAdapter.list(page);
+    if (!pageOfUsers) {
+      res.status(404).send();
+    }
     const users = await Promise.all(pageOfUsers.users.map(async (user) => {
-      const codes = [];
+      const codes = await getUsersCodes(user.sub);
+
       return {
         id: user.sub,
         name: `${user.given_name} ${user.family_name.toUpperCase()}`,
@@ -38,10 +55,7 @@ const routes = () => {
       return;
     }
 
-    const codes = [
-      'ABC123',
-      '098XYZ',
-    ];
+    const codes = await getUsersCodes(user.sub);
 
     res.render('dev/views/user', {
       user,

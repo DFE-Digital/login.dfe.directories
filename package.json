@@ -10,10 +10,12 @@
   "dependencies": {
     "activedirectory": "^0.7.2",
     "body-parser": "^1.18.1",
+    "ejs": "^2.5.7",
     "express": "^4.15.4",
     "express-ejs-layouts": "^2.3.1",
     "fs": "0.0.1-security",
     "ioredis": "^3.1.4",
+    "lodash": "^4.17.4",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#master",
     "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#master",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#master",

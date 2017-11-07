@@ -41,6 +41,11 @@ class UserAzureActiveDirectoryAdapter extends UserAdapter {
       });
     });
   }
+  async list(page = 1, pageSize = 10) {
+    throw new Error('List method is not implemented for AAD');
+    error.type = 'E_NOTIMPLEMENTED';
+    throw error;
+  }
 
   authenticate(username, password) {
     return new Promise((resolve, reject) => {

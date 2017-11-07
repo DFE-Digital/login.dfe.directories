@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-if (config.hostingEnvironment.env === 'dev') {
+if (config.hostingEnvironment.useDevViews) {
   app.use(expressLayouts);
   app.set('view engine', 'ejs');
   app.set('views', path.resolve(__dirname, 'app'));

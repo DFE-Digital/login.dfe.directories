@@ -7,6 +7,7 @@ const config = require('./infrastructure/config')();
 const logger = require('./infrastructure/logger');
 const https = require('https');
 const userCodes = require('./app/userCodes/api');
+const invitation = require('./app/invitations/api');
 const dev = require('./app/dev');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
@@ -30,6 +31,7 @@ if (config.hostingEnvironment.useDevViews) {
 }
 app.use('/', api);
 app.use('/userCodes', userCodes);
+app.use('/invitation', invitation);
 
 if (config.hostingEnvironment.env === 'dev') {
   app.proxy = true;

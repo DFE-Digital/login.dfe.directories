@@ -16,9 +16,11 @@ const put = async (req, res) => {
 
     if (!invitation) {
       await storage.createUserInvitation(req.body);
+      // todo add call to notifications client
+      res.status(201).send();
+      return;
     }
-
-    // todo add call to notifications client
+    res.status(200).send();
   } catch (e) {
     logger.error(e);
     res.status(500).send(e);

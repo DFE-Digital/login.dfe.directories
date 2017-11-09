@@ -54,13 +54,15 @@ describe('When getting an invitation', () => {
     }));
 
   });
+  afterEach(() => {
+    expect(res._isEndCalled()).toBe(true);
+  });
   it('then a bad request is returned if the request has not provided the firstName', async () => {
     req.body.firstName = '';
 
     await put(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._isEndCalled()).toBe(true);
   });
   it('then a bad request is returned if the request has not provided the lastName', async () => {
     req.body.lastName = '';
@@ -68,7 +70,6 @@ describe('When getting an invitation', () => {
     await put(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._isEndCalled()).toBe(true);
   });
   it('then a bad request is returned if the request has not provided the email', async () => {
     req.body.email = '';
@@ -76,7 +77,6 @@ describe('When getting an invitation', () => {
     await put(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._isEndCalled()).toBe(true);
   });
   it('then the record is checked to see if it exists', async () => {
     await put(req, res);
@@ -91,7 +91,7 @@ describe('When getting an invitation', () => {
 
     await put(req, res);
 
-    expect(res.statusCode).toBe(200);
+    expect(res.statusCode).toBe(201);
     expect(createInvitationStub.mock.calls[0][0].email).toBe(expectedEmailAddress);
   });
   it('then an invitation email is sent', async () => {
@@ -105,6 +105,5 @@ describe('When getting an invitation', () => {
     await put(req, res);
 
     expect(res.statusCode).toBe(500);
-    expect(res._isEndCalled()).toBe(true);
   });
 });

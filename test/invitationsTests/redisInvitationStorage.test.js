@@ -28,12 +28,11 @@ describe('When using the redis invitation storage', () => {
   describe('and creating the invitation', () => {
     it('then the email is used to create the record', async () => {
 
-      await invitationStorage.createUserInvitation( {email: 'test@local.com', firstName: 'Tester'});
+      await invitationStorage.createUserInvitation('test@local.com', { firstName: 'Tester'});
       const record = await redis.get('UserInvitation_test@local.com');
 
       expect(record).not.toBeNull();
       const resetCode = JSON.parse(record);
-      expect(resetCode.email).toBe('test@local.com');
       expect(resetCode.firstName).toBe('Tester');
     });
     it('then if the email is not supplied then a record is not created', async () => {

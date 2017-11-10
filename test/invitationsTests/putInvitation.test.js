@@ -22,7 +22,7 @@ describe('When getting an invitation', () => {
   beforeEach(() => {
     res = httpMocks.createResponse();
     req = {
-      query:{
+      params:{
         user_email: expectedEmailAddress,
       },
       body: {
@@ -76,7 +76,7 @@ describe('When getting an invitation', () => {
     expect(res.statusCode).toBe(400);
   });
   it('then a bad request is returned if the request has not provided the email', async () => {
-    req.query.user_email = '';
+    req.params.user_email = '';
 
     await put(req, res);
 

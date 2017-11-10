@@ -12,13 +12,14 @@ const find = async (email, client) => {
 };
 
 
-const createInvitation = async (invitation, client) => {
-  if (!invitation || !invitation.email) {
+const createInvitation = async (email, invitation, client) => {
+  if (!invitation || !email) {
     return null;
   }
+
   const content = JSON.stringify(invitation);
 
-  await client.set(`UserInvitation_${invitation.email}`, content);
+  await client.set(`UserInvitation_${email}`, content);
   return content;
 };
 
@@ -47,9 +48,9 @@ class RedisInvitationStorage {
     }
   }
 
-  async createUserInvitation(invitation) {
+  async createUserInvitation(email, invitation) {
     try {
-      return await createInvitation(invitation, this.client);
+      return await createInvitation(email, invitation, this.client);
     } catch (e) {
       logger.error(e);
       throw e;
@@ -57,7 +58,7 @@ class RedisInvitationStorage {
   }
 
   async deleteInvitation(email) {
-    try{
+    try {
       await deleteInvitation(email, this.client);
     } catch (e) {
       logger.error(e);

@@ -4,9 +4,11 @@ jest.mock('./../../src/app/invitations/data/redisInvitationStorage');
 jest.mock('./../../src/infrastructure/logger');
 
 const httpMocks = require('node-mocks-http');
+const put = require('../../src/app/invitations/api/putInvitation');
+
 
 describe('When getting an invitation', () => {
-  const put = require('./../../src/app/invitations/api/putUpsertInvitation');
+
 
   let res;
   let req;
@@ -20,11 +22,13 @@ describe('When getting an invitation', () => {
   beforeEach(() => {
     res = httpMocks.createResponse();
     req = {
+      query:{
+        user_email: expectedEmailAddress,
+      },
       body: {
         firstName: '7654321',
         lastName: 'client1',
         username: 'testuser',
-        email: expectedEmailAddress,
         salt: 'qwer456',
         password: 'Password1',
       },
@@ -72,7 +76,7 @@ describe('When getting an invitation', () => {
     expect(res.statusCode).toBe(400);
   });
   it('then a bad request is returned if the request has not provided the email', async () => {
-    req.body.email = '';
+    req.query.user_email = '';
 
     await put(req, res);
 
@@ -92,7 +96,7 @@ describe('When getting an invitation', () => {
     await put(req, res);
 
     expect(res.statusCode).toBe(201);
-    expect(createInvitationStub.mock.calls[0][0].email).toBe(expectedEmailAddress);
+    expect(createInvitationStub.mock.calls[0][0]).toBe(expectedEmailAddress);
   });
   it('then an invitation email is sent', async () => {
     await put(req, res);

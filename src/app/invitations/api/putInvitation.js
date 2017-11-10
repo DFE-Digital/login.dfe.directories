@@ -5,17 +5,17 @@ const Storage = require('./../data/redisInvitationStorage');
 
 const put = async (req, res) => {
   try {
-    if (!req.body.firstName || !req.body.lastName || !req.query.user_email) {
+    if (!req.body.firstName || !req.body.lastName || !req.params.user_email) {
       res.status(400).send();
       return;
     }
 
     const storage = new Storage();
 
-    const invitation = await storage.getUserInvitation(req.query.user_email);
+    const invitation = await storage.getUserInvitation(req.params.user_email);
 
     if (!invitation) {
-      await storage.createUserInvitation(req.query.user_email, req.body);
+      await storage.createUserInvitation(req.params.user_email, req.body);
       // todo add call to notifications client
       res.status(201).send();
       return;

@@ -20,6 +20,9 @@
     "redisUrl" :"redis://localhost:6379",
     "staticCode" : false
   },
+  "invitations" : {
+    "redisUrl" :"redis://localhost:6379"
+  },
   "auth":{
     "type" :"secret"
   },

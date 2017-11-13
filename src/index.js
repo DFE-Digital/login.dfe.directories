@@ -17,7 +17,6 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
 if (config.hostingEnvironment.useDevViews) {
   app.use(expressLayouts);
   app.set('view engine', 'ejs');
@@ -29,9 +28,11 @@ if (config.hostingEnvironment.useDevViews) {
   });
   app.use('/manage', dev);
 }
+
 app.use('/', api);
 app.use('/userCodes', userCodes);
 app.use('/invitation', invitation);
+
 
 if (config.hostingEnvironment.env === 'dev') {
   app.proxy = true;

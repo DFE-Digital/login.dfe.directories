@@ -1,11 +1,14 @@
 'use strict';
 
+const listEndpoints = require('express-list-endpoints');
 const express = require('express');
+
 const router = express.Router();
 
 const config = require('./../../infrastructure/config')();
 const UsersAdapter = require('./../user/adapter');
 const UserCodesAdapter = require('./../userCodes/data/redisUserCodeStorage');
+
 const codesAdapter = new UserCodesAdapter();
 
 const getUsersCodes = async (userId) => {
@@ -41,10 +44,13 @@ const routes = () => {
           numCodes: codes.length,
         };
       }));
+      const routeList = listEndpoints(req.app);
+
       res.render('dev/views/launch', {
         users,
         numberOfPages: pageOfUsers.numberOfPages,
         currentPage: page,
+        routes: routeList,
       });
     } catch (e) {
       if (e.type === 'E_NOTIMPLEMENTED') {

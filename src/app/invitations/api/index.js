@@ -11,7 +11,7 @@ const router = express.Router();
 
 const routeExport = () => {
   // Add auth middleware.
-  router.use(apiAuth(router, config));
+  router.use('/', apiAuth(router, config));
 
   assert(config.invitations.redisUrl, 'the invitations.redisUrl config property must be set');
 

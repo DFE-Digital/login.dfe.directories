@@ -1,33 +1,37 @@
 const Redis = require('ioredis');
 const config = require('./../../../infrastructure/config')();
 const logger = require('./../../../infrastructure/logger');
+const uuid = require('uuid/v4');
 
-const find = async (email, client) => {
-  const result = await client.get(`UserInvitation_${email}`);
+const find = async (id, client) => {
+  const result = await client.get(`UserInvitation_${id}`);
   if (!result) {
     return null;
   }
-  const userCode = JSON.parse(result);
-  return userCode || null;
+  const invitation = JSON.parse(result);
+  return invitation || null;
 };
 
 
-const createInvitation = async (email, invitation, client) => {
-  if (!invitation || !email) {
+const createInvitation = async (invitation, client) => {
+  if (!invitation) {
     return null;
   }
+  const id = uuid();
+  const newInvitation = invitation;
 
-  const content = JSON.stringify(invitation);
+  newInvitation.id = id;
+  const content = JSON.stringify(newInvitation);
 
-  await client.set(`UserInvitation_${email}`, content);
+  await client.set(`UserInvitation_${id}`, content);
   return content;
 };
 
-const deleteInvitation = async (email, client) => {
-  if (!email) {
+const deleteInvitation = async (id, client) => {
+  if (!id) {
     return null;
   }
-  await client.del(`UserInvitation_${email}`);
+  await client.del(`UserInvitation_${id}`);
 };
 
 class RedisInvitationStorage {
@@ -39,27 +43,27 @@ class RedisInvitationStorage {
     }
   }
 
-  async getUserInvitation(email) {
+  async getUserInvitation(id) {
     try {
-      return await find(email, this.client);
+      return await find(id, this.client);
     } catch (e) {
       logger.error(e);
       throw e;
     }
   }
 
-  async createUserInvitation(email, invitation) {
+  async createUserInvitation(invitation) {
     try {
-      return await createInvitation(email, invitation, this.client);
+      return await createInvitation(invitation, this.client);
     } catch (e) {
       logger.error(e);
       throw e;
     }
   }
 
-  async deleteInvitation(email) {
+  async deleteInvitation(id) {
     try {
-      await deleteInvitation(email, this.client);
+      await deleteInvitation(id, this.client);
     } catch (e) {
       logger.error(e);
       throw e;

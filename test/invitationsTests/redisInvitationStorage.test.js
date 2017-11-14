@@ -1,11 +1,20 @@
+jest.mock('uuid/v4');
+
 const RedisMock = require('ioredis-mock').default;
 const InvitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
 
 describe('When using the redis invitation storage', () => {
   let redis;
   let invitationStorage;
+  let uuid;
+  let uuidStub;
 
   beforeEach(() => {
+
+    uuidStub = jest.fn().mockReturnValue('1dcf73dd-1613-470e-a35e-378a3375a6fe');
+
+    uuid = require('uuid/v4');
+    uuid.mockImplementation(uuidStub);
 
     redis = new RedisMock();
 
@@ -26,10 +35,10 @@ describe('When using the redis invitation storage', () => {
     });
   });
   describe('and creating the invitation', () => {
-    it('then the email is used to create the record', async () => {
+    it('then the uuid is used to create the record', async () => {
 
-      await invitationStorage.createUserInvitation('test@local.com', { firstName: 'Tester'});
-      const record = await redis.get('UserInvitation_test@local.com');
+      await invitationStorage.createUserInvitation({ firstName: 'Tester', email: 'test@local.com'});
+      const record = await redis.get('UserInvitation_1dcf73dd-1613-470e-a35e-378a3375a6fe');
 
       expect(record).not.toBeNull();
       const resetCode = JSON.parse(record);

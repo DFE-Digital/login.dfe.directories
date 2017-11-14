@@ -69,7 +69,7 @@ describe('When getting an invitation', () => {
     notificationClient.mockImplementation(() => ({
       sendInvitation: sendInvitationStub,
     }));
-    post = require('../../src/app/invitations/api/postInvitation');
+    post = require('../../src/app/invitations/api/postInvitations');
   });
   afterEach(() => {
     expect(res._isEndCalled()).toBe(true);
@@ -104,9 +104,9 @@ describe('When getting an invitation', () => {
   it('then the invitation object is returned in the response with an id', async () => {
     await post(req, res);
 
-    expect(JSON.parse(res._getData()).id).toBe(expectedInvitationId);
-    expect(JSON.parse(res._getData()).firstName).toBe(expectedFirstName);
-    expect(JSON.parse(res._getData()).lastName).toBe(expectedLastName);
+    expect(res._getData().id).toBe(expectedInvitationId);
+    expect(res._getData().firstName).toBe(expectedFirstName);
+    expect(res._getData().lastName).toBe(expectedLastName);
   });
   it('then an invitation email is sent when the record is first created', async () => {
     await post(req, res);

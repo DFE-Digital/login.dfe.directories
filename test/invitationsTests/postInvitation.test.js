@@ -114,6 +114,7 @@ describe('When getting an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][0]).toBe(expectedEmailAddress);
     expect(sendInvitationStub.mock.calls[0][1]).toBe(expectedFirstName);
     expect(sendInvitationStub.mock.calls[0][2]).toBe(expectedLastName);
+    expect(sendInvitationStub.mock.calls[0][3]).toBe(expectedInvitationId);
   });
   it('then a 500 response is returned if there is an error', async () => {
     createInvitationStub = jest.fn().mockImplementation(() => {

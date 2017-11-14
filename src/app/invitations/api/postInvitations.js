@@ -21,7 +21,7 @@ const post = async (req, res) => {
     });
 
     await notificationClient.sendInvitation(
-      req.body.email, req.body.firstName, req.body.lastName);
+      req.body.email, req.body.firstName, req.body.lastName, invitation.id);
 
     res.status(201).send(invitation);
   } catch (e) {

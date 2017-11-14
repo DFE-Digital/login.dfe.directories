@@ -11,7 +11,7 @@ const router = express.Router();
 
 const routeExport = () => {
   // Add auth middleware.
-  router.use(apiAuth(router, config));
+  router.use('/', apiAuth(router, config));
 
   // Map routed to functions.
   router.get('/:directoryId/user/:id', find);

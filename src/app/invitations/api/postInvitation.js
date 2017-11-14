@@ -7,7 +7,7 @@ const NotificationClient = require('login.dfe.notifications.client');
 
 const post = async (req, res) => {
   try {
-    if (!req.body.firstName || !req.body.lastName || !req.body.user_email) {
+    if (!req.body.firstName || !req.body.lastName || !req.body.email) {
       res.status(400).send();
       return;
     }
@@ -21,7 +21,7 @@ const post = async (req, res) => {
     });
 
     await notificationClient.sendInvitation(
-      req.body.user_email, req.body.firstName, req.body.lastName);
+      req.body.email, req.body.firstName, req.body.lastName);
 
     res.status(201).send(JSON.stringify(invitation));
   } catch (e) {

@@ -28,7 +28,7 @@ describe('When getting an invitation', () => {
     res = httpMocks.createResponse();
     req = {
       body: {
-        user_email: expectedEmailAddress,
+        email: expectedEmailAddress,
         firstName: expectedFirstName,
         lastName: expectedLastName,
         username: 'testuser',
@@ -89,7 +89,7 @@ describe('When getting an invitation', () => {
     expect(res.statusCode).toBe(400);
   });
   it('then a bad request is returned if the request has not provided the email', async () => {
-    req.body.user_email = '';
+    req.body.email = '';
 
     await post(req, res);
 
@@ -99,7 +99,7 @@ describe('When getting an invitation', () => {
     await post(req, res);
 
     expect(res.statusCode).toBe(201);
-    expect(createInvitationStub.mock.calls[0][0].user_email).toBe(expectedEmailAddress);
+    expect(createInvitationStub.mock.calls[0][0].email).toBe(expectedEmailAddress);
   });
   it('then the invitation object is returned in the response with an id', async () => {
     await post(req, res);

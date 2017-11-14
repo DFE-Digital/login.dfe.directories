@@ -23,7 +23,7 @@ const post = async (req, res) => {
     await notificationClient.sendInvitation(
       req.body.email, req.body.firstName, req.body.lastName);
 
-    res.status(201).send(JSON.stringify(invitation));
+    res.status(201).send(invitation);
   } catch (e) {
     logger.error(e);
     res.status(500).send(e);

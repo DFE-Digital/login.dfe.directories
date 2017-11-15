@@ -7,7 +7,7 @@ jest.mock('./../../src/infrastructure/config');
 
 const httpMocks = require('node-mocks-http');
 
-describe('When getting an invitation', () => {
+describe('When creating an invitation', () => {
   let res;
   let req;
   let createInvitationStub;

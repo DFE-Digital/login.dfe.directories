@@ -4,6 +4,7 @@ const express = require('express');
 const apiAuth = require('login.dfe.api.auth');
 const config = require('./../../../infrastructure/config')();
 const postInvitations = require('./postInvitations');
+const getInvitations = require('./getInvitations');
 
 const assert = require('assert');
 
@@ -17,6 +18,7 @@ const routeExport = () => {
 
   // Map routed to functions.
   router.post('/', postInvitations);
+  router.get('/:id', getInvitations);
   return router;
 };
 

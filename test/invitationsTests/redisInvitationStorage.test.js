@@ -43,6 +43,7 @@ describe('When using the redis invitation storage', () => {
       expect(record).not.toBeNull();
       const resetCode = JSON.parse(record);
       expect(resetCode.firstName).toBe('Tester');
+      expect(resetCode.id).toBe('1dcf73dd-1613-470e-a35e-378a3375a6fe');
     });
     it('then if the email is not supplied then a record is not created', async () => {
       const actual = await invitationStorage.createUserInvitation();

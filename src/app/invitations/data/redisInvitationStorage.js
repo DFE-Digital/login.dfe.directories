@@ -24,7 +24,7 @@ const createInvitation = async (invitation, client) => {
   const content = JSON.stringify(newInvitation);
 
   await client.set(`UserInvitation_${id}`, content);
-  return content;
+  return JSON.parse(content);
 };
 
 const deleteInvitation = async (id, client) => {

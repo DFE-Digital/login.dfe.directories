@@ -12,6 +12,7 @@
     "body-parser": "^1.18.2",
     "debug": "^3.1.0",
     "ejs": "^2.5.7",
+    "eslint-plugin-jest": "^21.3.2",
     "express": "^4.16.2",
     "express-ejs-layouts": "^2.3.1",
     "express-list-endpoints": "^3.0.1",

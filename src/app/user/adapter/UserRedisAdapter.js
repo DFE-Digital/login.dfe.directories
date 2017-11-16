@@ -4,7 +4,8 @@ const UserAdapter = require('./UserAdapter');
 const Redis = require('ioredis');
 const crypto = require('crypto');
 const generateSalt = require('./../utils/generateSalt');
-const _ = require('lodash');
+const {chunk} = require('lodash');
+const uuid = require('uuid');
 
 let redisClient;
 
@@ -36,6 +37,34 @@ const findByUsername = async (username, client) => {
 
   const user = await find(userRef.sub, client);
   return user || null;
+};
+
+const createUser = async (username, password, firstName, lastName, client) => {
+  if (!username || !password) {
+    return null;
+  }
+
+  const exists = await findByUsername(username, client);
+  if (exists) {
+    return exists;
+  }
+
+  const salt = generateSalt();
+  const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
+  const id = uuid.v4();
+
+  const newUser = {sub: id, given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword};
+
+  newUser.id = id;
+  const content = JSON.stringify(newUser);
+
+  await client.set(`User_${id}`, content);
+  let users = await client.get('Users');
+  users = JSON.parse(users);
+  users.push({sub: id, email: username});
+  await client.set('Users', JSON.stringify(users));
+
+  return newUser;
 };
 
 const changePassword = async (uid, newPassword, client) => {
@@ -78,6 +107,10 @@ class UserRedisAdapter extends UserAdapter {
     }
   }
 
+  async create(username, password, firstName, lastName) {
+    return createUser(username, password, firstName, lastName, redisClient);
+  }
+
   async findByUsername(username) {
     try {
       return await findByUsername(username, redisClient);
@@ -100,7 +133,7 @@ class UserRedisAdapter extends UserAdapter {
       }
       return 0;
     });
-    const pagesOfUsers = _.chunk(orderedUserList, pageSize);
+    const pagesOfUsers = chunk(orderedUserList, pageSize);
     if (page > pagesOfUsers.length) {
       return null;
     }
@@ -108,7 +141,7 @@ class UserRedisAdapter extends UserAdapter {
     const users = await Promise.all(pagesOfUsers[page - 1].map(async item => find(item.sub, redisClient)));
     return {
       users,
-      numberOfPages: pagesOfUsers.length,
+      numberOfPages: pagesOfUsers.length
     };
   }
 

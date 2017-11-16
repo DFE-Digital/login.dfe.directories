@@ -100,5 +100,19 @@ describe('When using redis storage service', () => {
       expect(actual).toBeNull();
     });
 
+    it('returns an existing user if the username already exists', async () => {
+      redis.set('Users', '[{"sub": "54321", "email":"test4@localuser.com"},{"sub": "12345", "email":"test3@localuser.com"}]');
+      redis.set('User_12345', '{"sub": "12345","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
+
+      const username = 'test3@localuser.com';
+      const password = 'password';
+      const firstName = 'Bill';
+      const lastName = 'Shankley';
+
+      const actual = await userStorage.create(username, password, firstName, lastName);
+
+      expect(actual).not.toBeNull();
+      expect(actual.sub).toBe('12345');
+    })
   });
 });

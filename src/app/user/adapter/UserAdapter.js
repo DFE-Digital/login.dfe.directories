@@ -1,17 +1,23 @@
 'use strict';
 
 const crypto = require('crypto');
-const { promisify } = require('util');
+const {promisify} = require('util');
 
 class UserAdapter {
   async find(id) {
     return Promise.resolve(null);
   }
+
   async findByUsername(username) {
     return Promise.resolve(null);
   }
+
   async list(page = 1, pageSize = 10) {
     return Promise.resolve([]);
+  }
+
+  async create(username, password, firstName, lastName) {
+    return Promise.resolve({username, password, firstName, lastName});
   }
 
   async authenticate(username, password) {
@@ -28,7 +34,8 @@ class UserAdapter {
     }
     return null;
   }
-  async changePassword(uid, newPassword){
+
+  async changePassword(uid, newPassword) {
     return Promise.resolve(null);
   }
 }

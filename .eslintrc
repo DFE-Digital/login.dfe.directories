@@ -1,11 +1,18 @@
 {
-  "extends": "airbnb-base",
+  "extends": ["airbnb-base", "plugin:jest/recommended"],
+  "plugins": [
+    "jest"
+  ],
   "rules": {
     "no-empty": ["error", { "allowEmptyCatch": true }],
     "prefer-rest-params": "off",
     "prefer-spread": "off",
     "strict": "off",
     "no-underscore-dangle": ["error", { "allowAfterThis": true }],
-    "max-len": 0
-  }
+    "max-len": 0,
+    "object-curly-spacing": "off"
+  },
+  "env": {
+  "jest/globals": true
+}
 }

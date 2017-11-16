@@ -1,8 +1,10 @@
+'use strict';
+
 const RedisMock = require('ioredis-mock').default;
 const UserStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
-const { promisify } = require('util');
-const crypto = require('crypto');
+const {promisify} = require('util');
 
+const crypto = require('crypto');
 describe('When using redis storage service', () => {
   describe('then when I call find', () => {
     let redis;
@@ -75,5 +77,42 @@ describe('When using redis storage service', () => {
       const derivedKey = await request('my-new-password', saltBuffer, 10000, 512, 'sha512');
       expect(findResult.password).toBe(derivedKey.toString('base64'));
     });
+  });
+  describe('then when i call create', () => {
+    let redis;
+    let userStorage;
+
+    beforeEach(() => {
+      redis = new RedisMock();
+      redis.disconnect = () => true;
+      userStorage = new UserStorage(redis);
+    });
+
+    it('null is returned if no username and/or password is specified', async () => {
+
+      const username = null;
+      const password = null;
+      const firstName = null;
+      const lastName = null;
+
+      const actual = await userStorage.create(username, password, firstName, lastName);
+
+      expect(actual).toBeNull();
+    });
+
+    it('returns an existing user if the username already exists', async () => {
+      redis.set('Users', '[{"sub": "54321", "email":"test4@localuser.com"},{"sub": "12345", "email":"test3@localuser.com"}]');
+      redis.set('User_12345', '{"sub": "12345","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
+
+      const username = 'test3@localuser.com';
+      const password = 'password';
+      const firstName = 'Bill';
+      const lastName = 'Shankley';
+
+      const actual = await userStorage.create(username, password, firstName, lastName);
+
+      expect(actual).not.toBeNull();
+      expect(actual.sub).toBe('12345');
+    })
   });
 });

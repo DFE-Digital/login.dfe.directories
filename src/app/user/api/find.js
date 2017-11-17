@@ -1,7 +1,7 @@
 const UserAdapter = require('./../adapter');
 const config = require('./../../../infrastructure/config')();
 const logger = require('./../../../infrastructure/logger');
-
+const {safeUser} = require('./../../../utils');
 const find = async (req, res) => {
   const userAdapter = UserAdapter(config);
   try {
@@ -13,13 +13,7 @@ const find = async (req, res) => {
       res.status(404).send();
     }
 
-    const safeUser = {};
-    Object.keys(user).forEach((item) => {
-      if (item.toLowerCase() !== 'password' && item.toLowerCase() !== 'salt') {
-        safeUser[item] = user[item];
-      }
-    });
-    res.send(safeUser);
+    res.send(safeUser(user));
   } catch (e) {
     logger.error(e);
     res.status(500).send(e);

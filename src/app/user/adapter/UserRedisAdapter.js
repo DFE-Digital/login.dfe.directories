@@ -53,7 +53,7 @@ const createUser = async (username, password, firstName, lastName, client) => {
   const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
   const id = uuid.v4();
 
-  const newUser = {id, sub: id, given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword};
+  const newUser = {id, sub: id, given_name: firstName, family_name: lastName, email: username, salt, password: encryptedPassword};
 
   const content = JSON.stringify(newUser);
   await client.set(`User_${id}`, content);

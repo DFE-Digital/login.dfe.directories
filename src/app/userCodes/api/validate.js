@@ -14,7 +14,7 @@ const validate = async (req, res) => {
 
     const code = await storage.getUserPasswordResetCode(uid);
 
-    if (code === null || code === undefined) {
+    if (!code) {
       res.status(404).send();
       return;
     }

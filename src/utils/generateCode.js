@@ -5,7 +5,7 @@ const FULL_CHARSET = 'ABCDEFGHJKMNPQRSTWXYZabcdefghjkmnpqrstwxyz23456789-.><!@%&
 
 const generate = (length = 8, charset = DEC_CHARSET) => {
   let secret = '';
-  for(let i = 0; i < length; i++) {
+  for (let i = 0; i < length; i += 1) {
     secret += charset[Math.floor(Math.random() * charset.length)];
   }
   return secret;
@@ -14,5 +14,5 @@ const generate = (length = 8, charset = DEC_CHARSET) => {
 module.exports = {
   DEC_CHARSET,
   FULL_CHARSET,
-  generate
+  generate,
 };

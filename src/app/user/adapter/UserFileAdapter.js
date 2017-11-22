@@ -1,4 +1,5 @@
 /* eslint-disable object-curly-spacing */
+
 'use strict';
 
 const UserAdapter = require('./UserAdapter');
@@ -54,7 +55,7 @@ class UserFileAdapter extends UserAdapter {
       return null;
     }
 
-    const user = users.find((item) => item.sub === id);
+    const user = users.find(item => item.sub === id);
     return user === undefined ? null : user;
   }
 
@@ -79,7 +80,7 @@ class UserFileAdapter extends UserAdapter {
       return null;
     }
 
-    const user = users.find((item) => item.email === username);
+    const user = users.find(item => item.email === username);
     return user === undefined ? null : user;
   }
 
@@ -92,10 +93,9 @@ class UserFileAdapter extends UserAdapter {
 
     return {
       users: pagesOfUsers[page - 1],
-      numberOfPages: pagesOfUsers.length
+      numberOfPages: pagesOfUsers.length,
     };
   }
-
 }
 
 module.exports = UserFileAdapter;

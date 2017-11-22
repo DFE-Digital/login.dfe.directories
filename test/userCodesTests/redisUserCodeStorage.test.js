@@ -4,7 +4,7 @@ jest.mock('./../../src/infrastructure/config');
 const RedisMock = require('ioredis-mock').default;
 
 describe('When using redis user code storage', () => {
-  let redis;
+  const redis = new RedisMock();
   let generateResetCode;
   let config;
   let configStub;
@@ -25,7 +25,6 @@ describe('When using redis user code storage', () => {
     config = require('./../../src/infrastructure/config');
     config.mockImplementation(configStub);
 
-    redis = new RedisMock();
     const userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
     userStorage = new userCodeStorage(redis);
   });

@@ -5,7 +5,7 @@ const Storage = require('./../data/redisInvitationStorage');
 
 const get = async (req, res) => {
   try {
-    if(!req.params.id) {
+    if (!req.params.id) {
       res.status(400).send();
       return;
     }
@@ -13,14 +13,13 @@ const get = async (req, res) => {
     const storage = new Storage();
     const invitation = await storage.getUserInvitation(req.params.id);
 
-    if(!invitation) {
+    if (!invitation) {
       res.status(404).send();
       return;
     }
 
     res.send(invitation);
-
-  } catch(e){
+  } catch (e) {
     logger.error(e);
     res.status(500).send();
   }

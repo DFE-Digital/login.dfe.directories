@@ -12,12 +12,15 @@ const dev = require('./app/dev');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 
+const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.config.schema');
+validateConfigAndQuitOnError(directoriesSchema, config, logger);
+
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-if (config.hostingEnvironment.useDevViews) {
+if (config.hostingEnvironment.useDevViewsnpm) {
   app.use(expressLayouts);
   app.set('view engine', 'ejs');
   app.set('views', path.resolve(__dirname, 'app'));

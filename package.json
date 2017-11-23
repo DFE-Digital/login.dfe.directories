@@ -18,6 +18,7 @@
     "ioredis": "^3.1.4",
     "lodash": "^4.17.4",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#master",
+    "login.dfe.config.schema": "git+https://github.com/DFE-Digital/login.dfe.config.schema.git",
     "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#master",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#master",
     "mongoose": "^4.11.13",

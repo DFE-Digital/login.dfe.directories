@@ -7,25 +7,25 @@ const schema = new mongoose.Schema({
   sub: String,
   given_name: String,
   family_name: String,
-  email: String
+  email: String,
 });
 
-class UserMongoAdapter extends UserAdapter{
-  constructor(configuration){
+class UserMongoAdapter extends UserAdapter {
+  constructor(configuration) {
     super();
     this.config = configuration;
   }
   find(id) {
-    return new Promise((resolve, reject) => {
-      mongoose.connect(this.config.mongoConnection, { useMongoClient: true}).then(() =>{
+    return new Promise((resolve) => {
+      mongoose.connect(this.config.mongoConnection, { useMongoClient: true }).then(() => {
         const usersModel = mongoose.model('User', schema, 'Users');
-        usersModel.find({sub : id}).then((user) =>{
+        usersModel.find({ sub: id }).then((user) => {
           resolve(user);
         });
       });
     });
   }
-  async list(page = 1, pageSize = 10) {
+  async list() {
     const error = new Error('List method is not implemented for mongo');
     error.type = 'E_NOTIMPLEMENTED';
     throw error;

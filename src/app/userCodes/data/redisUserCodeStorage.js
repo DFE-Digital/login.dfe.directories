@@ -33,7 +33,7 @@ const createCode = async (uid, clientId, client) => {
 
 const deleteCode = async (uid, client) => {
   if (!uid) {
-    return null;
+    return;
   }
   await client.del(`UserResetCode_${uid}`);
 };
@@ -76,4 +76,3 @@ class RedisUserCodeStorage {
 }
 
 module.exports = RedisUserCodeStorage;
-

@@ -134,7 +134,7 @@ describe('When using redis storage service', () => {
     it('a list of users is returned matching the ids', async () => {
       redis.set('User_12345', '{"sub": "12345","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
       redis.set('User_54321', '{"sub": "54321","email":"test4@localuser.com", "first_name": "Retset", "last_name" : "Gnitset"}');
-      const userIds = [{ id: '12345' }, { id: '54321' }];
+      const userIds = ['12345' , '54321'];
 
       const actual = await userStorage.getUsers(userIds);
 
@@ -143,7 +143,7 @@ describe('When using redis storage service', () => {
       expect(actual[1].sub).toBe('54321');
     });
     it('then null is returned if there are no users found', async () => {
-      const userIds = [{ id: 'abcdef' }, { id: 'ghijkl' }];
+      const userIds = ['abcdef', 'ghijkl'];
 
       const actual = await userStorage.getUsers(userIds);
 

@@ -176,9 +176,19 @@ the api calls then follow the pattern of:
 
 ``` GET: /:directoryId/user/:username ```
 
+or
+
+``` GET: /:directoryId/user/:uid ```
+
+or
+
+``` GET: /:directoryId/user/:uid,:uid,:uid ```
+
 eg
 
-``` /test2/user/test@user.com ``` to find a user by username using mongo db 
+``` /test2/user/test@user.com ``` to find a user by username using redis db. 
+
+passing in a comma seperated list of ids will return an array of users.
 
 or 
 

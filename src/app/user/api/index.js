@@ -13,7 +13,7 @@ const router = express.Router();
 
 const routeExport = () => {
   // Add auth middleware
-  if (!config.hostingEnvironment.env === 'dev') {
+  if (config.hostingEnvironment.env !== 'dev') {
     router.use('/', apiAuth(router, config));
   }
 

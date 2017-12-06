@@ -174,25 +174,32 @@ adapter: {
 
 the api calls then follow the pattern of:
 
-``` GET: /:directoryId/user/:username ```
+``` GET: /users/:username ```
 
 or
 
-``` GET: /:directoryId/user/:uid ```
+``` GET: /users/:uid ```
 
 or
 
-``` GET: /:directoryId/user/:uid,:uid,:uid ```
+``` GET: /users/by-id?id=uid ```
 
 eg
 
-``` /test2/user/test@user.com ``` to find a user by username using redis db. 
+``` /users/test@user.com ``` to find a user by username using redis db.
 
-passing in a comma seperated list of ids will return an array of users.
+or
+
+``` 
+/users/by-id?id=12345,54321,98765 
+
+``` 
+
+passing in a comma separated list of ids will return an array of users.
 
 or 
 
-``` POST: /:directoryId/user/authenticate ```
+``` POST: /users/authenticate ```
 
 where the body should be
 
@@ -205,7 +212,7 @@ where the body should be
 
 For change password
 
-``` POST: /:directoryId/user/:id/changepassword ```
+``` POST: /users/:id/changepassword ```
 
 where the body should be
 

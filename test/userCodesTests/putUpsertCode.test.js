@@ -37,8 +37,8 @@ describe('When getting a user code', () => {
     createUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
       resolve(getResponse);
     }));
-    sendPasswordResetStub = jest.fn().mockImplementation((email, code) => emailObject = {
-      email, code,
+    sendPasswordResetStub = jest.fn().mockImplementation((email, code, clientId) => emailObject = {
+      email, code, clientId,
     });
 
     redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
@@ -107,5 +107,6 @@ describe('When getting a user code', () => {
 
     expect(emailObject.code).toBe('ZXY789');
     expect(emailObject.email).toBe(expectedEmailAddress);
+    expect(emailObject.clientId).toBe('client1');
   });
 });

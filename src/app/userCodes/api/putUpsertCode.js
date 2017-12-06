@@ -28,7 +28,7 @@ const put = async (req, res) => {
 
     const user = await userAdapter.find(uid);
 
-    await client.sendPasswordReset(user.email, code.code);
+    await client.sendPasswordReset(user.email, code.code, req.body.clientId);
 
     res.send(code);
   } catch (e) {

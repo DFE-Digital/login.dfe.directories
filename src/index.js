@@ -14,6 +14,7 @@ const invitations = require('./app/invitations/api');
 const dev = require('./app/dev');
 
 const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.config.schema');
+
 validateConfigAndQuitOnError(directoriesSchema, config, logger);
 
 const app = express();

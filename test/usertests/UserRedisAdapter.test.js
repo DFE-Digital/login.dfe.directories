@@ -2,9 +2,10 @@
 
 const RedisMock = require('ioredis-mock').default;
 const UserStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
-const {promisify} = require('util');
+const { promisify } = require('util');
 
 const crypto = require('crypto');
+
 describe('When using redis storage service', () => {
   describe('then when I call find', () => {
     let redis;
@@ -89,7 +90,6 @@ describe('When using redis storage service', () => {
     });
 
     it('null is returned if no username and/or password is specified', async () => {
-
       const username = null;
       const password = null;
       const firstName = null;
@@ -113,6 +113,41 @@ describe('When using redis storage service', () => {
 
       expect(actual).not.toBeNull();
       expect(actual.sub).toBe('12345');
-    })
+    });
+  });
+  describe('then when i call get users by ids', () => {
+    let redis;
+    let userStorage;
+
+    beforeEach(() => {
+      redis = new RedisMock();
+      redis.disconnect = () => true;
+      userStorage = new UserStorage(redis);
+    });
+    it('null is returned if the userIds are not supplied', async () => {
+      const userIds = null;
+
+      const actual = await userStorage.getUsers(userIds);
+
+      expect(actual).toBeNull();
+    });
+    it('a list of users is returned matching the ids', async () => {
+      redis.set('User_12345', '{"sub": "12345","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
+      redis.set('User_54321', '{"sub": "54321","email":"test4@localuser.com", "first_name": "Retset", "last_name" : "Gnitset"}');
+      const userIds = ['12345' , '54321'];
+
+      const actual = await userStorage.getUsers(userIds);
+
+      expect(actual).not.toBeNull();
+      expect(actual[0].sub).toBe('12345');
+      expect(actual[1].sub).toBe('54321');
+    });
+    it('then null is returned if there are no users found', async () => {
+      const userIds = ['abcdef', 'ghijkl'];
+
+      const actual = await userStorage.getUsers(userIds);
+
+      expect(actual).toBeNull();
+    });
   });
 });

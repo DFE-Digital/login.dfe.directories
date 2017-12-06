@@ -6,6 +6,10 @@ const { safeUser } = require('./../../../utils');
 const find = async (req, res) => {
   const userAdapter = UserAdapter(config);
   try {
+    if (!req.params.id) {
+      return res.status(400).send();
+    }
+
     let user = await userAdapter.find(req.params.id);
     if (!user) {
       user = await userAdapter.findByUsername(req.params.id);
@@ -17,7 +21,7 @@ const find = async (req, res) => {
     return res.send(safeUser(user));
   } catch (e) {
     logger.error(e);
-    res.status(500).send(e);
+    return res.status(500).send(e);
   }
 };
 

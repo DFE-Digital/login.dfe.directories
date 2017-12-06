@@ -12,8 +12,10 @@ const search = require('./search');
 const router = express.Router();
 
 const routeExport = () => {
-  // Add auth middleware.
-  router.use('/', apiAuth(router, config));
+  // Add auth middleware
+  if (!config.hostingEnvironment.env === 'dev') {
+    router.use('/', apiAuth(router, config));
+  }
 
   // Map routes to functions.
   router.get('/:directoryId/user/:id', deprecateWith('/users/:id'), find);

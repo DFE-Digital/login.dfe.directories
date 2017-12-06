@@ -71,11 +71,9 @@ const getUsers = async (userIds, client) => {
     return null;
   }
 
-  const userIdSearch = userIds.map(userId => `User_${userId.id}`);
+  const userIdSearch = userIds.map(userId => `User_${userId}`);
 
-  return client.mget(...userIdSearch).filter((user) => {
-    return !user === false;
-  }).map(user => JSON.parse(user));
+  return client.mget(...userIdSearch).filter(user => !user === false).map(user => JSON.parse(user));
 };
 
 const changePassword = async (uid, newPassword, client) => {
@@ -166,9 +164,9 @@ class UserRedisAdapter extends UserAdapter {
 
   async getUsers(uids) {
     try {
-      const users =  await getUsers(uids, redisClient);
+      const users = await getUsers(uids, redisClient);
 
-      if(!users || users.length === 0) {
+      if (!users || users.length === 0) {
         return null;
       }
       return users;

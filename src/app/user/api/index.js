@@ -9,6 +9,7 @@ const changePassword = require('./changePassword');
 const find = require('./find');
 const search = require('./search');
 const getDevices = require('./getDevices');
+const createDevice = require('./createDevice');
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ const routeExport = () => {
   router.post('/users/:id/changepassword', changePassword);
 
   router.get('/users/:id/devices', getDevices);
+  router.post('/users/:id/devices', createDevice);
 
   return router;
 };

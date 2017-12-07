@@ -11,11 +11,7 @@ jest.mock('./../../src/infrastructure/logger', () => {
 jest.mock('./../../src/app/user/devices');
 
 const httpMocks = require('node-mocks-http');
-const getDevices = require('./../../src/app/user/api/getDevices', () => {
-  return {
-    getUserDevices: jest.fn(),
-  };
-});
+const getDevices = require('./../../src/app/user/api/getDevices');
 
 describe('when getting a list of devices for user', () => {
   let req;

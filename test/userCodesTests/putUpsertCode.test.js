@@ -31,7 +31,7 @@ describe('When getting a user code', () => {
       body: {
         uid: expectedUuid,
         clientId: expectedClientId,
-        redirect_uri: expectedRedirectUri,
+        redirectUri: expectedRedirectUri,
       },
     };
 
@@ -86,8 +86,8 @@ describe('When getting a user code', () => {
 
     expect(res.statusCode).toBe(400);
   });
-  it('then a bad request is returned if the redirect_uri is not passed', async () => {
-    req.body.redirect_uri = '';
+  it('then a bad request is returned if the redirectUri is not passed', async () => {
+    req.body.redirectUri = '';
 
     await put(req, res);
 

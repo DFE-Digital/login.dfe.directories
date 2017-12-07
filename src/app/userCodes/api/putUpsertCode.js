@@ -9,7 +9,7 @@ const config = require('./../../../infrastructure/config')();
 const put = async (req, res) => {
   const userAdapter = UserAdapter(config);
   try {
-    if (!req.body.uid || !req.body.clientId || !req.body.redirect_uri) {
+    if (!req.body.uid || !req.body.clientId || !req.body.redirectUri) {
       res.status(400).send();
       return;
     }
@@ -19,7 +19,7 @@ const put = async (req, res) => {
     let code = await storage.getUserPasswordResetCode(uid);
 
     if (!code) {
-      code = await storage.createUserPasswordResetCode(uid, req.body.clientId, req.body.redirect_uri);
+      code = await storage.createUserPasswordResetCode(uid, req.body.clientId, req.body.redirectUri);
     }
 
     const client = new NotificatonClient({

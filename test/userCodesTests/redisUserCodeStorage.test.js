@@ -15,7 +15,7 @@ describe('When using redis user code storage', () => {
     generateResetCode.mockImplementation(() => 'ABC123');
 
     configStub = jest.fn().mockImplementation(() => ({
-      userCodes: { staticCode: false },
+      userCodes: {staticCode: false},
     }));
 
     config = require('./../../src/infrastructure/config');
@@ -37,6 +37,16 @@ describe('When using redis user code storage', () => {
 
       expect(actual).not.toBeNull();
       expect(actual.code).toBe('ABC123');
+    });
+    it('then if there is a record against the user id it is returned', async () => {
+      redis.set('UserResetCode_123', '{"uid":"123","code":"ABC123", "redirectUri":"http://localhost.test"}');
+
+      const actual = await userStorage.getUserPasswordResetCode('123');
+
+      expect(actual).not.toBeNull();
+      expect(actual.uid).toBe('123');
+      expect(actual.code).toBe('ABC123');
+      expect(actual.redirectUri).toBe('http://localhost.test');
     });
   });
   describe('then when i call createUserPasswordResetCode', () => {
@@ -68,7 +78,7 @@ describe('When using redis user code storage', () => {
 
       config = require('./../../src/infrastructure/config');
       configStub = jest.fn().mockImplementation(() => ({
-        userCodes: { staticCode: true },
+        userCodes: {staticCode: true},
       }));
 
       config.mockImplementation(configStub);

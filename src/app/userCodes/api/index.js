@@ -6,6 +6,7 @@ const config = require('./../../../infrastructure/config')();
 const putUpsertCode = require('./putUpsertCode');
 const deleteCode = require('./delete');
 const validateCode = require('./validate');
+const getCode = require('./get');
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ const routeExport = () => {
   router.use('/', apiAuth(router, config));
 
   // Map routed to functions.
+  router.get('/:uid', getCode);
   router.put('/upsert', putUpsertCode);
   router.get('/validate/:uid/:code', validateCode);
   router.delete('/:uid', deleteCode);

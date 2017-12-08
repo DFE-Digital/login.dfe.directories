@@ -11,35 +11,31 @@ describe('When deleting a user code', () => {
   beforeEach(() => {
     res = httpMocks.createResponse();
     req = {
-      params:{
+      params: {
         uid: '7654321',
-        code: 'ABC123'
-      }
+        code: 'ABC123',
+      },
     };
-    deleteUserStub = jest.fn().mockImplementation(()=>{ return new Promise((resolve)=>{      resolve();    })});
+    deleteUserStub = jest.fn().mockImplementation(() => new Promise((resolve) => { resolve(); }));
 
     redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
-    redisUserCodeStorage.mockImplementation(() => {
-      return {
-        deleteUserPasswordResetCode : deleteUserStub
-      }
-    });
+    redisUserCodeStorage.mockImplementation(() => ({
+      deleteUserPasswordResetCode: deleteUserStub,
+    }));
   });
   it('then a bad request is returned if the uid is not supplied', async () => {
-    //todo look at why when this fails it doesn't cause the test runner to stop
-    const uidValues = ['',undefined,null];
+    const uidValues = ['', undefined, null];
 
-    await uidValues.map(async (valueToUse) =>{
+    await Promise.all(await uidValues.map(async (valueToUse) => {
       req.params.uid = valueToUse;
 
-      await deleteUserCode(req,res);
+      await deleteUserCode(req, res);
       expect(res.statusCode).toBe(400);
-    });
+    }));
   });
-  it('then a 200 response code is returned if the uid is provided', async () =>{
-
-    await deleteUserCode(req,res);
+  it('then a 200 response code is returned if the uid is provided', async () => {
+    await deleteUserCode(req, res);
 
     expect(res.statusCode).toBe(200);
-  })
+  });
 });

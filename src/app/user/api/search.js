@@ -1,7 +1,7 @@
 const UserAdapter = require('./../adapter');
 const config = require('./../../../infrastructure/config')();
 const logger = require('./../../../infrastructure/logger');
-const {safeUser} = require('./../../../utils');
+const { safeUser } = require('./../../../utils');
 
 const search = async (req, res) => {
   const userAdapter = UserAdapter(config);

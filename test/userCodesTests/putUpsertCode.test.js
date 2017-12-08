@@ -8,6 +8,9 @@ const httpMocks = require('node-mocks-http');
 
 describe('When getting a user code', () => {
   const expectedEmailAddress = 'test@unit.local';
+  const expectedUuid = '7654321';
+  const expectedClientId = 'client1';
+  const expectedRedirectUri = 'http://localhost.test';
   let req;
   let res;
   let getResponse = null;
@@ -26,8 +29,9 @@ describe('When getting a user code', () => {
     res = httpMocks.createResponse();
     req = {
       body: {
-        uid: '7654321',
-        clientId: 'client1',
+        uid: expectedUuid,
+        clientId: expectedClientId,
+        redirectUri: expectedRedirectUri,
       },
     };
 
@@ -68,15 +72,22 @@ describe('When getting a user code', () => {
 
     put = require('./../../src/app/userCodes/api/putUpsertCode');
   });
-  it('then an empty response is returned if the uid is not passed and the status code set to bad request', async () => {
+  it('then a bad request is returned if the uid is not passed and the status code set to bad request', async () => {
     req.body.uid = '';
 
     await put(req, res);
 
     expect(res.statusCode).toBe(400);
   });
-  it('then an empty response is returned if the client is not passed and the status code set to bad request', async () => {
+  it('then a bad request is returned if the client is not passed and the status code set to bad request', async () => {
     req.body.clientId = '';
+
+    await put(req, res);
+
+    expect(res.statusCode).toBe(400);
+  });
+  it('then a bad request is returned if the redirectUri is not passed', async () => {
+    req.body.redirectUri = '';
 
     await put(req, res);
 
@@ -108,5 +119,16 @@ describe('When getting a user code', () => {
     expect(emailObject.code).toBe('ZXY789');
     expect(emailObject.email).toBe(expectedEmailAddress);
     expect(emailObject.clientId).toBe('client1');
+  });
+  it('then the code is generated with the passed in parameters', async () => {
+    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
+      resolve(null);
+    }));
+
+    await put(req, res);
+
+    expect(createUserPasswordResetCodeStub.mock.calls[0][0]).toBe(expectedUuid);
+    expect(createUserPasswordResetCodeStub.mock.calls[0][1]).toBe(expectedClientId);
+    expect(createUserPasswordResetCodeStub.mock.calls[0][2]).toBe(expectedRedirectUri);
   });
 });

@@ -14,8 +14,8 @@ const find = async (uid, client) => {
   return userCode || null;
 };
 
-const createCode = async (uid, clientId, client) => {
-  if (!uid || !clientId) {
+const createCode = async (uid, clientId, redirectUri, client) => {
+  if (!uid || !clientId || !redirectUri) {
     return null;
   }
 
@@ -24,6 +24,7 @@ const createCode = async (uid, clientId, client) => {
     uid,
     code,
     clientId,
+    redirectUri,
   };
   const content = JSON.stringify(userResetCode);
 
@@ -56,9 +57,9 @@ class RedisUserCodeStorage {
     }
   }
 
-  async createUserPasswordResetCode(uid, clientId) {
+  async createUserPasswordResetCode(uid, clientId, redirectUri) {
     try {
-      return await createCode(uid, clientId, this.client);
+      return await createCode(uid, clientId, redirectUri, this.client);
     } catch (e) {
       logger.error(e);
       throw e;

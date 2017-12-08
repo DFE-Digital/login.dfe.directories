@@ -1,5 +1,5 @@
 jest.mock('./../../src/infrastructure/config', () => {
-  return jest.fn().mockReturnValue({});
+  return jest.fn().mockReturnValue({ devices: { type: 'static' } });
 });
 jest.mock('./../../src/infrastructure/logger', () => {
   return {

@@ -2,7 +2,7 @@
 
 const logger = require('./../../../infrastructure/logger');
 const InvitationStorage = require('./../data/redisInvitationStorage');
-const config = require('./../../../infrastructure/config')();
+const config = require('./../../../infrastructure/config');
 const UserStorage = require('./../../user/adapter');
 const { safeUser } = require('./../../../utils');
 

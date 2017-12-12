@@ -5,7 +5,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const config = require('./../../infrastructure/config')();
+const config = require('./../../infrastructure/config');
 const UsersAdapter = require('./../user/adapter');
 const UserCodesAdapter = require('./../userCodes/data/redisUserCodeStorage');
 

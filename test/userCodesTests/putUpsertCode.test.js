@@ -1,6 +1,11 @@
 jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage');
 jest.mock('login.dfe.notifications.client');
-jest.mock('./../../src/infrastructure/config');
+jest.mock('./../../src/infrastructure/config', () => ({
+  notifications: {
+    connectionString: '',
+  },
+}));
+
 jest.mock('./../../src/app/user/adapter');
 
 
@@ -20,7 +25,6 @@ describe('When getting a user code', () => {
   let getUserPasswordResetCodeStub;
   let createUserPasswordResetCodeStub;
   let sendPasswordResetStub;
-  let config;
   let userAdapter;
   let put;
 
@@ -54,13 +58,6 @@ describe('When getting a user code', () => {
     notificationClient = require('login.dfe.notifications.client');
     notificationClient.mockImplementation(() => ({
       sendPasswordReset: sendPasswordResetStub,
-    }));
-
-    config = require('./../../src/infrastructure/config');
-    config.mockImplementation(() => ({
-      notifications: {
-        connectionString: '',
-      },
     }));
 
     userAdapter = require('./../../src/app/user/adapter');

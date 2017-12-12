@@ -1,6 +1,6 @@
 'use strict';
 
-const config = require('./../../../infrastructure/config')();
+const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const Storage = require('./../data/redisInvitationStorage');
 const NotificationClient = require('login.dfe.notifications.client');

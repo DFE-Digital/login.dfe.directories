@@ -1,7 +1,7 @@
 'use strict';
 
 const Redis = require('ioredis');
-const config = require('./../../../infrastructure/config')();
+const config = require('./../../../infrastructure/config');
 const resetCode = require('./../utils/generateResetCode');
 const logger = require('./../../../infrastructure/logger');
 

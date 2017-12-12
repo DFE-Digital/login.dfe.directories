@@ -1,27 +1,20 @@
 jest.mock('./../../src/app/userCodes/utils/generateResetCode');
-jest.mock('./../../src/infrastructure/config');
+jest.mock('./../../src/infrastructure/config', () => ({
+  userCodes: { staticCode: false },
+}));
 
 const RedisMock = require('ioredis-mock').default;
 
 describe('When using redis user code storage', () => {
   const redis = new RedisMock();
   let generateResetCode;
-  let config;
-  let configStub;
+  let userCodeStorage;
   let userStorage;
 
   beforeEach(() => {
     generateResetCode = require('./../../src/app/userCodes/utils/generateResetCode');
     generateResetCode.mockImplementation(() => 'ABC123');
-
-    configStub = jest.fn().mockImplementation(() => ({
-      userCodes: {staticCode: false},
-    }));
-
-    config = require('./../../src/infrastructure/config');
-    config.mockImplementation(configStub);
-
-    const userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+    userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
     userStorage = new userCodeStorage(redis);
   });
   describe('then when I call GetUserPasswordResetCode', () => {
@@ -75,15 +68,13 @@ describe('When using redis user code storage', () => {
       jest.resetModules();
       generateResetCode = require('./../../src/app/userCodes/utils/generateResetCode');
       generateResetCode.mockImplementation(() => 'XYZ123');
-
-      config = require('./../../src/infrastructure/config');
-      configStub = jest.fn().mockImplementation(() => ({
-        userCodes: {staticCode: true},
+      jest.doMock('./../../src/infrastructure/config', () => ({
+        userCodes: { staticCode: true },
       }));
 
-      config.mockImplementation(configStub);
-
-      const actual = await userStorage.createUserPasswordResetCode('321', 'client1', 'http://local.test');
+      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      const userStorageNew = new userCodeStorage(redis);
+      const actual = await userStorageNew.createUserPasswordResetCode('321', 'client1', 'http://local.test');
 
       expect(actual.code).toBe('ABC123');
     });

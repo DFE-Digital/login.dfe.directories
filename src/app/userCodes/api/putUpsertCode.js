@@ -4,7 +4,7 @@ const logger = require('./../../../infrastructure/logger');
 const RedisUserCodeStorage = require('./../data/redisUserCodeStorage');
 const NotificatonClient = require('login.dfe.notifications.client');
 const UserAdapter = require('./../../user/adapter');
-const config = require('./../../../infrastructure/config')();
+const config = require('./../../../infrastructure/config');
 
 const put = async (req, res) => {
   const userAdapter = UserAdapter(config);

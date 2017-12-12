@@ -1,5 +1,5 @@
 const UserAdapter = require('./../adapter');
-const config = require('./../../../infrastructure/config')();
+const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 
 const changePassword = async (req, res) => {

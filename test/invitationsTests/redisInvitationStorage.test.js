@@ -1,4 +1,9 @@
 jest.mock('uuid/v4');
+jest.mock('./../../src/infrastructure/config', () => ({
+  redis: {
+    url: 'http://orgs.api.test',
+  },
+}));
 
 const RedisMock = require('ioredis-mock').default;
 const InvitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');

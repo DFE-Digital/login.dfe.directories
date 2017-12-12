@@ -2,7 +2,7 @@
 
 const express = require('express');
 const apiAuth = require('login.dfe.api.auth');
-const config = require('./../../../infrastructure/config')();
+const config = require('./../../../infrastructure/config');
 const putUpsertCode = require('./putUpsertCode');
 const deleteCode = require('./delete');
 const validateCode = require('./validate');

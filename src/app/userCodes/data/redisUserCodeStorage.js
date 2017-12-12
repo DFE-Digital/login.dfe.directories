@@ -5,7 +5,9 @@ const config = require('./../../../infrastructure/config');
 const resetCode = require('./../utils/generateResetCode');
 const logger = require('./../../../infrastructure/logger');
 
-const find = async (uid, client) => {
+const client = new Redis(config.redis.url);
+
+const find = async (uid) => {
   const result = await client.get(`UserResetCode_${uid}`);
   if (!result) {
     return null;
@@ -14,7 +16,7 @@ const find = async (uid, client) => {
   return userCode || null;
 };
 
-const createCode = async (uid, clientId, redirectUri, client) => {
+const createCode = async (uid, clientId, redirectUri) => {
   if (!uid || !clientId || !redirectUri) {
     return null;
   }
@@ -32,48 +34,44 @@ const createCode = async (uid, clientId, redirectUri, client) => {
   return userResetCode;
 };
 
-const deleteCode = async (uid, client) => {
+const deleteCode = async (uid) => {
   if (!uid) {
     return;
   }
   await client.del(`UserResetCode_${uid}`);
 };
 
-class RedisUserCodeStorage {
-  constructor(redisClient) {
-    if (redisClient === null || redisClient === undefined) {
-      this.client = new Redis(config.userCodes.redisUrl);
-    } else {
-      this.client = redisClient;
-    }
-  }
 
-  async getUserPasswordResetCode(uid) {
-    try {
-      return await find(uid, this.client);
-    } catch (e) {
-      logger.error(e);
-      throw e;
-    }
+const getUserPasswordResetCode = async (uid) => {
+  try {
+    return await find(uid);
+  } catch (e) {
+    logger.error(e);
+    throw e;
   }
+};
 
-  async createUserPasswordResetCode(uid, clientId, redirectUri) {
-    try {
-      return await createCode(uid, clientId, redirectUri, this.client);
-    } catch (e) {
-      logger.error(e);
-      throw e;
-    }
+const createUserPasswordResetCode = async (uid, clientId, redirectUri) => {
+  try {
+    return await createCode(uid, clientId, redirectUri);
+  } catch (e) {
+    logger.error(e);
+    throw e;
   }
+};
 
-  async deleteUserPasswordResetCode(uid) {
-    try {
-      return await deleteCode(uid, this.client);
-    } catch (e) {
-      logger.error(e);
-      throw e;
-    }
+const deleteUserPasswordResetCode = async (uid) => {
+  try {
+    return await deleteCode(uid);
+  } catch (e) {
+    logger.error(e);
+    throw e;
   }
-}
+};
 
-module.exports = RedisUserCodeStorage;
+
+module.exports = {
+  getUserPasswordResetCode,
+  createUserPasswordResetCode,
+  deleteUserPasswordResetCode,
+};

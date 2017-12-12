@@ -1,9 +1,11 @@
 const Redis = require('ioredis');
-const config = require('./../../../infrastructure/config')();
+const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const uuid = require('uuid/v4');
 
-const find = async (id, client) => {
+const client = new Redis(config.redis.url);
+
+const find = async (id) => {
   const result = await client.get(`UserInvitation_${id}`);
   if (!result) {
     return null;
@@ -13,7 +15,7 @@ const find = async (id, client) => {
 };
 
 
-const createInvitation = async (invitation, client) => {
+const createInvitation = async (invitation) => {
   if (!invitation) {
     return null;
   }
@@ -27,48 +29,46 @@ const createInvitation = async (invitation, client) => {
   return JSON.parse(content);
 };
 
-const deleteInvitation = async (id, client) => {
+const deleteInvitationForUser = async (id) => {
   if (!id) {
     return null;
   }
   await client.del(`UserInvitation_${id}`);
+
+  return '';
 };
 
-class RedisInvitationStorage {
-  constructor(redisClient) {
-    if (redisClient === null || redisClient === undefined) {
-      this.client = new Redis(config.invitations.redisUrl);
-    } else {
-      this.client = redisClient;
-    }
-  }
 
-  async getUserInvitation(id) {
-    try {
-      return await find(id, this.client);
-    } catch (e) {
-      logger.error(e);
-      throw e;
-    }
+const getUserInvitation = async (id) => {
+  try {
+    return await find(id);
+  } catch (e) {
+    logger.error(e);
+    throw e;
   }
+};
 
-  async createUserInvitation(invitation) {
-    try {
-      return await createInvitation(invitation, this.client);
-    } catch (e) {
-      logger.error(e);
-      throw e;
-    }
+const createUserInvitation = async (invitation) => {
+  try {
+    return await createInvitation(invitation);
+  } catch (e) {
+    logger.error(e);
+    throw e;
   }
+};
 
-  async deleteInvitation(id) {
-    try {
-      await deleteInvitation(id, this.client);
-    } catch (e) {
-      logger.error(e);
-      throw e;
-    }
+const deleteInvitation = async (id) => {
+  try {
+    await deleteInvitationForUser(id);
+  } catch (e) {
+    logger.error(e);
+    throw e;
   }
-}
+};
 
-module.exports = RedisInvitationStorage;
+
+module.exports = {
+  deleteInvitation,
+  createUserInvitation,
+  getUserInvitation,
+};

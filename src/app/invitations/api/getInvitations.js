@@ -1,7 +1,7 @@
 'use strict';
 
 const logger = require('./../../../infrastructure/logger');
-const Storage = require('./../data/redisInvitationStorage');
+const storage = require('./../data/redisInvitationStorage');
 
 const get = async (req, res) => {
   try {
@@ -10,7 +10,6 @@ const get = async (req, res) => {
       return;
     }
 
-    const storage = new Storage();
     const invitation = await storage.getUserInvitation(req.params.id);
 
     if (!invitation) {

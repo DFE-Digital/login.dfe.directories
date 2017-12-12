@@ -2,7 +2,7 @@
 
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
-const Storage = require('./../data/redisInvitationStorage');
+const storage = require('./../data/redisInvitationStorage');
 const NotificationClient = require('login.dfe.notifications.client');
 
 const post = async (req, res) => {
@@ -11,8 +11,6 @@ const post = async (req, res) => {
       res.status(400).send();
       return;
     }
-
-    const storage = new Storage();
 
     const invitation = await storage.createUserInvitation(req.body);
 

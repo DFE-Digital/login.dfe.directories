@@ -1,9 +1,35 @@
-jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage');
+jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
+  const getUserPasswordResetCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
+  const createUserPasswordResetCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test' });
+  return {
+    createUserPasswordResetCode: jest.fn().mockImplementation(createUserPasswordResetCodeStub),
+    getUserPasswordResetCode: jest.fn().mockImplementation(getUserPasswordResetCodeStub),
+  };
+});
 jest.mock('login.dfe.notifications.client');
-jest.mock('./../../src/infrastructure/config');
-jest.mock('./../../src/app/user/adapter');
+jest.mock('./../../src/infrastructure/config', () => ({
+  notifications: {
+    connectionString: '',
+  },
+  userCodes: {
+    redisUrl: 'http://localhost',
+  },
+  adapter: {
+    type: 'redis',
+    params: {
+      redisurl: 'http://orgs.api.test',
+    },
+  },
+}));
 
+jest.mock('./../../src/app/user/adapter', () => {
+  const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local' });
+  return {
+    find: jest.fn().mockImplementation(findStub),
+  };
+});
 
+const redisStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
 const httpMocks = require('node-mocks-http');
 
 describe('When getting a user code', () => {
@@ -13,19 +39,12 @@ describe('When getting a user code', () => {
   const expectedRedirectUri = 'http://localhost.test';
   let req;
   let res;
-  let getResponse = null;
   let emailObject;
-  let redisUserCodeStorage;
   let notificationClient;
-  let getUserPasswordResetCodeStub;
-  let createUserPasswordResetCodeStub;
   let sendPasswordResetStub;
-  let config;
-  let userAdapter;
   let put;
 
   beforeEach(() => {
-    getResponse = { uid: '7654321', code: 'ZXY789' };
     res = httpMocks.createResponse();
     req = {
       body: {
@@ -35,39 +54,13 @@ describe('When getting a user code', () => {
       },
     };
 
-    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
-      resolve(getResponse);
-    }));
-    createUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
-      resolve(getResponse);
-    }));
     sendPasswordResetStub = jest.fn().mockImplementation((email, code, clientId) => emailObject = {
       email, code, clientId,
     });
 
-    redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
-    redisUserCodeStorage.mockImplementation(() => ({
-      getUserPasswordResetCode: getUserPasswordResetCodeStub,
-      createUserPasswordResetCode: createUserPasswordResetCodeStub,
-    }));
-
     notificationClient = require('login.dfe.notifications.client');
     notificationClient.mockImplementation(() => ({
       sendPasswordReset: sendPasswordResetStub,
-    }));
-
-    config = require('./../../src/infrastructure/config');
-    config.mockImplementation(() => ({
-      notifications: {
-        connectionString: '',
-      },
-    }));
-
-    userAdapter = require('./../../src/app/user/adapter');
-    userAdapter.mockImplementation(() => ({
-      find() {
-        return { email: expectedEmailAddress };
-      },
     }));
 
     put = require('./../../src/app/userCodes/api/putUpsertCode');
@@ -94,9 +87,7 @@ describe('When getting a user code', () => {
     expect(res.statusCode).toBe(400);
   });
   it('then a code is generated if the uid is supplied', async () => {
-    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
-      resolve(null);
-    }));
+    redisStorage.getUserPasswordResetCode.mockReturnValue(null);
 
     await put(req, res);
 
@@ -104,9 +95,7 @@ describe('When getting a user code', () => {
     expect(res._getData().uid).toBe('7654321');
   });
   it('then if a code exists for a uid the same one is returned', async () => {
-    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
-      resolve({ uid: '7654321', code: 'ABC123' });
-    }));
+    redisStorage.getUserPasswordResetCode.mockReturnValue({ uid: '7654321', code: 'ABC123' });
 
     await put(req, res);
 
@@ -116,19 +105,17 @@ describe('When getting a user code', () => {
   it('then an email is sent with the code', async () => {
     await put(req, res);
 
-    expect(emailObject.code).toBe('ZXY789');
+    expect(emailObject.code).toBe('ABC123');
     expect(emailObject.email).toBe(expectedEmailAddress);
     expect(emailObject.clientId).toBe('client1');
   });
   it('then the code is generated with the passed in parameters', async () => {
-    getUserPasswordResetCodeStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
-      resolve(null);
-    }));
+    redisStorage.getUserPasswordResetCode.mockReturnValue(null);
 
     await put(req, res);
 
-    expect(createUserPasswordResetCodeStub.mock.calls[0][0]).toBe(expectedUuid);
-    expect(createUserPasswordResetCodeStub.mock.calls[0][1]).toBe(expectedClientId);
-    expect(createUserPasswordResetCodeStub.mock.calls[0][2]).toBe(expectedRedirectUri);
+    expect(redisStorage.createUserPasswordResetCode.mock.calls[0][0]).toBe(expectedUuid);
+    expect(redisStorage.createUserPasswordResetCode.mock.calls[0][1]).toBe(expectedClientId);
+    expect(redisStorage.createUserPasswordResetCode.mock.calls[0][2]).toBe(expectedRedirectUri);
   });
 });

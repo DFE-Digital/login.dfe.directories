@@ -1,13 +1,13 @@
 'use strict';
 
 const logger = require('./../../../infrastructure/logger');
-const RedisUserCodeStorage = require('./../data/redisUserCodeStorage');
+const storage = require('./../data/redisUserCodeStorage');
 const NotificatonClient = require('login.dfe.notifications.client');
-const UserAdapter = require('./../../user/adapter');
-const config = require('./../../../infrastructure/config')();
+const userAdapter = require('./../../user/adapter');
+const config = require('./../../../infrastructure/config');
 
 const put = async (req, res) => {
-  const userAdapter = UserAdapter(config);
+
   try {
     if (!req.body.uid || !req.body.clientId || !req.body.redirectUri) {
       res.status(400).contentType('json').send(JSON.stringify({
@@ -19,7 +19,6 @@ const put = async (req, res) => {
       return;
     }
     const uid = req.body.uid;
-    const storage = new RedisUserCodeStorage();
 
     let code = await storage.getUserPasswordResetCode(uid);
 

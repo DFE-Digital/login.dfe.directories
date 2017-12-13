@@ -2,7 +2,7 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const config = require('./infrastructure/config')();
+const config = require('./infrastructure/config');
 const logger = require('./infrastructure/logger');
 const https = require('https');
 const expressLayouts = require('express-ejs-layouts');

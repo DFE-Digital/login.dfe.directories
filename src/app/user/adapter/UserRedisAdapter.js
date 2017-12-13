@@ -1,15 +1,16 @@
 'use strict';
 
-const UserAdapter = require('./UserAdapter');
 const Redis = require('ioredis');
 const crypto = require('crypto');
+const { promisify } = require('util');
 const generateSalt = require('./../utils/generateSalt');
 const { chunk } = require('lodash');
 const uuid = require('uuid');
+const config = require('./../../../infrastructure/config');
 
-let redisClient;
+const client = new Redis(config.adapter.params.redisurl);
 
-const find = async (id, client) => {
+const findById = async (id) => {
   const result = await client.get(`User_${id}`);
   if (!result) {
     return null;
@@ -18,7 +19,7 @@ const find = async (id, client) => {
   return user || null;
 };
 
-const findByUsername = async (username, client) => {
+const findByEmail = async (email) => {
   const result = await client.get('Users');
   if (!result) {
     return null;
@@ -29,22 +30,22 @@ const findByUsername = async (username, client) => {
     return null;
   }
 
-  const userRef = users.find(item => item.email.toLowerCase() === username.toLowerCase());
+  const userRef = users.find(item => item.email.toLowerCase() === email.toLowerCase());
 
   if (!userRef) {
     return null;
   }
 
-  const user = await find(userRef.sub, client);
+  const user = await findById(userRef.sub);
   return user || null;
 };
 
-const createUser = async (username, password, firstName, lastName, client) => {
+const createUser = async (username, password, firstName, lastName) => {
   if (!username || !password) {
     return null;
   }
 
-  const exists = await findByUsername(username, client);
+  const exists = await findByUsername(username);
   if (exists) {
     return exists;
   }
@@ -66,8 +67,8 @@ const createUser = async (username, password, firstName, lastName, client) => {
   return newUser;
 };
 
-const getUsers = async (userIds, client) => {
-  if (!userIds || !client) {
+const getManyUsers = async (userIds) => {
+  if (!userIds) {
     return null;
   }
 
@@ -76,7 +77,7 @@ const getUsers = async (userIds, client) => {
   return client.mget(...userIdSearch).filter(user => !user === false).map(user => JSON.parse(user));
 };
 
-const changePassword = async (uid, newPassword, client) => {
+const changePasswordForUser = async (uid, newPassword) => {
   const result = await client.get(`User_${uid}`);
   if (!result) {
     return false;
@@ -95,85 +96,93 @@ const changePassword = async (uid, newPassword, client) => {
   return !!client.set(`User_${uid}`, JSON.stringify(user));
 };
 
-class UserRedisAdapter extends UserAdapter {
-  constructor(client, config) {
-    super();
+const find = async (id) => {
+  try {
+    return await findById(id);
+  } catch (e) {
+    throw (e);
+  }
+};
 
-    if (!client) {
-      if (!redisClient) {
-        redisClient = new Redis(config.redisurl);
-      }
-    } else {
-      redisClient = client;
+const create = async (username, password, firstName, lastName) => createUser(username, password, firstName, lastName);
+
+const findByUsername = async (username) => {
+  try {
+    return await findByEmail(username);
+  } catch (e) {
+    throw (e);
+  }
+};
+
+const list = async (page = 1, pageSize = 10) => {
+  const userList = await client.get('Users');
+  if (!userList) {
+    return null;
+  }
+  const orderedUserList = JSON.parse(userList).sort((x, y) => {
+    if (x.email < y.email) {
+      return -1;
     }
-  }
-
-  async find(id) {
-    try {
-      return await find(id, redisClient);
-    } catch (e) {
-      throw (e);
+    if (x.email > y.email) {
+      return 1;
     }
+    return 0;
+  });
+  const pagesOfUsers = chunk(orderedUserList, pageSize);
+  if (page > pagesOfUsers.length) {
+    return null;
   }
 
-  async create(username, password, firstName, lastName) {
-    return createUser(username, password, firstName, lastName, redisClient);
-  }
+  const users = await Promise.all(pagesOfUsers[page - 1].map(async item => find(item.sub)));
+  return {
+    users,
+    numberOfPages: pagesOfUsers.length,
+  };
+};
 
-  async findByUsername(username) {
-    try {
-      return await findByUsername(username, redisClient);
-    } catch (e) {
-      throw (e);
-    }
+const changePassword = async (uid, newPassword) => {
+  try {
+    return await changePasswordForUser(uid, newPassword);
+  } catch (e) {
+    throw (e);
   }
+};
 
-  async list(page = 1, pageSize = 10) {
-    const userList = await redisClient.get('Users');
-    if (!userList) {
+const getUsers = async (uids) => {
+  try {
+    const users = await getManyUsers(uids);
+
+    if (!users || users.length === 0) {
       return null;
     }
-    const orderedUserList = JSON.parse(userList).sort((x, y) => {
-      if (x.email < y.email) {
-        return -1;
-      }
-      if (x.email > y.email) {
-        return 1;
-      }
-      return 0;
-    });
-    const pagesOfUsers = chunk(orderedUserList, pageSize);
-    if (page > pagesOfUsers.length) {
-      return null;
-    }
-
-    const users = await Promise.all(pagesOfUsers[page - 1].map(async item => find(item.sub, redisClient)));
-    return {
-      users,
-      numberOfPages: pagesOfUsers.length,
-    };
+    return users;
+  } catch (e) {
+    throw (e);
   }
+};
 
-  async changePassword(uid, newPassword) {
-    try {
-      return await changePassword(uid, newPassword, redisClient);
-    } catch (e) {
-      throw (e);
-    }
+const authenticate = async (username, password) => {
+  const user = await findByUsername(username);
+
+  if (!user) return null;
+  const request = promisify(crypto.pbkdf2);
+
+  const saltBuffer = Buffer.from(user.salt, 'utf8');
+  const derivedKey = await request(password, saltBuffer, 10000, 512, 'sha512');
+
+  if (derivedKey.toString('base64') === user.password) {
+    return user;
   }
+  return null;
+};
 
-  async getUsers(uids) {
-    try {
-      const users = await getUsers(uids, redisClient);
 
-      if (!users || users.length === 0) {
-        return null;
-      }
-      return users;
-    } catch (e) {
-      throw (e);
-    }
-  }
-}
-
-module.exports = UserRedisAdapter;
+module.exports = {
+  getUsers,
+  changePassword,
+  list,
+  findByUsername,
+  create,
+  find,
+  authenticate,
+};

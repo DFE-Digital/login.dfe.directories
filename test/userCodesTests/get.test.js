@@ -1,5 +1,15 @@
-jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage');
+jest.mock('./../../src/infrastructure/config', () => ({
+  redis: {
+    url: 'http://orgs.api.test',
+  },
+}));
 
+jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
+  const getUserPasswordResetCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
+  return {
+    getUserPasswordResetCode: jest.fn().mockImplementation(getUserPasswordResetCodeStub),
+  };
+});
 const get = require('./../../src/app/userCodes/api/get');
 const httpMocks = require('node-mocks-http');
 
@@ -7,9 +17,6 @@ const httpMocks = require('node-mocks-http');
 describe('When getting a user code', () => {
   let req;
   let res;
-  let redisUserCodeStorage;
-  let getUserStub;
-  const getResponse = { uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' };
 
   beforeEach(() => {
     res = httpMocks.createResponse();
@@ -19,14 +26,6 @@ describe('When getting a user code', () => {
       },
     };
 
-    getUserStub = jest.fn().mockImplementation(() => new Promise((resolve) => {
-      resolve(getResponse);
-    }));
-
-    redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
-    redisUserCodeStorage.mockImplementation(() => ({
-      getUserPasswordResetCode: getUserStub,
-    }));
   });
   it('then an empty response is returned and a bad request status code sent if there is no uid', async () => {
     const uidValues = ['', undefined, null];

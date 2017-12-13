@@ -1,10 +1,9 @@
-const UserAdapter = require('./../adapter');
-const config = require('./../../../infrastructure/config')();
+const userAdapter = require('./../adapter');
+const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const { safeUser } = require('./../../../utils');
 
 const find = async (req, res) => {
-  const userAdapter = UserAdapter(config);
   try {
     if (!req.params.id) {
       return res.status(400).send();

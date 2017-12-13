@@ -1,12 +1,22 @@
-jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage');
+jest.mock('./../../src/infrastructure/config', () => ({
+  redis: {
+    url: 'http://orgs.api.test',
+  },
+}));
+
+jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
+  const deleteUserPasswordResetCodeStub = jest.fn();
+  return {
+    deleteUserPasswordResetCode: jest.fn().mockImplementation(deleteUserPasswordResetCodeStub),
+  };
+});
+
 const deleteUserCode = require('./../../src/app/userCodes/api/delete');
 const httpMocks = require('node-mocks-http');
 
 describe('When deleting a user code', () => {
   let req;
   let res;
-  let deleteUserStub;
-  let redisUserCodeStorage;
 
   beforeEach(() => {
     res = httpMocks.createResponse();
@@ -16,12 +26,6 @@ describe('When deleting a user code', () => {
         code: 'ABC123',
       },
     };
-    deleteUserStub = jest.fn().mockImplementation(() => new Promise((resolve) => { resolve(); }));
-
-    redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
-    redisUserCodeStorage.mockImplementation(() => ({
-      deleteUserPasswordResetCode: deleteUserStub,
-    }));
   });
   it('then a bad request is returned if the uid is not supplied', async () => {
     const uidValues = ['', undefined, null];

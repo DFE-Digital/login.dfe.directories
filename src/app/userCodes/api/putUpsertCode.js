@@ -3,11 +3,11 @@
 const logger = require('./../../../infrastructure/logger');
 const storage = require('./../data/redisUserCodeStorage');
 const NotificatonClient = require('login.dfe.notifications.client');
-const UserAdapter = require('./../../user/adapter');
+const userAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config');
 
 const put = async (req, res) => {
-  const userAdapter = UserAdapter(config);
+
   try {
     if (!req.body.uid || !req.body.clientId || !req.body.redirectUri) {
       res.status(400).send();

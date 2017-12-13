@@ -2,7 +2,6 @@
 
 'use strict';
 
-const UserAdapter = require('./UserAdapter');
 const file = require('fs');
 const path = require('path');
 const {promisify} = require('util');
@@ -48,55 +47,75 @@ const userSortOrderComparison = (x, y) => {
   return 0;
 };
 
-class UserFileAdapter extends UserAdapter {
-  async find(id) {
-    const users = await readAllUsers();
-    if (!users) {
-      return null;
-    }
 
-    const user = users.find(item => item.sub === id);
-    return user === undefined ? null : user;
+const find = async (id) => {
+  const users = await readAllUsers();
+  if (!users) {
+    return null;
   }
 
-  async create(username, password, firstName, lastName) {
-    const users = await readAllUsers();
-    if (users.find(u => u.email.toLowerCase() === username.toLowerCase())) {
-      const err = new Error('User already exists');
-      err.code = 400;
-      throw err;
-    }
+  const user = users.find(item => item.sub === id);
+  return user === undefined ? null : user;
+};
 
-    const salt = generateSalt();
-    const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
-    const newUser = {sub: uuid.v4(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword};
-    users.push(newUser);
-    return writeAllUsers(users);
+const create = async (username, password, firstName, lastName) => {
+  const users = await readAllUsers();
+  if (users.find(u => u.email.toLowerCase() === username.toLowerCase())) {
+    const err = new Error('User already exists');
+    err.code = 400;
+    throw err;
   }
 
-  async findByUsername(username) {
-    const users = await readAllUsers();
-    if (!users) {
-      return null;
-    }
+  const salt = generateSalt();
+  const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
+  const newUser = {sub: uuid.v4(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword};
+  users.push(newUser);
+  return writeAllUsers(users);
+};
 
-    const user = users.find(item => item.email === username);
-    return user === undefined ? null : user;
+const findByUsername = async (username) => {
+  const users = await readAllUsers();
+  if (!users) {
+    return null;
   }
 
-  async list(page = 1, pageSize = 10) {
-    const allUsers = (await readAllUsers()).sort(userSortOrderComparison);
-    const pagesOfUsers = chunk(allUsers, pageSize);
-    if (page > pagesOfUsers.length) {
-      return null;
-    }
+  const user = users.find(item => item.email === username);
+  return user === undefined ? null : user;
+};
 
-    return {
-      users: pagesOfUsers[page - 1],
-      numberOfPages: pagesOfUsers.length,
-    };
+const list = async (page = 1, pageSize = 10) => {
+  const allUsers = (await readAllUsers()).sort(userSortOrderComparison);
+  const pagesOfUsers = chunk(allUsers, pageSize);
+  if (page > pagesOfUsers.length) {
+    return null;
   }
-}
 
-module.exports = UserFileAdapter;
+  return {
+    users: pagesOfUsers[page - 1],
+    numberOfPages: pagesOfUsers.length,
+  };
+};
+
+const authenticate = async (username, password) => {
+  const user = await this.findByUsername(username);
+
+  if (!user) return null;
+  const request = promisify(crypto.pbkdf2);
+
+  const saltBuffer = Buffer.from(user.salt, 'utf8');
+  const derivedKey = await request(password, saltBuffer, 10000, 512, 'sha512');
+
+  if (derivedKey.toString('base64') === user.password) {
+    return user;
+  }
+  return null;
+};
+
+module.exports = {
+  list,
+  findByUsername,
+  create,
+  find,
+  authenticate,
+};
 

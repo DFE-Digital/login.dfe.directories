@@ -11,12 +11,23 @@ jest.mock('./../../src/infrastructure/config', () => ({
   notifications: {
     connectionString: '',
   },
-  redis: {
-    url: 'http://orgs.api.test',
+  userCodes: {
+    redisUrl: 'http://localhost',
+  },
+  adapter: {
+    type: 'redis',
+    params: {
+      redisurl: 'http://orgs.api.test',
+    },
   },
 }));
 
-jest.mock('./../../src/app/user/adapter');
+jest.mock('./../../src/app/user/adapter', () => {
+  const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local' });
+  return {
+    find: jest.fn().mockImplementation(findStub),
+  };
+});
 
 const redisStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
 const httpMocks = require('node-mocks-http');
@@ -31,7 +42,6 @@ describe('When getting a user code', () => {
   let emailObject;
   let notificationClient;
   let sendPasswordResetStub;
-  let userAdapter;
   let put;
 
   beforeEach(() => {
@@ -51,13 +61,6 @@ describe('When getting a user code', () => {
     notificationClient = require('login.dfe.notifications.client');
     notificationClient.mockImplementation(() => ({
       sendPasswordReset: sendPasswordResetStub,
-    }));
-
-    userAdapter = require('./../../src/app/user/adapter');
-    userAdapter.mockImplementation(() => ({
-      find() {
-        return { email: expectedEmailAddress };
-      },
     }));
 
     put = require('./../../src/app/userCodes/api/putUpsertCode');

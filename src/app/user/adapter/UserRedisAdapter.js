@@ -162,7 +162,7 @@ const getUsers = async (uids) => {
 };
 
 const authenticate = async (username, password) => {
-  const user = await this.findByUsername(username);
+  const user = await findByUsername(username);
 
   if (!user) return null;
   const request = promisify(crypto.pbkdf2);

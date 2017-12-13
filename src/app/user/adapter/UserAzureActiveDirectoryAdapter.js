@@ -2,7 +2,7 @@ const ActiveDirectory = require('activedirectory');
 const UserModel = require('./UserModel');
 const config = require('./../../../infrastructure/config');
 
-const activeDirectory = new ActiveDirectory(config.params);
+const activeDirectory = new ActiveDirectory(config.adapter.params);
 
 
 const find = async id => new Promise((resolve, reject) => {

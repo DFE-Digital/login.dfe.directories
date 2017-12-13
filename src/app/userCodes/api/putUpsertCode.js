@@ -10,7 +10,12 @@ const put = async (req, res) => {
 
   try {
     if (!req.body.uid || !req.body.clientId || !req.body.redirectUri) {
-      res.status(400).send();
+      res.status(400).contentType('json').send(JSON.stringify({
+        message: 'You must provide uid, clientId and redirectUri',
+        uid: req.body.uid ? req.body.uid : 'NOT SUPPLIED',
+        clientId: req.body.clientId ? req.body.clientId : 'NOT SUPPLIED',
+        redirectUri: req.body.redirectUri ? req.body.redirectUri : 'NOT SUPPLIED',
+      }));
       return;
     }
     const uid = req.body.uid;

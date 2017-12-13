@@ -1,4 +1,4 @@
-const config = require('./../../../infrastructure/config')();
+const config = require('./../../../infrastructure/config');
 const IORedis = require('ioredis');
 const redis = new IORedis(config.devices.redisUrl);
 

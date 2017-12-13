@@ -6,10 +6,8 @@ const express = require('express');
 const router = express.Router();
 
 const config = require('./../../infrastructure/config');
-const UsersAdapter = require('./../user/adapter');
-const UserCodesAdapter = require('./../userCodes/data/redisUserCodeStorage');
-
-const codesAdapter = new UserCodesAdapter();
+const usersAdapter = require('./../user/adapter');
+const codesAdapter = require('./../userCodes/data/redisUserCodeStorage');
 
 const getUsersCodes = async (userId) => {
   const codes = [];
@@ -29,7 +27,6 @@ const routes = () => {
       if (req.query.page && parseInt(req.query.page, 10) !== NaN) {
         page = parseInt(req.query.page, 10);
       }
-      const usersAdapter = UsersAdapter(config);
       const pageOfUsers = await usersAdapter.list(page);
       if (!pageOfUsers) {
         res.status(404).send();
@@ -62,7 +59,6 @@ const routes = () => {
   });
 
   router.get('/user/:userid', async (req, res) => {
-    const usersAdapter = UsersAdapter(config);
     const user = await usersAdapter.find(req.params.userid);
     if (!user) {
       res.status(404).send();

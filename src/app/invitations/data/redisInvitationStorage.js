@@ -3,7 +3,7 @@ const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const uuid = require('uuid/v4');
 
-const client = new Redis(config.redis.url);
+const client = new Redis(config.invitations.redisUrl);
 
 const find = async (id) => {
   const result = await client.get(`UserInvitation_${id}`);

@@ -1,10 +1,8 @@
-const UserAdapter = require('./../adapter');
-const config = require('./../../../infrastructure/config');
+const userAdapter = require('./../adapter');
 const logger = require('./../../../infrastructure/logger');
 const { safeUser } = require('./../../../utils');
 
 const search = async (req, res) => {
-  const userAdapter = UserAdapter(config);
   try {
     const users = await userAdapter.getUsers(req.query.id.split(','));
 

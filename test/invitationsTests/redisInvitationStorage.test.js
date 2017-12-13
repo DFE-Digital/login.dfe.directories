@@ -1,7 +1,7 @@
 jest.mock('uuid/v4');
 jest.mock('./../../src/infrastructure/config', () => ({
-  redis: {
-    url: 'http://orgs.api.test',
+  invitations: {
+    redisUrl: 'http://orgs.api.test',
   },
 }));
 

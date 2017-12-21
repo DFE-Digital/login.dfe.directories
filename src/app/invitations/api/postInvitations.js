@@ -12,7 +12,7 @@ const post = async (req, res) => {
       return;
     }
 
-    const invitation = await storage.createUserInvitation(req.body);
+    const invitation = await storage.createUserInvitation(req.body, req.header('x-correlation-id'));
 
     const notificationClient = new NotificationClient({
       connectionString: config.notifications.connectionString,

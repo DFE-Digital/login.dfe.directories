@@ -37,6 +37,7 @@ describe('When creating an invitation', () => {
   const expectedLastName = 'User';
   const expectedServiceName = 'New Service';
   const expectedInvitationId = '30ab55b5-9c27-45e9-9583-abb349b12f35';
+  const expectedRequestCorrelationId = '41ab33e5-4c27-12e9-3451-abb349b12f35';
 
   beforeEach(() => {
     res = httpMocks.createResponse();
@@ -49,6 +50,12 @@ describe('When creating an invitation', () => {
         salt: 'qwer456',
         password: 'Password1',
         serviceName: expectedServiceName,
+      },
+      headers: {
+        'x-correlation-id': expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
       },
     };
 
@@ -108,6 +115,7 @@ describe('When creating an invitation', () => {
 
     expect(res.statusCode).toBe(201);
     expect(redisStorage.createUserInvitation.mock.calls[0][0].email).toBe(expectedEmailAddress);
+    expect(redisStorage.createUserInvitation.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
   });
   it('then the invitation object is returned in the response with an id', async () => {
     redisStorage.createUserInvitation.mockReset();

@@ -48,8 +48,9 @@ const getUserInvitation = async (id) => {
   }
 };
 
-const createUserInvitation = async (invitation) => {
+const createUserInvitation = async (invitation, correlationId) => {
   try {
+    logger.info(`Creating UserInvitation for request: ${correlationId}`);
     return await createInvitation(invitation);
   } catch (e) {
     logger.error(e);

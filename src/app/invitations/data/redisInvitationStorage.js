@@ -44,7 +44,7 @@ const getUserInvitation = async (id, correlationId) => {
     logger.info(`Get UserInvitation for request: ${correlationId}`);
     return await find(id);
   } catch (e) {
-    logger.error(e);
+    logger.error(`Get user invitation failed for request ${correlationId} error: ${e}`);
     throw e;
   }
 };
@@ -54,16 +54,16 @@ const createUserInvitation = async (invitation, correlationId) => {
     logger.info(`Creating UserInvitation for request: ${correlationId}`);
     return await createInvitation(invitation);
   } catch (e) {
-    logger.error(e);
+    logger.error(`Create user invitation failed for request ${correlationId} error: ${e}`);
     throw e;
   }
 };
 
-const deleteInvitation = async (id) => {
+const deleteInvitation = async (id, correlationId) => {
   try {
     await deleteInvitationForUser(id);
   } catch (e) {
-    logger.error(e);
+    logger.error(`Delete user invitation failed for request ${correlationId} error: ${e}`);
     throw e;
   }
 };

@@ -39,8 +39,9 @@ const deleteInvitationForUser = async (id) => {
 };
 
 
-const getUserInvitation = async (id) => {
+const getUserInvitation = async (id, correlationId) => {
   try {
+    logger.info(`Get UserInvitation for request: ${correlationId}`);
     return await find(id);
   } catch (e) {
     logger.error(e);

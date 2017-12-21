@@ -22,7 +22,7 @@ const createUser = async (req, res) => {
     const storage = new InvitationStorage();
     const userAdapter = UserStorage(config);
 
-    const invitation = await storage.getUserInvitation(req.params.id);
+    const invitation = await storage.getUserInvitation(req.params.id, req.header('x-correlation-id'));
 
     if (!invitation) {
       return res.status(404).send();

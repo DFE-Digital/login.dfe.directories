@@ -6,6 +6,7 @@ const authenticate = async (req, res) => {
     const result = await userAdapter.authenticate(
       req.body.username,
       req.body.password,
+      req.header('x-correlation-id'),
     );
 
     if (result) {

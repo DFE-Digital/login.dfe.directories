@@ -8,6 +8,13 @@ jest.mock('./../../src/infrastructure/config', () => ({
 jest.mock('ioredis', () => jest.fn().mockImplementation(() => {
 
 }));
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  };
+});
 
 describe('When using the redis invitation storage', () => {
   let uuid;

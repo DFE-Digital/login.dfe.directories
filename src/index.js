@@ -1,5 +1,6 @@
 'use strict';
 
+const appInsights = require('applicationinsights');
 const express = require('express');
 const bodyParser = require('body-parser');
 const config = require('./infrastructure/config');
@@ -12,7 +13,7 @@ const users = require('./app/user/api');
 const userCodes = require('./app/userCodes/api');
 const invitations = require('./app/invitations/api');
 const dev = require('./app/dev');
-const appInsights = require('applicationinsights');
+
 
 const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.config.schema');
 

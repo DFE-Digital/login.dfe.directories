@@ -10,7 +10,7 @@ const get = async (req, res) => {
       return;
     }
 
-    const invitation = await storage.getUserInvitation(req.params.id);
+    const invitation = await storage.getUserInvitation(req.params.id, req.header('x-correlation-id'));
 
     if (!invitation) {
       res.status(404).send();

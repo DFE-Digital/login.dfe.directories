@@ -4,7 +4,7 @@ const { safeUser } = require('./../../../utils');
 
 const search = async (req, res) => {
   try {
-    const users = await userAdapter.getUsers(req.query.id.split(','));
+    const users = await userAdapter.getUsers(req.query.id.split(','), req.header('x-correlation-id'));
 
     if (!users) {
       return res.status(404).send();

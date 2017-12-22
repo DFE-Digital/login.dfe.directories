@@ -42,29 +42,32 @@ const deleteCode = async (uid) => {
 };
 
 
-const getUserPasswordResetCode = async (uid) => {
+const getUserPasswordResetCode = async (uid, correlationId) => {
   try {
+    logger.info(`Find User Password Reset Code for request: ${correlationId}`);
     return await find(uid);
   } catch (e) {
-    logger.error(e);
+    logger.error(`Create User Password Reset Code failed for request ${correlationId} error: ${e}`);
     throw e;
   }
 };
 
-const createUserPasswordResetCode = async (uid, clientId, redirectUri) => {
+const createUserPasswordResetCode = async (uid, clientId, redirectUri, correlationId) => {
   try {
+    logger.info(`Create User Password Reset Code for request: ${correlationId}`);
     return await createCode(uid, clientId, redirectUri);
   } catch (e) {
-    logger.error(e);
+    logger.error(`Create User Password Reset Code failed for request ${correlationId} error: ${e}`);
     throw e;
   }
 };
 
-const deleteUserPasswordResetCode = async (uid) => {
+const deleteUserPasswordResetCode = async (uid, correlationId) => {
   try {
+    logger.info(`Delete User Password Reset Code for request: ${correlationId}`);
     return await deleteCode(uid);
   } catch (e) {
-    logger.error(e);
+    logger.error(`Delete User Password Reset Code failed for request ${correlationId} error: ${e}`);
     throw e;
   }
 };

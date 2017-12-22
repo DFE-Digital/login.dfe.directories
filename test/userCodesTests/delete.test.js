@@ -11,12 +11,14 @@ jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
   };
 });
 
+const redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
 const deleteUserCode = require('./../../src/app/userCodes/api/delete');
 const httpMocks = require('node-mocks-http');
 
 describe('When deleting a user code', () => {
   let req;
   let res;
+  const expectedRequestCorrelationId = 'd267a0e5-8195-446d-8983-d25fafc9a925';
 
   beforeEach(() => {
     res = httpMocks.createResponse();
@@ -24,6 +26,12 @@ describe('When deleting a user code', () => {
       params: {
         uid: '7654321',
         code: 'ABC123',
+      },
+      headers: {
+        'x-correlation-id': expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
       },
     };
   });
@@ -41,5 +49,11 @@ describe('When deleting a user code', () => {
     await deleteUserCode(req, res);
 
     expect(res.statusCode).toBe(200);
+  });
+  it('then the params are passed to the storage provider', async () => {
+    await deleteUserCode(req, res);
+
+    expect(redisUserCodeStorage.deleteUserPasswordResetCode.mock.calls[0][0]).toBe('7654321');
+    expect(redisUserCodeStorage.deleteUserPasswordResetCode.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
   });
 });

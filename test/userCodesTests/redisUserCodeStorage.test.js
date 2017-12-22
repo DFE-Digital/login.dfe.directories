@@ -9,7 +9,13 @@ jest.mock('./../../src/infrastructure/config', () => ({
 jest.mock('ioredis', () => jest.fn().mockImplementation(() => {
 
 }));
-
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  };
+});
 
 describe('When using redis user code storage', () => {
   let generateResetCode;

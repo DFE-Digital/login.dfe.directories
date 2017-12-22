@@ -10,7 +10,7 @@ const get = async (req, res) => {
     }
     const uid = req.params.uid;
 
-    const code = await storage.getUserPasswordResetCode(uid);
+    const code = await storage.getUserPasswordResetCode(uid, req.header('x-correlation-id'));
 
     if (!code) {
       return res.status(404).send();

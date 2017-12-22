@@ -12,6 +12,13 @@ jest.mock('./../../src/infrastructure/config', () => (
 jest.mock('ioredis', () => jest.fn().mockImplementation(() => {
 
 }));
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  };
+});
 
 let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
 const { promisify } = require('util');

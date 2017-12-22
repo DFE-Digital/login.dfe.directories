@@ -7,7 +7,7 @@ const changePassword = async (req, res) => {
       return res.status(400).send();
     }
 
-    const user = await userAdapter.changePassword(req.params.id, req.body.password);
+    const user = await userAdapter.changePassword(req.params.id, req.body.password, req.header('x-correlation-id'),);
     if (!user) {
       return res.status(404).send();
     }

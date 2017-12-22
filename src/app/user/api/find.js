@@ -1,5 +1,4 @@
 const userAdapter = require('./../adapter');
-const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const { safeUser } = require('./../../../utils');
 
@@ -9,9 +8,9 @@ const find = async (req, res) => {
       return res.status(400).send();
     }
 
-    let user = await userAdapter.find(req.params.id);
+    let user = await userAdapter.find(req.params.id, req.header('x-correlation-id'));
     if (!user) {
-      user = await userAdapter.findByUsername(req.params.id);
+      user = await userAdapter.findByUsername(req.params.id, req.header('x-correlation-id'));
     }
     if (!user) {
       return res.status(404).send();

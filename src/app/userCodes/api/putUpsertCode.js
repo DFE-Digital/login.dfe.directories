@@ -7,7 +7,6 @@ const userAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config');
 
 const put = async (req, res) => {
-
   try {
     if (!req.body.uid || !req.body.clientId || !req.body.redirectUri) {
       res.status(400).contentType('json').send(JSON.stringify({

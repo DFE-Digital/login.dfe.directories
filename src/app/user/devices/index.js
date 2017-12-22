@@ -1,4 +1,5 @@
 const config = require('./../../../infrastructure/config');
+
 let adapter;
 if (config.devices.type === 'redis') {
   adapter = require('./redis');

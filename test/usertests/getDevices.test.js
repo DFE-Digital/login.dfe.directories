@@ -20,11 +20,18 @@ describe('when getting a list of devices for user', () => {
   let req;
   let res;
   let devices;
+  const expectedRequestCorrelationId = '5a8c0afb-c2e7-4a4b-9393-f5d3276dee8e';
 
   beforeEach(() => {
     req = {
       params: {
         id: 'a516696c-168c-4680-8dfb-1512d6fc234c',
+      },
+      headers: {
+        'x-correlation-id': expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
       },
     };
 
@@ -45,6 +52,7 @@ describe('when getting a list of devices for user', () => {
 
     expect(devices.getUserDevices.mock.calls).toHaveLength(1);
     expect(devices.getUserDevices.mock.calls[0][0]).toBe('a516696c-168c-4680-8dfb-1512d6fc234c');
+    expect(devices.getUserDevices.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
   });
 
   it('then it should return a JSON response', async () => {

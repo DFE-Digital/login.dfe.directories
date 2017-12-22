@@ -3,7 +3,7 @@ const logger = require('./../../../infrastructure/logger');
 
 const action = async (req, res) => {
   try {
-    let devices = await getUserDevices(req.params.id);
+    let devices = await getUserDevices(req.params.id, req.header('x-correlation-id'));
     if (!devices) {
       devices = [];
     }

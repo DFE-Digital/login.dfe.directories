@@ -32,9 +32,9 @@ const action = async (req, res) => {
       id,
       type: req.body.type,
       serialNumber: req.body.serialNumber,
-    });
+    }, req.header('x-correlation-id'));
 
-    const devices = await getUserDevices(req.params.id);
+    const devices = await getUserDevices(req.params.id, req.header('x-correlation-id'));
     return res.status(202).contentType('json').send(JSON.stringify(devices));
   } catch (e) {
     logger.error(e);

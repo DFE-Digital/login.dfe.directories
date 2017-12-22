@@ -17,6 +17,7 @@ const redisStorage = require('./../../src/app/userCodes/data/redisUserCodeStorag
 describe('When validating a user code', () => {
   let req;
   let res;
+  const expectedRequestCorrelationId = 'c2602b75-ba3f-4d56-af67-417099a7c6ca';
 
   beforeEach(() => {
     res = httpMocks.createResponse();
@@ -24,6 +25,12 @@ describe('When validating a user code', () => {
       params: {
         uid: '7654321',
         code: 'ABC123',
+      },
+      headers: {
+        'x-correlation-id': expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
       },
     };
   });
@@ -70,5 +77,11 @@ describe('When validating a user code', () => {
 
     expect(res._getData().code).toBe('ABC123');
     expect(res._getData().uid).toBe('7654321');
+  });
+  it('then the parameters are passed to the storage provider', async () => {
+    await validate(req, res);
+
+    expect(redisStorage.getUserPasswordResetCode.mock.calls[0][0]).toBe('7654321');
+    expect(redisStorage.getUserPasswordResetCode.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
   });
 });

@@ -21,6 +21,7 @@ describe('when getting a list of devices for user', () => {
   let req;
   let res;
   let devices;
+  const expectedRequestCorrelationId = '64b38e30-8eb4-4f95-8411-d1d22cebbf32';
 
   beforeEach(() => {
     req = {
@@ -30,6 +31,12 @@ describe('when getting a list of devices for user', () => {
       body: {
         type: 'digipass',
         serialNumber: '987654',
+      },
+      headers: {
+        'x-correlation-id': expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
       },
     };
 
@@ -58,6 +65,7 @@ describe('when getting a list of devices for user', () => {
       type: 'digipass',
       serialNumber: '987654',
     });
+    expect(devices.createUserDevices.mock.calls[0][2]).toBe(expectedRequestCorrelationId);
   });
 
   it('then it should return a 202 response', async () => {
@@ -73,6 +81,7 @@ describe('when getting a list of devices for user', () => {
 
     expect(devices.getUserDevices.mock.calls).toHaveLength(1);
     expect(devices.getUserDevices.mock.calls[0][0]).toBe('a516696c-168c-4680-8dfb-1512d6fc234c');
+    expect(devices.getUserDevices.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
 
     const actual = JSON.parse(res._getData());
     expect(actual).toBeInstanceOf(Array);

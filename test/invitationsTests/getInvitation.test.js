@@ -27,12 +27,19 @@ describe('When getting an invitation', () => {
   let logger;
   let get;
   const expectedInvitationId = '123EDCF';
+  const expectedRequestCorrelationId = '41ab33e5-4c27-12e9-3451-abb349b12f35';
 
   beforeEach(() => {
     res = httpMocks.createResponse();
     req = {
       params: {
         id: expectedInvitationId,
+      },
+      headers: {
+        'x-correlation-id': expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
       },
     };
 
@@ -70,6 +77,8 @@ describe('When getting an invitation', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res._getData().id).toBe(expectedInvitationId);
+    expect(redisInvitationStorage.getUserInvitation.mock.calls[0][0]).toBe(expectedInvitationId);
+    expect(redisInvitationStorage.getUserInvitation.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
   });
   it('then a 500 response is returned if there is an error', async () => {
     redisInvitationStorage.getUserInvitation.mockReset();

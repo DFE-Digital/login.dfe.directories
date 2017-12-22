@@ -10,6 +10,8 @@ jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
     getUserPasswordResetCode: jest.fn().mockImplementation(getUserPasswordResetCodeStub),
   };
 });
+
+const redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
 const get = require('./../../src/app/userCodes/api/get');
 const httpMocks = require('node-mocks-http');
 
@@ -17,12 +19,19 @@ const httpMocks = require('node-mocks-http');
 describe('When getting a user code', () => {
   let req;
   let res;
+  const expectedRequestCorrelationId = '45174020-57bb-40cc-b16d-0064745e9df9';
 
   beforeEach(() => {
     res = httpMocks.createResponse();
     req = {
       params: {
         uid: '7654321',
+      },
+      headers: {
+        'x-correlation-id': expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
       },
     };
 
@@ -51,5 +60,11 @@ describe('When getting a user code', () => {
     expect(res._getData().code).toBe('ABC123');
     expect(res._getData().uid).toBe('7654321');
     expect(res._getData().redirectUri).toBe('http://local.test');
+  });
+  it('then the parameters are passed to the storage provider', async () => {
+    await get(req, res);
+
+    expect(redisUserCodeStorage.getUserPasswordResetCode.mock.calls[0][0]).toBe('7654321');
+    expect(redisUserCodeStorage.getUserPasswordResetCode.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
   });
 });

@@ -37,6 +37,7 @@ describe('When getting a user code', () => {
   const expectedUuid = '7654321';
   const expectedClientId = 'client1';
   const expectedRedirectUri = 'http://localhost.test';
+  const expectedRequestCorrelationId = 'abf934b4-0876-40cb-ae5c-fa5e6a3607f0';
   let req;
   let res;
   let emailObject;
@@ -51,6 +52,12 @@ describe('When getting a user code', () => {
         uid: expectedUuid,
         clientId: expectedClientId,
         redirectUri: expectedRedirectUri,
+      },
+      headers: {
+        'x-correlation-id': expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
       },
     };
 
@@ -117,5 +124,6 @@ describe('When getting a user code', () => {
     expect(redisStorage.createUserPasswordResetCode.mock.calls[0][0]).toBe(expectedUuid);
     expect(redisStorage.createUserPasswordResetCode.mock.calls[0][1]).toBe(expectedClientId);
     expect(redisStorage.createUserPasswordResetCode.mock.calls[0][2]).toBe(expectedRedirectUri);
+    expect(redisStorage.createUserPasswordResetCode.mock.calls[0][3]).toBe(expectedRequestCorrelationId);
   });
 });

@@ -7,6 +7,7 @@ const generateSalt = require('./../utils/generateSalt');
 const { chunk } = require('lodash');
 const uuid = require('uuid');
 const config = require('./../../../infrastructure/config');
+const logger = require('./../../../infrastructure/logger');
 
 const client = new Redis(config.adapter.params.redisurl);
 
@@ -40,7 +41,19 @@ const findByEmail = async (email) => {
   return user || null;
 };
 
-const createUser = async (username, password, firstName, lastName) => {
+const findByUsername = async (username, correlationId) => {
+  try {
+    logger.info(`Get user by username for request: ${correlationId}`);
+    return await findByEmail(username);
+  } catch (e) {
+    logger.error(`Get user by username failed for request ${correlationId} error: ${e}`);
+    throw (e);
+  }
+};
+
+const createUser = async (username, password, firstName, lastName, correlationId) => {
+  logger.info(`Create user called for request ${correlationId}`);
+
   if (!username || !password) {
     return null;
   }
@@ -96,25 +109,21 @@ const changePasswordForUser = async (uid, newPassword) => {
   return !!client.set(`User_${uid}`, JSON.stringify(user));
 };
 
-const find = async (id) => {
+const find = async (id, correlationId) => {
   try {
+    logger.info(`Get user by id for request: ${correlationId}`);
     return await findById(id);
   } catch (e) {
+    logger.error(`Get user by id failed for request ${correlationId} error: ${e}`);
     throw (e);
   }
 };
 
-const create = async (username, password, firstName, lastName) => createUser(username, password, firstName, lastName);
+const create = async (username, password, firstName, lastName, correlationId) => createUser(username, password, firstName, lastName, correlationId);
 
-const findByUsername = async (username) => {
-  try {
-    return await findByEmail(username);
-  } catch (e) {
-    throw (e);
-  }
-};
 
-const list = async (page = 1, pageSize = 10) => {
+const list = async (page = 1, pageSize = 10, correlationId) => {
+  logger.info(`Get user list for request: ${correlationId}`);
   const userList = await client.get('Users');
   if (!userList) {
     return null;
@@ -140,16 +149,19 @@ const list = async (page = 1, pageSize = 10) => {
   };
 };
 
-const changePassword = async (uid, newPassword) => {
+const changePassword = async (uid, newPassword, correlationId) => {
   try {
+    logger.info(`Change password for request: ${correlationId}`);
     return await changePasswordForUser(uid, newPassword);
   } catch (e) {
+    logger.error(`Change password failed for request ${correlationId} error: ${e}`);
     throw (e);
   }
 };
 
-const getUsers = async (uids) => {
+const getUsers = async (uids, correlationId) => {
   try {
+    logger.info(`Get Users for request: ${correlationId}`);
     const users = await getManyUsers(uids);
 
     if (!users || users.length === 0) {
@@ -157,11 +169,13 @@ const getUsers = async (uids) => {
     }
     return users;
   } catch (e) {
+    logger.error(`GetUsers failed for request ${correlationId} error: ${e}`);
     throw (e);
   }
 };
 
-const authenticate = async (username, password) => {
+const authenticate = async (username, password, correlationId) => {
+  logger.info(`Authenticate user for request: ${correlationId}`);
   const user = await findByUsername(username);
 
   if (!user) return null;

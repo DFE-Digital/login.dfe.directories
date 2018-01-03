@@ -43,16 +43,16 @@ const findByEmail = async (email) => {
 
 const findByUsername = async (username, correlationId) => {
   try {
-    logger.info(`Get user by username for request: ${correlationId}`);
+    logger.info(`Get user by username for request: ${correlationId}`, { correlationId });
     return await findByEmail(username);
   } catch (e) {
-    logger.error(`Get user by username failed for request ${correlationId} error: ${e}`);
+    logger.error(`Get user by username failed for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);
   }
 };
 
 const createUser = async (username, password, firstName, lastName, correlationId) => {
-  logger.info(`Create user called for request ${correlationId}`);
+  logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || !password) {
     return null;
@@ -67,7 +67,15 @@ const createUser = async (username, password, firstName, lastName, correlationId
   const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
   const id = uuid.v4();
 
-  const newUser = { id, sub: id, given_name: firstName, family_name: lastName, email: username, salt, password: encryptedPassword };
+  const newUser = {
+    id,
+    sub: id,
+    given_name: firstName,
+    family_name: lastName,
+    email: username,
+    salt,
+    password: encryptedPassword
+  };
 
   const content = JSON.stringify(newUser);
   await client.set(`User_${id}`, content);
@@ -111,10 +119,10 @@ const changePasswordForUser = async (uid, newPassword) => {
 
 const find = async (id, correlationId) => {
   try {
-    logger.info(`Get user by id for request: ${correlationId}`);
+    logger.info(`Get user by id for request: ${correlationId}`, { correlationId });
     return await findById(id);
   } catch (e) {
-    logger.error(`Get user by id failed for request ${correlationId} error: ${e}`);
+    logger.error(`Get user by id failed for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);
   }
 };
@@ -123,7 +131,7 @@ const create = async (username, password, firstName, lastName, correlationId) =>
 
 
 const list = async (page = 1, pageSize = 10, correlationId) => {
-  logger.info(`Get user list for request: ${correlationId}`);
+  logger.info(`Get user list for request: ${correlationId}`, { correlationId });
   const userList = await client.get('Users');
   if (!userList) {
     return null;
@@ -151,17 +159,17 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
 
 const changePassword = async (uid, newPassword, correlationId) => {
   try {
-    logger.info(`Change password for request: ${correlationId}`);
+    logger.info(`Change password for request: ${correlationId}`, { correlationId });
     return await changePasswordForUser(uid, newPassword);
   } catch (e) {
-    logger.error(`Change password failed for request ${correlationId} error: ${e}`);
+    logger.error(`Change password failed for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);
   }
 };
 
 const getUsers = async (uids, correlationId) => {
   try {
-    logger.info(`Get Users for request: ${correlationId}`);
+    logger.info(`Get Users for request: ${correlationId}`, { correlationId });
     const users = await getManyUsers(uids);
 
     if (!users || users.length === 0) {
@@ -169,13 +177,13 @@ const getUsers = async (uids, correlationId) => {
     }
     return users;
   } catch (e) {
-    logger.error(`GetUsers failed for request ${correlationId} error: ${e}`);
+    logger.error(`GetUsers failed for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);
   }
 };
 
 const authenticate = async (username, password, correlationId) => {
-  logger.info(`Authenticate user for request: ${correlationId}`);
+  logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
   const user = await findByUsername(username);
 
   if (!user) return null;

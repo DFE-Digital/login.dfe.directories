@@ -31,7 +31,7 @@ const findByEmail = async (email) => {
     return null;
   }
 
-  const userRef = users.find(item => item.email.toLowerCase() === email.toLowerCase());
+  const userRef = users.find(item => item.email && item.email.toLowerCase() === email.toLowerCase());
 
   if (!userRef) {
     return null;

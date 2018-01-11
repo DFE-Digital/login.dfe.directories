@@ -41,20 +41,20 @@ const deleteInvitationForUser = async (id) => {
 
 const getUserInvitation = async (id, correlationId) => {
   try {
-    logger.info(`Get UserInvitation for request: ${correlationId}`);
+    logger.info(`Get UserInvitation for request: ${correlationId}`, { correlationId });
     return await find(id);
   } catch (e) {
-    logger.error(`Get user invitation failed for request ${correlationId} error: ${e}`);
+    logger.error(`Get user invitation failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };
 
 const createUserInvitation = async (invitation, correlationId) => {
   try {
-    logger.info(`Creating UserInvitation for request: ${correlationId}`);
+    logger.info(`Creating UserInvitation for request: ${correlationId}`, { correlationId });
     return await createInvitation(invitation);
   } catch (e) {
-    logger.error(`Create user invitation failed for request ${correlationId} error: ${e}`);
+    logger.error(`Create user invitation failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };
@@ -63,7 +63,7 @@ const deleteInvitation = async (id, correlationId) => {
   try {
     await deleteInvitationForUser(id);
   } catch (e) {
-    logger.error(`Delete user invitation failed for request ${correlationId} error: ${e}`);
+    logger.error(`Delete user invitation failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };

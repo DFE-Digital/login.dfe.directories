@@ -4,6 +4,8 @@ const express = require('express');
 const apiAuth = require('login.dfe.api.auth');
 const config = require('./../../../infrastructure/config');
 const { deprecateWith } = require('./../../../utils');
+
+const list = require('./list');
 const authenticate = require('./authenticate');
 const changePassword = require('./changePassword');
 const find = require('./find');
@@ -21,6 +23,7 @@ const routeExport = () => {
 
   // Map routes to functions.
   router.get('/:directoryId/user/:id', deprecateWith('/users/:id'), find);
+  router.get('/users', list);
   router.get('/users/by-ids', search);
   router.get('/users/:id', find);
 

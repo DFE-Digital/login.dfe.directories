@@ -31,7 +31,7 @@ const put = async (req, res) => {
 
     const user = await userAdapter.find(uid, req.header('x-correlation-id'));
 
-    await client.sendPasswordReset(user.email, code.code, req.body.clientId);
+    await client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
 
     res.send(code);
   } catch (e) {

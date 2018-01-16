@@ -61,8 +61,8 @@ describe('When getting a user code', () => {
       },
     };
 
-    sendPasswordResetStub = jest.fn().mockImplementation((email, code, clientId) => emailObject = {
-      email, code, clientId,
+    sendPasswordResetStub = jest.fn().mockImplementation((email, code, clientId, uid) => emailObject = {
+      email, code, clientId, uid,
     });
 
     notificationClient = require('login.dfe.notifications.client');
@@ -115,6 +115,7 @@ describe('When getting a user code', () => {
     expect(emailObject.code).toBe('ABC123');
     expect(emailObject.email).toBe(expectedEmailAddress);
     expect(emailObject.clientId).toBe('client1');
+    expect(emailObject.uid).toBe(expectedUuid);
   });
   it('then the code is generated with the passed in parameters', async () => {
     redisStorage.getUserPasswordResetCode.mockReturnValue(null);

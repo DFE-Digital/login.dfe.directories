@@ -21,23 +21,17 @@ const findById = async (id) => {
 };
 
 const findByEmail = async (email) => {
-  const result = await client.get('Users');
+  const result = await client.get(`User_${email}`);
   if (!result) {
     return null;
   }
 
-  const users = JSON.parse(result);
-  if (!users) {
+  const userEmailResult = JSON.parse(result);
+  if (!userEmailResult) {
     return null;
   }
 
-  const userRef = users.find(item => item.email && item.email.toLowerCase() === email.toLowerCase());
-
-  if (!userRef) {
-    return null;
-  }
-
-  const user = await findById(userRef.sub);
+  const user = await findById(userEmailResult.sub);
   return user || null;
 };
 
@@ -74,11 +68,12 @@ const createUser = async (username, password, firstName, lastName, correlationId
     family_name: lastName,
     email: username,
     salt,
-    password: encryptedPassword
+    password: encryptedPassword,
   };
 
   const content = JSON.stringify(newUser);
   await client.set(`User_${id}`, content);
+  await client.set(`User_${username}`, JSON.stringify({ sub: id }));
 
   let users = await client.get('Users');
   users = JSON.parse(users);

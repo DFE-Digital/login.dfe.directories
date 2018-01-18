@@ -21,23 +21,17 @@ const findById = async (id) => {
 };
 
 const findByEmail = async (email) => {
-  const result = await client.get('Users');
+  const result = await client.get(`User_${email}`);
   if (!result) {
     return null;
   }
 
-  const users = JSON.parse(result);
-  if (!users) {
+  const userEmailResult = JSON.parse(result);
+  if (!userEmailResult) {
     return null;
   }
 
-  const userRef = users.find(item => item.email && item.email.toLowerCase() === email.toLowerCase());
-
-  if (!userRef) {
-    return null;
-  }
-
-  const user = await findById(userRef.sub);
+  const user = await findById(userEmailResult.sub);
   return user || null;
 };
 
@@ -74,11 +68,12 @@ const createUser = async (username, password, firstName, lastName, correlationId
     family_name: lastName,
     email: username,
     salt,
-    password: encryptedPassword
+    password: encryptedPassword,
   };
 
   const content = JSON.stringify(newUser);
   await client.set(`User_${id}`, content);
+  await client.set(`User_${username}`, JSON.stringify({ sub: id }));
 
   let users = await client.get('Users');
   users = JSON.parse(users);
@@ -113,6 +108,21 @@ const changePasswordForUser = async (uid, newPassword) => {
 
   user.salt = salt;
   user.password = password.toString('base64');
+
+  return !!client.set(`User_${uid}`, JSON.stringify(user));
+};
+
+const changeStatusForUser = async (uid, status) => {
+  const result = await client.get(`User_${uid}`);
+  if (!result) {
+    return false;
+  }
+  const user = JSON.parse(result);
+  if (!user) {
+    return false;
+  }
+
+  user.status = status;
 
   return !!client.set(`User_${uid}`, JSON.stringify(user));
 };
@@ -167,6 +177,16 @@ const changePassword = async (uid, newPassword, correlationId) => {
   }
 };
 
+const changeStatus = async (uid, userStatus, correlationId) => {
+  try {
+    logger.info(`Change status for request: ${correlationId}`, { correlationId });
+    return await changeStatusForUser(uid, userStatus);
+  } catch (e) {
+    logger.error(`Change user status failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw (e);
+  }
+};
+
 const getUsers = async (uids, correlationId) => {
   try {
     logger.info(`Get Users for request: ${correlationId}`, { correlationId });
@@ -207,4 +227,5 @@ module.exports = {
   create,
   find,
   authenticate,
+  changeStatus,
 };

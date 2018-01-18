@@ -35,7 +35,7 @@ describe('When using redis storage service', () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
         const RedisMock = require('ioredis-mock').default;
         const redisMock = new RedisMock();
-        redisMock.set('User_test@localuser.com', '{"sub": "12345"}');
+        redisMock.set('User_e_test@localuser.com', '{"sub": "12345"}');
         redisMock.set('User_12345', '{"sub": "test@localuser.com"}');
         return redisMock;
       }));
@@ -62,7 +62,7 @@ describe('When using redis storage service', () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
         const RedisMock = require('ioredis-mock').default;
         const redisMock = new RedisMock();
-        redisMock.set('User_test3@localuser.com', '{"sub": "12345"}');
+        redisMock.set('User_e_test3@localuser.com', '{"sub": "12345"}');
         redisMock.set('User_12345', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
         return redisMock;
       }));
@@ -77,7 +77,7 @@ describe('When using redis storage service', () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
         const RedisMock = require('ioredis-mock').default;
         const redisMock = new RedisMock();
-        redisMock.set('User_test4@localuser.com', '{"sub": "54321"}');
+        redisMock.set('User_e_test4@localuser.com', '{"sub": "54321"}');
         redisMock.set('User_12345', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
         return redisMock;
       }));
@@ -148,7 +148,7 @@ describe('When using redis storage service', () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
         const RedisMock = require('ioredis-mock').default;
         const redisMock = new RedisMock();
-        redisMock.set('User_test3@localuser.com', '{"sub": "12345"}');
+        redisMock.set('User_e_test3@localuser.com', '{"sub": "12345"}');
         redisMock.set('User_12345', '{"sub": "12345","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
         return redisMock;
       }));

@@ -12,6 +12,8 @@ const find = require('./find');
 const search = require('./search');
 const getDevices = require('./getDevices');
 const createDevice = require('./createDevice');
+const activateUser = require('./activateUser');
+const deactivateUser = require('./deactivateUser');
 
 const router = express.Router();
 
@@ -32,6 +34,9 @@ const routeExport = () => {
 
   router.post('/:directoryId/user/:id/changepassword', deprecateWith('/users/:id/changepassword'), changePassword);
   router.post('/users/:id/changepassword', changePassword);
+
+  router.post('/users/:id/deactivate', deactivateUser);
+  router.post('/users/:id/activate', activateUser);
 
   router.get('/users/:id/devices', getDevices);
   router.post('/users/:id/devices', createDevice);

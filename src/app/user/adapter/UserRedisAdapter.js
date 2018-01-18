@@ -21,7 +21,7 @@ const findById = async (id) => {
 };
 
 const findByEmail = async (email) => {
-  const result = await client.get(`User_${email}`);
+  const result = await client.get(`User_e_${email}`);
   if (!result) {
     return null;
   }
@@ -73,7 +73,7 @@ const createUser = async (username, password, firstName, lastName, correlationId
 
   const content = JSON.stringify(newUser);
   await client.set(`User_${id}`, content);
-  await client.set(`User_${username}`, JSON.stringify({ sub: id }));
+  await client.set(`User_e_${username}`, JSON.stringify({ sub: id }));
 
   let users = await client.get('Users');
   users = JSON.parse(users);
@@ -142,11 +142,12 @@ const create = async (username, password, firstName, lastName, correlationId) =>
 
 const list = async (page = 1, pageSize = 10, correlationId) => {
   logger.info(`Get user list for request: ${correlationId}`, { correlationId });
-  const userList = await client.get('Users');
+  const userList = await client.keys('User_e*');
   if (!userList) {
     return null;
   }
-  const orderedUserList = JSON.parse(userList).sort((x, y) => {
+
+  const orderedUserList = userList.sort((x, y) => {
     if (x.email < y.email) {
       return -1;
     }
@@ -160,7 +161,7 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
     return null;
   }
 
-  const users = await Promise.all(pagesOfUsers[page - 1].map(async item => find(item.sub)));
+  const users = await Promise.all(pagesOfUsers[page - 1].map(async item => findByUsername(item.replace('User_e_', ''))));
   return {
     users,
     numberOfPages: pagesOfUsers.length,

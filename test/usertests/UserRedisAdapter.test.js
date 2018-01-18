@@ -89,7 +89,6 @@ describe('When using redis storage service', () => {
     });
   });
   describe('then when I call change password', () => {
-    let redis;
     let userStorage;
 
     beforeEach(() => {
@@ -207,6 +206,42 @@ describe('When using redis storage service', () => {
       const actual = await userStorage.getUsers(userIds);
 
       expect(actual).toBeNull();
+    });
+  });
+  describe('then when i call change status', () => {
+    let userStorage;
+
+    beforeEach(() => {
+      jest.resetModules();
+    });
+    it('if the user does not exist false is returned', async () => {
+      jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
+        const RedisMock = require('ioredis-mock').default;
+        const redisMock = new RedisMock();
+        redisMock.set('User_test3@localuser.com', '[{"sub": "test@localuser.com"}]');
+        return redisMock;
+      }));
+
+      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      const actual = await userStorage.changeStatus('test@localuser.com', 0);
+
+      expect(actual).toBe(false);
+    });
+    it('if the user exists the record is updated', async () => {
+      jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
+        const RedisMock = require('ioredis-mock').default;
+        const redisMock = new RedisMock();
+        redisMock.set('User_test3@localuser.com', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing", "salt":"123456768", "status":1}');
+        return redisMock;
+      }));
+
+      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      const actual = await userStorage.changeStatus('test3@localuser.com', 0);
+
+      expect(actual).toBe(true);
+      const findResult = await userStorage.find('test3@localuser.com');
+      expect(findResult).not.toBeNull();
+      expect(findResult.status).toBe(0);
     });
   });
 });

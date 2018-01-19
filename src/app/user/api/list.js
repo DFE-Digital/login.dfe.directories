@@ -20,8 +20,8 @@ const list = async (req, res) => {
   try {
     const pageOfUsers = await adapter.list(pageNumber, 25);
     const safePageOfUsers = {
-      users: pageOfUsers.users.map((u) => safeUser(u)),
-      numberOfPages: pageOfUsers.numberOfPages,
+      users: pageOfUsers ? pageOfUsers.users.map((u) => safeUser(u)) : [],
+      numberOfPages: pageOfUsers ? pageOfUsers.numberOfPages : 0,
     };
     return res.contentType('json').send(JSON.stringify(safePageOfUsers));
   } catch (e) {

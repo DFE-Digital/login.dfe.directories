@@ -139,10 +139,26 @@ const find = async (id, correlationId) => {
 
 const create = async (username, password, firstName, lastName, correlationId) => createUser(username, password, firstName, lastName, correlationId);
 
+const findAllKeys = async () => {
+  const keys = [];
+  return new Promise((resolve, reject) => {
+    client.scanStream({
+      match: 'User_e*',
+    }).on('data', (resultKeys) => {
+      for (let i = 0; i < resultKeys.length; i += 1) {
+        keys.push(resultKeys[i]);
+      }
+    }).on('end', () => resolve(keys))
+      .on('error', reject);
+  });
+};
 
 const list = async (page = 1, pageSize = 10, correlationId) => {
   logger.info(`Get user list for request: ${correlationId}`, { correlationId });
-  const userList = await client.keys('User_e*');
+
+  const userList = await findAllKeys();
+
+
   if (!userList) {
     return null;
   }

@@ -26,7 +26,11 @@
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
     "mongoose": "^4.13.3",
     "path": "^0.12.7",
+    "pg": "^7.4.1",
+    "pg-hstore": "^2.3.2",
     "redis": "^2.8.0",
+    "sequelize": "^4.31.2",
+    "tedious": "^2.2.3",
     "uuid": "^3.1.0",
     "winston": "^2.4.0"
   },

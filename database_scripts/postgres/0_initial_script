@@ -1,0 +1,21 @@
+CREATE SCHEMA directories;
+
+CREATE USER directories_db_user WITH PASSWORD 'password';
+alter default privileges in schema directories grant all on tables to directories_db_user;
+
+
+GRANT ALL PRIVILEGES ON SCHEMA directories TO GROUP directories_db_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA directories TO GROUP directories_db_user;
+
+
+CREATE TABLE IF NOT EXISTS "directories"."user" (
+"sub" UUID NOT NULL ,
+"email" VARCHAR(255) NOT NULL,
+"given_name" VARCHAR(255) NOT NULL,
+"family_name" VARCHAR(255) NOT NULL,
+"password" VARCHAR(5000) NOT NULL,
+"salt" VARCHAR(500) NOT NULL,
+"status" SMALLINT NOT NULL,
+"createdAt" TIMESTAMP NOT NULL,
+"updatedAt" TIMESTAMP NOT NULL,
+PRIMARY KEY ("sub"));

@@ -1,0 +1,16 @@
+IF NOT EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'user')
+BEGIN
+    CREATE TABLE [dbo].[user]
+    (
+        sub uniqueidentifier PRIMARY KEY NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        given_name VARCHAR(255) NOT NULL,
+        family_name VARCHAR(255) NOT NULL,
+        password VARCHAR(5000) NOT NULL,
+        salt VARCHAR(500) NOT NULL,
+        status SMALLINT NOT NULL,
+        createdAt datetime NOT NULL,
+        updatedAt datetime NOT NULL
+    )
+END
+GO

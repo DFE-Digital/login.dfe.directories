@@ -11,6 +11,10 @@ const getUserAdapter = () => {
     return null;
   }
 
+  if (userAdapterType.type === 'sequelize') {
+    return require('./UserSequelizeAdapter');
+  }
+
   if (userAdapterType.type === 'file') {
     return UserFileAdapter;
   }

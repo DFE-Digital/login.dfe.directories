@@ -1,9 +1,12 @@
 jest.mock('./../../src/app/userCodes/utils/generateResetCode');
 jest.mock('./../../src/infrastructure/config', () => ({
-  userCodes: { staticCode: false },
-  redis: {
-    url: 'http://orgs.api.test',
+  userCodes: {
+    type: 'redis',
+    params: {
+      redisUrl: 'http://orgs.api.test',
+    },
   },
+
 }));
 
 jest.mock('ioredis', () => jest.fn().mockImplementation(() => {
@@ -34,7 +37,7 @@ describe('When using redis user code storage', () => {
         return redisMock;
       }));
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       const actual = await userCodeStorage.getUserPasswordResetCode('123');
 
       expect(actual).toBeNull();
@@ -47,7 +50,7 @@ describe('When using redis user code storage', () => {
         return redisMock;
       }));
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       const actual = await userCodeStorage.getUserPasswordResetCode('123');
 
       expect(actual).not.toBeNull();
@@ -61,7 +64,7 @@ describe('When using redis user code storage', () => {
         return redisMock;
       }));
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       const actual = await userCodeStorage.getUserPasswordResetCode('123');
 
       expect(actual).not.toBeNull();
@@ -78,7 +81,7 @@ describe('When using redis user code storage', () => {
         return redisMock;
       }));
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       await userCodeStorage.createUserPasswordResetCode('321', 'client1', 'http://local.test');
       const record = await userCodeStorage.getUserPasswordResetCode('321');
 
@@ -90,7 +93,7 @@ describe('When using redis user code storage', () => {
     });
     it('then if the uid is not supplied then a record is not created', async () => {
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       const actual = await userCodeStorage.createUserPasswordResetCode();
 
       expect(actual).toBeNull();
@@ -102,7 +105,7 @@ describe('When using redis user code storage', () => {
         return redisMock;
       }));
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       const actual = await userCodeStorage.createUserPasswordResetCode('321', 'client1', 'http://local.test');
 
       expect(actual.code).toBe('ABC123');
@@ -112,8 +115,12 @@ describe('When using redis user code storage', () => {
       generateResetCode = require('./../../src/app/userCodes/utils/generateResetCode');
       generateResetCode.mockImplementation(() => 'XYZ123');
       jest.doMock('./../../src/infrastructure/config', () => ({
-        userCodes: { staticCode: true },
-        redis: { url: 'http://orgs.api.test' },
+        userCodes: {
+          type: 'static',
+          params: {
+            redisUrl: 'http://orgs.api.test',
+          },
+        },
       }));
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
         const RedisMock = require('ioredis-mock').default;
@@ -121,7 +128,7 @@ describe('When using redis user code storage', () => {
         return redisMock;
       }));
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       const actual = await userCodeStorage.createUserPasswordResetCode('321', 'client1', 'http://local.test');
 
       expect(actual.code).toBe('ABC123');
@@ -136,13 +143,21 @@ describe('When using redis user code storage', () => {
         return redisMock;
       }));
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       await userCodeStorage.deleteUserPasswordResetCode();
 
       const record = await userCodeStorage.getUserPasswordResetCode('123');
       expect(record).not.toBeNull();
     });
     it('then the uid is used to find the record and delete it', async () => {
+      jest.doMock('./../../src/infrastructure/config', () => ({
+        userCodes: {
+          type: 'redis',
+          params: {
+            redisUrl: 'http://orgs.api.test',
+          },
+        },
+      }));
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
         const RedisMock = require('ioredis-mock').default;
         const redisMock = new RedisMock();
@@ -150,7 +165,7 @@ describe('When using redis user code storage', () => {
         return redisMock;
       }));
 
-      userCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+      userCodeStorage = require('./../../src/app/userCodes/data');
       await userCodeStorage.deleteUserPasswordResetCode('123');
 
       const record = await userCodeStorage.getUserPasswordResetCode('123');

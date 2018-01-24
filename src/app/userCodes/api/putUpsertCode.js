@@ -1,7 +1,7 @@
 'use strict';
 
 const logger = require('./../../../infrastructure/logger');
-const storage = require('./../data/redisUserCodeStorage');
+const storage = require('./../data');
 const NotificatonClient = require('login.dfe.notifications.client');
 const userAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config');

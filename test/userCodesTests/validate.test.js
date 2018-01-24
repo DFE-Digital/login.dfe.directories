@@ -5,8 +5,11 @@ jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
   };
 });
 jest.mock('./../../src/infrastructure/config', () => ({
-  redis: {
-    url: 'http://orgs.api.test',
+  userCodes: {
+    type: 'redis',
+    params: {
+      redisUrl: 'http://orgs.api.test',
+    },
   },
 }));
 

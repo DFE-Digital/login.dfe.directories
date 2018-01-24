@@ -1,17 +1,17 @@
 jest.mock('./../../src/infrastructure/config', () => ({
-  redis: {
-    url: 'http://orgs.api.test',
+  userCodes: {
+    type: 'static',
   },
 }));
 
-jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
+jest.mock('./../../src/app/userCodes/data/staticUserCodeStorage', () => {
   const deleteUserPasswordResetCodeStub = jest.fn();
   return {
     deleteUserPasswordResetCode: jest.fn().mockImplementation(deleteUserPasswordResetCodeStub),
   };
 });
 
-const redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
+const redisUserCodeStorage = require('./../../src/app/userCodes/data/staticUserCodeStorage');
 const deleteUserCode = require('./../../src/app/userCodes/api/delete');
 const httpMocks = require('node-mocks-http');
 

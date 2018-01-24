@@ -5,7 +5,7 @@ const config = require('./../../../infrastructure/config');
 const resetCode = require('./../utils/generateResetCode');
 const logger = require('./../../../infrastructure/logger');
 
-const client = new Redis(config.userCodes.redisUrl);
+const client = new Redis(config.userCodes.params.redisUrl);
 
 const find = async (uid) => {
   const result = await client.get(`UserResetCode_${uid}`);
@@ -21,7 +21,7 @@ const createCode = async (uid, clientId, redirectUri) => {
     return null;
   }
 
-  const code = config.userCodes.staticCode ? 'ABC123' : resetCode();
+  const code = resetCode();
   const userResetCode = {
     uid,
     code,

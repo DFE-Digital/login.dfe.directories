@@ -17,8 +17,10 @@
     }
   },
   "userCodes" :{
-    "redisUrl" :"redis://localhost:6379",
-    "staticCode" : false
+    "type": "redis",
+    "params": {
+      "redisUrl" :"redis://localhost:6379"
+    }
   },
   "invitations" : {
     "redisUrl" :"redis://localhost:6379"

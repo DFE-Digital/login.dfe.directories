@@ -65,6 +65,31 @@ const user = db.define('user', {
   schema: dbSchema,
 });
 
+const userCode = db.define('user_code', {
+  uid: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  code: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  clientId: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  redirectUri: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+}, {
+  timestamps: true,
+  tableName: 'user_code',
+  schema: dbSchema,
+});
+
 module.exports = {
   user,
+  userCode,
 };

@@ -12,7 +12,10 @@ jest.mock('./../../src/infrastructure/config', () => ({
     connectionString: '',
   },
   userCodes: {
-    redisUrl: 'http://localhost',
+    type: 'redis',
+    params: {
+      redisUrl: 'http://orgs.api.test',
+    },
   },
   adapter: {
     type: 'redis',

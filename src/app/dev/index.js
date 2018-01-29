@@ -7,7 +7,7 @@ const router = express.Router();
 
 const config = require('./../../infrastructure/config');
 const usersAdapter = require('./../user/adapter');
-const codesAdapter = require('./../userCodes/data/redisUserCodeStorage');
+const codesAdapter = require('./../userCodes/data');
 
 const getUsersCodes = async (userId) => {
   const codes = [];

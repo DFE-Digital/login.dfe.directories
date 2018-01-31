@@ -1,10 +1,10 @@
 'use strict';
 
 const config = require('./infrastructure/config');
+const logger = require('./infrastructure/logger');
 const appInsights = require('applicationinsights');
 const express = require('express');
 const bodyParser = require('body-parser');
-const logger = require('./infrastructure/logger');
 const https = require('https');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');

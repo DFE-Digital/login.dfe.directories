@@ -12,6 +12,7 @@ const users = require('./app/user/api');
 const userCodes = require('./app/userCodes/api');
 const invitations = require('./app/invitations/api');
 const dev = require('./app/dev');
+const healthCheck = require('login.dfe.healthcheck');
 
 
 const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.config.schema');
@@ -26,6 +27,10 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.use('/healthcheck', healthCheck({
+  config,
+}));
 
 if (config.hostingEnvironment.useDevViews) {
   app.use(expressLayouts);

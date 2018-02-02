@@ -14,6 +14,12 @@ const find = async (id) => {
   return invitation || null;
 };
 
+const storeInvitation = async (invitation) => {
+  const content = JSON.stringify(invitation);
+
+  await client.set(`UserInvitation_${invitation.id}`, content);
+  return JSON.parse(content);
+};
 
 const createInvitation = async (invitation) => {
   if (!invitation) {
@@ -23,10 +29,8 @@ const createInvitation = async (invitation) => {
   const newInvitation = invitation;
 
   newInvitation.id = id;
-  const content = JSON.stringify(newInvitation);
 
-  await client.set(`UserInvitation_${id}`, content);
-  return JSON.parse(content);
+  return await storeInvitation(newInvitation);
 };
 
 const deleteInvitationForUser = async (id) => {
@@ -68,9 +72,19 @@ const deleteInvitation = async (id, correlationId) => {
   }
 };
 
+const updateInvitation = async (invitation, correlationId) => {
+  try {
+    await storeInvitation(invitation);
+  } catch (e) {
+    logger.error(`Update invitation failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
 
 module.exports = {
   deleteInvitation,
   createUserInvitation,
   getUserInvitation,
+  updateInvitation,
 };

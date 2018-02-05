@@ -75,7 +75,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email');
+    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -85,7 +85,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email');
+    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -95,7 +95,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email');
+    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name');
     expect(res._isEndCalled()).toBe(true);
   });
 });

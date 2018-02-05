@@ -1,6 +1,6 @@
 const { find, update } = require('./../adapter');
 
-const allowablePatchProperties = ['given_name', 'family_name', 'email'];
+const allowablePatchProperties = ['given_name', 'family_name'];
 const allowablePropertiesMessage = allowablePatchProperties.concat();
 
 const validateRequestData = (req) => {

@@ -29,6 +29,7 @@ describe('When patching a user', () => {
 
     find.mockReset();
     find.mockReturnValue({
+      id: '9b543631-884c-4b39-86d5-311ad5fc6cce',
       sub: '9b543631-884c-4b39-86d5-311ad5fc6cce',
       given_name: 'Jenny',
       family_name: 'Weasley',
@@ -61,15 +62,11 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(update.mock.calls).toHaveLength(1);
-    expect(update.mock.calls[0][0]).toMatchObject({
-      sub: '9b543631-884c-4b39-86d5-311ad5fc6cce',
-      given_name: 'Jennifer',
-      family_name: 'Potter',
-      email: 'jenny.weasley@dumbledores-army.test',
-      password: 'some-hashed-data',
-      salt: 'random-salt-value',
-    });
-    expect(update.mock.calls[0][1]).toBe('correlation-id');
+    expect(update.mock.calls[0][0]).toBe('9b543631-884c-4b39-86d5-311ad5fc6cce');
+    expect(update.mock.calls[0][1]).toBe('Jennifer');
+    expect(update.mock.calls[0][2]).toBe('Potter');
+    expect(update.mock.calls[0][3]).toBe('jenny.weasley@dumbledores-army.test');
+    expect(update.mock.calls[0][4]).toBe('correlation-id');
   });
 
   it('then it should send 400 with error message if body has unknown property', async () => {
@@ -89,6 +86,16 @@ describe('When patching a user', () => {
 
     expect(res.statusCode).toBe(400);
     expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email');
+    expect(res._isEndCalled()).toBe(true);
+  });
+
+  it('then it should send 400 with error message if body has no properties', async () => {
+    req.body = {};
+
+    await patchUser(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email');
     expect(res._isEndCalled()).toBe(true);
   });
 });

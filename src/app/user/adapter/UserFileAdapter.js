@@ -111,11 +111,18 @@ const authenticate = async (username, password) => {
   return null;
 };
 
+const update = async (uid, given_name, family_name, email, correlationId) => {
+  throw new Error('Update method is not implemented for File');
+  error.type = 'E_NOTIMPLEMENTED';
+  throw error;
+};
+
 module.exports = {
   list,
   findByUsername,
   create,
   find,
   authenticate,
+  update,
 };
 

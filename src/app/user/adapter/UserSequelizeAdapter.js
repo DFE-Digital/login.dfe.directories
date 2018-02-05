@@ -208,6 +208,27 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
   };
 };
 
+const update = async (uid, given_name, family_name, email, correlationId) => {
+  try {
+    const userEntity = await find(uid, correlationId);
+
+    if (!userEntity) {
+      return null;
+    }
+
+    await userEntity.updateAttributes({
+      given_name,
+      family_name,
+      email,
+    });
+
+    return userEntity;
+  } catch (e) {
+    logger.error(`update failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw (e);
+  }
+};
+
 module.exports = {
   find,
   getUsers,
@@ -217,4 +238,5 @@ module.exports = {
   create,
   authenticate,
   changeStatus,
+  update,
 };

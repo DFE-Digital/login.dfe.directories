@@ -5,6 +5,10 @@ const allowablePropertiesMessage = allowablePatchProperties.concat();
 
 const validateRequestData = (req) => {
   const keys = Object.keys(req.body);
+  if (keys.length === 0) {
+    return `Must specify at least one property to update. Allowed properties ${allowablePropertiesMessage}`
+  }
+
   const errorMessages = keys.map((key) => {
     if (!allowablePatchProperties.find(x => x === key)) {
       return `Unpatchable property ${key}. Allowed properties ${allowablePropertiesMessage}`
@@ -29,7 +33,7 @@ const patchUser = async (req, res) => {
 
   // Patch user
   const updatedUser = Object.assign(Object.assign({}, user), req.body);
-  await update(updatedUser, req.header('x-correlation-id'));
+  await update(updatedUser.sub, updatedUser.given_name, updatedUser.family_name, updatedUser.email, req.header('x-correlation-id'));
 
   return res.status(202).send();
 };

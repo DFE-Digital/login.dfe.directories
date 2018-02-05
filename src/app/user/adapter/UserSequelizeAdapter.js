@@ -208,6 +208,10 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
   };
 };
 
+const update = async (user, correlationId) => {
+  logger.info(`Updating user for request: ${correlationId}`, { correlationId });
+};
+
 module.exports = {
   find,
   getUsers,
@@ -217,4 +221,5 @@ module.exports = {
   create,
   authenticate,
   changeStatus,
+  update,
 };

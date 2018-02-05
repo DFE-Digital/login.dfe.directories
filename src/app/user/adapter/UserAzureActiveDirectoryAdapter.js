@@ -58,7 +58,7 @@ const authenticate = (username, password) => new Promise((resolve, reject) => {
   });
 });
 
-const update = async (user, correlationId) => {
+const update = async (uid, given_name, family_name, email, correlationId) => {
   throw new Error('Update method is not implemented for AAD');
   error.type = 'E_NOTIMPLEMENTED';
   throw error;

@@ -235,8 +235,25 @@ const authenticate = async (username, password, correlationId) => {
   return null;
 };
 
-const update = async (user, correlationId) => {
-  logger.info(`Updating user for request: ${correlationId}`, { correlationId });
+const update = async (uid, given_name, family_name, email, correlationId) => {
+  try {
+    logger.info(`Updating user for request: ${correlationId}`, { correlationId });
+
+    const result = await client.get(`User_${uid}`);
+    if (!result) {
+      return;
+    }
+
+    const user = JSON.parse(result);
+    user.given_name = given_name;
+    user.family_name = family_name;
+    user.email = email;
+
+    await client.set(`User_${uid}`, JSON.stringify(user));
+  } catch (e) {
+    logger.error(`Updating user failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw (e);
+  }
 };
 
 

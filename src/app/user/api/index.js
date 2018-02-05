@@ -14,6 +14,7 @@ const getDevices = require('./getDevices');
 const createDevice = require('./createDevice');
 const activateUser = require('./activateUser');
 const deactivateUser = require('./deactivateUser');
+const patchUser = require('./patchUser');
 
 const router = express.Router();
 
@@ -33,6 +34,7 @@ const routeExport = () => {
   router.post('/users/authenticate', authenticate);
 
   router.post('/:directoryId/user/:id/changepassword', deprecateWith('/users/:id/changepassword'), changePassword);
+  router.patch('/users/:id', patchUser);
   router.post('/users/:id/changepassword', changePassword);
 
   router.post('/users/:id/deactivate', deactivateUser);

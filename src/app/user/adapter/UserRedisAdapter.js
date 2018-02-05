@@ -235,6 +235,10 @@ const authenticate = async (username, password, correlationId) => {
   return null;
 };
 
+const update = async (user, correlationId) => {
+  logger.info(`Updating user for request: ${correlationId}`, { correlationId });
+};
+
 
 module.exports = {
   getUsers,
@@ -245,4 +249,5 @@ module.exports = {
   find,
   authenticate,
   changeStatus,
+  update,
 };

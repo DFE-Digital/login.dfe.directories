@@ -111,11 +111,16 @@ const authenticate = async (username, password) => {
   return null;
 };
 
+const update = async (user, correlationId) => {
+  logger.info(`Updating user for request: ${correlationId}`, { correlationId });
+};
+
 module.exports = {
   list,
   findByUsername,
   create,
   find,
   authenticate,
+  update,
 };
 

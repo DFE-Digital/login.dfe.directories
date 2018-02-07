@@ -9,14 +9,24 @@ const authenticate = async (req, res) => {
       req.header('x-correlation-id'),
     );
 
-    if (result) {
-      res.send(result.sub);
-    } else {
-      res.status(401).send();
+    if (!result) {
+      return res.status(403).contentType('json').send({
+        reason_code: 'INVALID_CREDENTIALS',
+        reason_description: 'Invalid username or password',
+      });
     }
+
+    if (result.status === 0) {
+      return res.status(403).contentType('json').send({
+        reason_code: 'ACCOUNT_DEACTIVATED',
+        reason_description: 'Account has been deactivated',
+      });
+    }
+
+    return res.send(result.sub);
   } catch (e) {
     logger.error(e);
-    res.status(500).send(e);
+    return res.status(500).send(e);
   }
 };
 

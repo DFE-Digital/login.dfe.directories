@@ -19,6 +19,12 @@
         },
         "transparentDataEncryption": {		
         "value": "Enabled"		
-        }	
+        },
+        "CHGWIP": {
+          "value": ""
+        },
+        "EPGWIP": {
+          "value": ""
+        }
     }		
 }

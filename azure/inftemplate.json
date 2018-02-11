@@ -1,0 +1,183 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "redisCacheName": {
+        "type": "string",
+        "metadata": {
+          "description": "The name of the Azure Redis Cache to create."
+        }
+      },
+      "redisCacheSKU": {
+        "type": "string",
+        "allowedValues": [
+          "Basic",
+          "Standard",
+          "Premium"
+        ],
+        "defaultValue": "Standard",
+        "metadata": {
+          "description": "The pricing tier of the new Azure Redis Cache."
+        }
+      },
+      "redisCacheFamily": {
+        "type": "string",
+        "defaultValue": "C",
+        "metadata": {
+          "description": "The family for the sku."
+        },
+        "allowedValues": [
+          "C",
+          "P"
+        ]
+      },
+      "redisCacheCapacity": {
+        "type": "int",
+        "allowedValues": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "defaultValue": 1,
+        "metadata": {
+          "description": "The size of the new Azure Redis Cache instance. "
+        }
+      },
+      "enableNonSslPort": {
+        "type": "bool",
+        "defaultValue": false,
+        "metadata": {
+          "description": "A boolean value that indicates whether to allow access via non-SSL ports."
+        }
+      },
+    "sqlAdministratorLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "The admin user of the SQL Server"
+      }
+    },
+    "sqlAdministratorLoginPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The password of the admin user of the SQL Server"
+      }
+    },
+      "sqlserverName": {
+        "type": "string",
+        "metadata": {
+          "description": "The name of the SQL Server"
+        }
+      },
+        "databaseName": {
+          "type": "string",
+          "metadata": {
+            "description": "The name of the database"
+         }
+      },
+    "transparentDataEncryption": {
+      "type": "string",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ],
+      "defaultValue": "Enabled",
+      "metadata": {
+        "description": "Enable or disable Transparent Data Encryption (TDE) for the database."
+      }
+    }
+  },
+    "resources": [
+      {
+        "apiVersion": "2015-08-01",
+        "name": "[parameters('redisCacheName')]",
+        "type": "Microsoft.Cache/Redis",
+        "location": "[resourceGroup().location]",
+        "properties": {
+          "enableNonSslPort": "[parameters('enableNonSslPort')]",
+          "sku": {
+            "capacity": "[parameters('redisCacheCapacity')]",
+            "family": "[parameters('redisCacheFamily')]",
+            "name": "[parameters('redisCacheSKU')]"
+          }
+        }
+      },
+        {
+          "name": "[parameters('sqlserverName')]",
+          "type": "Microsoft.Sql/servers",
+          "location": "[resourceGroup().location]",
+          "tags": {
+            "displayName": "SqlServer"
+          },
+          "apiVersion": "2014-04-01",
+          "properties": {
+            "administratorLogin": "[parameters('sqlAdministratorLogin')]",
+            "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
+            "version": "12.0"
+          },
+          "resources": [
+            {
+              "name": "[parameters('databaseName')]",
+              "type": "databases",
+              "location": "[resourceGroup().location]",
+              "tags": {
+                "displayName": "Database"
+              },
+              "apiVersion": "2014-04-01",
+              "properties": {
+                "edition": "Basic",
+                "collation": "SQL_Latin1_General_CP1_CI_AS",
+                "maxSizeBytes": "1073741824",
+                "requestedServiceObjectiveName": "Basic"
+              },
+                "dependsOn": [
+                 "[parameters('sqlServerName')]"
+              ],
+              "resources": [  
+              {
+                "comments": "Transparent Data Encryption",
+                "name": "current",
+                "type": "transparentDataEncryption",
+                "apiVersion": "2014-04-01",
+                "properties": {
+                "status": "[parameters('transparentDataEncryption')]"
+                },
+              "dependsOn": [
+                "[parameters('databaseName')]"
+                ]
+              }
+              ]
+            },
+            {
+              "type": "firewallRules",
+              "apiVersion": "2014-04-01",
+              "dependsOn": [
+                "[parameters('sqlserverName')]"
+              ],
+              "location": "[resourceGroup().location]",
+              "name": "GovWifi (CH)",
+              "properties": {
+                "endIpAddress": "217.33.132.234",
+                "startIpAddress": "217.33.132.234"
+              }
+            },
+            {
+              "type": "firewallRules",
+              "apiVersion": "2014-04-01",
+              "dependsOn": [
+                "[parameters('sqlserverName')]"
+              ],
+              "location": "[resourceGroup().location]",
+              "name": "GovWifi (EP)",
+              "properties": {
+                "endIpAddress": "194.72.47.162",
+                "startIpAddress": "194.72.47.162"
+              }
+            }
+          ]
+        }
+    ]
+  }

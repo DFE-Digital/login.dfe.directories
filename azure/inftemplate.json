@@ -88,6 +88,18 @@
       "metadata": {
         "description": "Enable or disable Transparent Data Encryption (TDE) for the database."
       }
+    },
+    "GWEPIP": {
+      "type": "string",
+      "metadata": {
+        "description": "Firewall IP"
+     }
+    },
+    "CHEPIP": {
+      "type": "string",
+      "metadata": {
+        "description": "Firewall IP"
+     }
     }
   },
     "resources": [
@@ -158,10 +170,10 @@
                 "[parameters('sqlserverName')]"
               ],
               "location": "[resourceGroup().location]",
-              "name": "GovWifi (CH)",
+              "name": "GWEPIP",
               "properties": {
-                "endIpAddress": "217.33.132.234",
-                "startIpAddress": "217.33.132.234"
+                "endIpAddress": "[parameters('CHEPIP')]",
+                "startIpAddress": "[parameters('CHEPIP')]"
               }
             },
             {
@@ -171,10 +183,10 @@
                 "[parameters('sqlserverName')]"
               ],
               "location": "[resourceGroup().location]",
-              "name": "GovWifi (EP)",
+              "name": "GWEPIP",
               "properties": {
-                "endIpAddress": "194.72.47.162",
-                "startIpAddress": "194.72.47.162"
+                "endIpAddress": "[parameters('GWEPIP')]",
+                "startIpAddress": "[parameters('GWEPIP')]"
               }
             }
           ]

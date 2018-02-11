@@ -170,7 +170,7 @@
                 "[parameters('sqlserverName')]"
               ],
               "location": "[resourceGroup().location]",
-              "name": "GWEPIP",
+              "name": "CHEPIP",
               "properties": {
                 "endIpAddress": "[parameters('CHEPIP')]",
                 "startIpAddress": "[parameters('CHEPIP')]"

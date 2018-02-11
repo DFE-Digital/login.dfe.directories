@@ -89,13 +89,13 @@
         "description": "Enable or disable Transparent Data Encryption (TDE) for the database."
       }
     },
-    "GWEPIP": {
+    "EPGWIP": {
       "type": "string",
       "metadata": {
         "description": "Firewall IP"
      }
     },
-    "CHEPIP": {
+    "CHGWIP": {
       "type": "string",
       "metadata": {
         "description": "Firewall IP"
@@ -170,10 +170,10 @@
                 "[parameters('sqlserverName')]"
               ],
               "location": "[resourceGroup().location]",
-              "name": "CHEPIP",
+              "name": "CHGWIP",
               "properties": {
-                "endIpAddress": "[parameters('CHEPIP')]",
-                "startIpAddress": "[parameters('CHEPIP')]"
+                "endIpAddress": "[parameters('CHGWIP')]",
+                "startIpAddress": "[parameters('CHGWIP')]"
               }
             },
             {
@@ -183,10 +183,10 @@
                 "[parameters('sqlserverName')]"
               ],
               "location": "[resourceGroup().location]",
-              "name": "GWEPIP",
+              "name": "EPGWIP",
               "properties": {
-                "endIpAddress": "[parameters('GWEPIP')]",
-                "startIpAddress": "[parameters('GWEPIP')]"
+                "endIpAddress": "[parameters('EPGWIP')]",
+                "startIpAddress": "[parameters('EPGWIP')]"
               }
             }
           ]

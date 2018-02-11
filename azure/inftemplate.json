@@ -140,7 +140,7 @@
               {
                 "comments": "Transparent Data Encryption",
                 "name": "current",
-                "type": "auditingPolicies",
+                "type": "transparentDataEncryption",
                 "apiVersion": "2014-04-01",
                 "properties": {
                 "status": "[parameters('transparentDataEncryption')]"

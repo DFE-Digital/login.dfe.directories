@@ -127,15 +127,29 @@
                 "displayName": "Database"
               },
               "apiVersion": "2014-04-01",
-              "dependsOn": [
-                "[parameters('sqlserverName')]"
-              ],
               "properties": {
                 "edition": "Basic",
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
                 "maxSizeBytes": "1073741824",
                 "requestedServiceObjectiveName": "Basic"
+              },
+                "dependsOn": [
+                 "[parameters('sqlServerName')]"
+              ],
+              "resources": [  
+              {
+                "comments": "Transparent Data Encryption",
+                "name": "current",
+                "type": "auditingPolicies",
+                "apiVersion": "2014-04-01",
+                "properties": {
+                "status": "[parameters('transparentDataEncryption')]"
+                },
+              "dependsOn": [
+                "[parameters('databaseName')]"
+                ]
               }
+              ]
             },
             {
               "type": "firewallRules",
@@ -162,18 +176,6 @@
                 "endIpAddress": "194.72.47.162",
                 "startIpAddress": "194.72.47.162"
               }
-            },
-            {
-              "comments": "Transparent Data Encryption",
-              "name": "current",
-              "type": "auditingPolicies",
-              "apiVersion": "2014-04-01",
-              "properties": {
-                "status": "[parameters('transparentDataEncryption')]"
-              },
-              "dependsOn": [
-                "[parameters('databaseName')]"
-              ]
             }
           ]
         }

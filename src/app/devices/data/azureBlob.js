@@ -2,11 +2,25 @@ const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const rp = require('request-promise');
 const { URL } = require('url');
+const { DOMParser } = require('xmldom');
+const xpath = require('xpath');
 
-const getBlobUrl = (blobName) => {
+const getBlobUrl = (blobName = '') => {
   const sasUrl = new URL(config.devices.containerUrl);
   return `${sasUrl.origin}${sasUrl.pathname}/${blobName}${sasUrl.search}`;
 };
+
+const listBlobs = async () => {
+  const blobListXml = await rp({
+    method: 'GET',
+    uri: `${getBlobUrl()}&restype=container&comp=list`,
+  });
+  const blobListDoc = new DOMParser().parseFromString(blobListXml);
+  return xpath.select('/EnumerationResults/Blobs/Blob/Name', blobListDoc).map((node) => {
+    return node.childNodes[0].nodeValue;
+  });
+};
+
 
 const getUserDevices = async (userId, correlationId) => {
   try {
@@ -48,7 +62,30 @@ const createUserDevices = async (userId, device, correlationId) => {
   }
 };
 
+const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
+  try {
+    logger.info(`Get user associated to device for request: ${correlationId}`, { correlationId });
+
+    const userIdWithDevices = (await listBlobs()).map(blobName => blobName.substr(0, blobName.length - 5));
+    for (let i = 0; i < userIdWithDevices.length; i += 1) {
+      const userId = userIdWithDevices[i];
+      const userDevices = await getUserDevices(userId, correlationId);
+      if (userDevices.find(d => d.type.toLowerCase() === type.toLowerCase() && d.serialNumber === serialNumber)) {
+        return userId;
+      }
+    }
+    return null;
+  } catch (e) {
+    if (e.statusCode === 404) {
+      return null;
+    }
+    logger.error(`Get user devices failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw (e);
+  }
+};
+
 module.exports = {
   getUserDevices,
   createUserDevices,
+  getUserAssociatedToDevice,
 };

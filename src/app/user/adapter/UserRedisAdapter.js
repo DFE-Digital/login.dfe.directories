@@ -9,7 +9,8 @@ const uuid = require('uuid');
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 
-const client = new Redis(config.adapter.params.redisurl);
+const tls = config.adapter.params.redisurl.includes('6380');
+const client = new Redis(config.adapter.params.redisurl, { tls });
 
 const findById = async (id) => {
   const result = await client.get(`User_${id}`);

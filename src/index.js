@@ -9,6 +9,7 @@ const https = require('https');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 const users = require('./app/user/api');
+const devices = require('./app/devices/api');
 const userCodes = require('./app/userCodes/api');
 const invitations = require('./app/invitations/api');
 const dev = require('./app/dev');
@@ -46,6 +47,7 @@ if (config.hostingEnvironment.useDevViews) {
 
 // TODO Once the deprecated APIs are gone, this mount can be /users...
 app.use('/', users);
+app.use('/devices', devices);
 app.use('/userCodes', userCodes);
 app.use('/invitations', invitations);
 

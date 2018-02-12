@@ -8,7 +8,10 @@ const getUserDevices = async userId => [
 
 const createUserDevices = async (userId, device) => Promise.resolve(null);
 
+const getUserAssociatedToDevice = async () => Promise.resolve(null);
+
 module.exports = {
   getUserDevices,
   createUserDevices,
+  getUserAssociatedToDevice,
 };

@@ -2,7 +2,8 @@ const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const IORedis = require('ioredis');
 
-const redis = new IORedis(config.devices.redisUrl);
+const tls = config.devices.redisUrl.includes('6380');
+const redis = new IORedis(config.devices.redisUrl, { tls });
 
 const readBatchOfKeys = async ({ match = '*', count = 0 }) => {
   return new Promise((resolve, reject) => {

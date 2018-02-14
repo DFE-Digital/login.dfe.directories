@@ -1,6 +1,11 @@
 'use strict';
 
 jest.mock('./../../src/app/invitations/data/redisInvitationStorage');
+jest.mock('./../../src/app/invitations/utils', () => {
+  return {
+    generateInvitationCode: jest.fn().mockReturnValue('invite-code'),
+  };
+});
 jest.mock('./../../src/infrastructure/logger');
 jest.mock('login.dfe.notifications.client');
 jest.mock('./../../src/infrastructure/config', () => ({
@@ -72,7 +77,8 @@ describe('When creating an invitation', () => {
 
     sendInvitationStub = jest.fn()
       .mockImplementation(
-        (email, firstName, lastName, invitationId) => { });
+        (email, firstName, lastName, invitationId) => {
+        });
 
 
     notificationClient = require('login.dfe.notifications.client');
@@ -114,7 +120,12 @@ describe('When creating an invitation', () => {
     await post(req, res);
 
     expect(res.statusCode).toBe(201);
-    expect(redisStorage.createUserInvitation.mock.calls[0][0].email).toBe(expectedEmailAddress);
+    expect(redisStorage.createUserInvitation.mock.calls[0][0]).toMatchObject({
+      email: expectedEmailAddress,
+      firstName: expectedFirstName,
+      lastName: expectedLastName,
+      code: 'invite-code',
+    });
     expect(redisStorage.createUserInvitation.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
   });
   it('then the invitation object is returned in the response with an id', async () => {
@@ -145,10 +156,13 @@ describe('When creating an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][1]).toBe(expectedFirstName);
     expect(sendInvitationStub.mock.calls[0][2]).toBe(expectedLastName);
     expect(sendInvitationStub.mock.calls[0][3]).toBe(expectedInvitationId);
+    expect(sendInvitationStub.mock.calls[0][4]).toBe('invite-code');
   });
   it('then a 500 response is returned if there is an error', async () => {
     redisStorage.createUserInvitation.mockReset();
-    redisStorage.createUserInvitation = () => { throw new Error(); };
+    redisStorage.createUserInvitation = () => {
+      throw new Error();
+    };
 
     await post(req, res);
 

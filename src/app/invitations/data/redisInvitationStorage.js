@@ -28,11 +28,17 @@ const list = async (pageNumber, pageSize) => {
   }
 
   const page = pagesOfKeys[pageNumber - 1];
-  return Promise.all(page.map(async (key) => {
+  const invitations = await Promise.all(page.map(async (key) => {
     const result = await client.get(key);
     const invitation = JSON.parse(result);
     return invitation || null;
   }));
+
+  return {
+    invitations,
+    page: pageNumber,
+    numberOfPages: pagesOfKeys.length,
+  };
 };
 
 const find = async (id) => {

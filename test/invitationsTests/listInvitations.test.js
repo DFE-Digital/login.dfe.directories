@@ -30,16 +30,20 @@ describe('when listing invitations', () => {
     };
 
     list.mockReset();
-    list.mockReturnValue([
-      {
-        firstName: 'User',
-        lastName: 'One',
-        email: 'user.one@unit.test',
-        keyToSuccessId: '1234567',
-        tokenSerialNumber: '1234567890',
-        id: 'c5e57976-0bef-4f55-b16f-f63a241c9bfa',
-      },
-    ]);
+    list.mockReturnValue({
+      invitations: [
+        {
+          firstName: 'User',
+          lastName: 'One',
+          email: 'user.one@unit.test',
+          keyToSuccessId: '1234567',
+          tokenSerialNumber: '1234567890',
+          id: 'c5e57976-0bef-4f55-b16f-f63a241c9bfa',
+        },
+      ],
+      page: 2,
+      numberOfPages: 12,
+    });
   });
 
   it('then it should use page number from query string', async () => {
@@ -73,15 +77,19 @@ describe('when listing invitations', () => {
   it('then it should send invitations', async () => {
     await listInvitations(req, res);
 
-    const data = res._getData();
-    expect(data).toHaveLength(1);
-    expect(data[0]).toMatchObject({
-      firstName: 'User',
-      lastName: 'One',
-      email: 'user.one@unit.test',
-      keyToSuccessId: '1234567',
-      tokenSerialNumber: '1234567890',
-      id: 'c5e57976-0bef-4f55-b16f-f63a241c9bfa',
+    expect(res._getData()).toMatchObject({
+      invitations: [
+        {
+          firstName: 'User',
+          lastName: 'One',
+          email: 'user.one@unit.test',
+          keyToSuccessId: '1234567',
+          tokenSerialNumber: '1234567890',
+          id: 'c5e57976-0bef-4f55-b16f-f63a241c9bfa',
+        },
+      ],
+      page: 2,
+      numberOfPages: 12,
     });
     expect(res._isJSON()).toBe(true);
     expect(res._isEndCalled()).toBe(true);

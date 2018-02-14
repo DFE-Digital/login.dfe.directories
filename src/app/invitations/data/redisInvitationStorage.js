@@ -2,9 +2,44 @@ const Redis = require('ioredis');
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const uuid = require('uuid/v4');
+const { chunk } = require('lodash');
 
 const tls = config.invitations.redisUrl.includes('6380');
 const client = new Redis(config.invitations.redisUrl, { tls });
+
+const list = async (pageNumber, pageSize) => {
+  const allKeys = await new Promise((resolve, reject) => {
+    const keys = [];
+    client.scanStream({ match: 'UserInvitation_*' })
+      .on('data', (batch) => {
+        for (let i = 0; i < batch.length; i += 1) {
+          keys.push(batch[i]);
+        }
+      })
+      .on('end', () => {
+        resolve(keys);
+      })
+      .on('error', reject);
+  });
+
+  const pagesOfKeys = chunk(allKeys, pageSize);
+  if (pageNumber > pagesOfKeys.length) {
+    return null;
+  }
+
+  const page = pagesOfKeys[pageNumber - 1];
+  const invitations = await Promise.all(page.map(async (key) => {
+    const result = await client.get(key);
+    const invitation = JSON.parse(result);
+    return invitation || null;
+  }));
+
+  return {
+    invitations,
+    page: pageNumber,
+    numberOfPages: pagesOfKeys.length,
+  };
+};
 
 const find = async (id) => {
   const result = await client.get(`UserInvitation_${id}`);
@@ -84,6 +119,7 @@ const updateInvitation = async (invitation, correlationId) => {
 
 
 module.exports = {
+  list,
   deleteInvitation,
   createUserInvitation,
   getUserInvitation,

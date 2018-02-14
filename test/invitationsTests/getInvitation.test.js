@@ -46,7 +46,7 @@ describe('When getting an invitation', () => {
     logger = require('./../../src/infrastructure/logger');
     logger.error = (() => ({}));
 
-    get = require('../../src/app/invitations/api/getInvitations');
+    get = require('../../src/app/invitations/api/getInvitation');
   });
   afterEach(() => {
     expect(res._isEndCalled()).toBe(true);

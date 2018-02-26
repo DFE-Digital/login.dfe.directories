@@ -24,7 +24,11 @@ const list = async (pageNumber, pageSize) => {
 
   const pagesOfKeys = chunk(allKeys, pageSize);
   if (pageNumber > pagesOfKeys.length) {
-    return null;
+    return {
+      invitations: [],
+      page: pageNumber,
+      numberOfPages: pagesOfKeys.length,
+    };
   }
 
   const page = pagesOfKeys[pageNumber - 1];

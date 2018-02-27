@@ -6,6 +6,14 @@ const Op = Sequelize.Op;
 const assert = require('assert');
 const config = require('./../config');
 
+const getIntValueOrDefault = (value, defaultValue = 0) => {
+  if (!value) {
+    return defaultValue;
+  }
+  const int = parseInt(value);
+  return isNaN(int) ? defaultValue : int;
+};
+
 const databaseName = config.adapter.params.name || 'postgres';
 const encryptDb = config.adapter.params.encrypt || false;
 const dbSchema = config.adapter.params.schema || 'directories';
@@ -19,13 +27,23 @@ if (config.adapter.params && config.adapter.params.postgresUrl) {
   assert(config.adapter.params.password, 'Database property password must be supplied');
   assert(config.adapter.params.host, 'Database property host must be supplied');
   assert(config.adapter.params.dialect, 'Database property dialect must be supplied, this must be postgres or mssql');
-  db = new Sequelize(databaseName, config.adapter.params.username, config.adapter.params.password, {
+
+  const dbOpts = {
     host: config.adapter.params.host,
     dialect: config.adapter.params.dialect,
     dialectOptions: {
       encrypt: encryptDb,
     },
-  });
+  };
+  if (config.adapter.params.pool) {
+    dbOpts.pool = {
+      max: getIntValueOrDefault(config.adapter.params.pool.max, 5),
+      min: getIntValueOrDefault(config.adapter.params.pool.min, 0),
+      acquire: getIntValueOrDefault(config.adapter.params.pool.acquire, 10000),
+      idle: getIntValueOrDefault(config.adapter.params.pool.idle, 10000),
+    };
+  }
+  db = new Sequelize(databaseName, config.adapter.params.username, config.adapter.params.password, dbOpts);
 }
 
 const user = db.define('user', {

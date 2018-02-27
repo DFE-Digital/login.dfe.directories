@@ -3,10 +3,12 @@ jest.mock('./../../src/app/user/adapter', () => {
     list: jest.fn(),
   };
 });
-jest.mock('./../../src/infrastructure/logger');
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+  };
+});
 
 const adapter = require('./../../src/app/user/adapter');
-const logger = require('./../../src/infrastructure/logger');
 const listActon = require('./../../src/app/user/api/list');
 
 describe('when listing users in response to an api request', () => {
@@ -44,8 +46,6 @@ describe('when listing users in response to an api request', () => {
       numberOfPages: 22,
     });
 
-    logger.info.mockReset();
-    logger.error.mockReset();
   });
 
   it('then it should get page of users using page number specified', async () => {

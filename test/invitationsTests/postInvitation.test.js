@@ -6,7 +6,10 @@ jest.mock('./../../src/app/invitations/utils', () => {
     generateInvitationCode: jest.fn().mockReturnValue('invite-code'),
   };
 });
-jest.mock('./../../src/infrastructure/logger');
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+  };
+});
 jest.mock('login.dfe.notifications.client');
 jest.mock('./../../src/infrastructure/config', () => ({
   redis: {
@@ -31,7 +34,6 @@ const httpMocks = require('node-mocks-http');
 describe('When creating an invitation', () => {
   let res;
   let req;
-  let createInvitationStub;
   let logger;
   let sendInvitationStub;
   let notificationClient;
@@ -67,7 +69,7 @@ describe('When creating an invitation', () => {
     logger = require('./../../src/infrastructure/logger');
     logger.error = (() => ({}));
 
-    createInvitationStub = jest.fn().mockImplementation(() => (
+    const createInvitationStub = jest.fn().mockImplementation(() => (
       {
         id: expectedInvitationId,
         firstName: expectedFirstName,

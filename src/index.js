@@ -2,7 +2,6 @@
 
 const config = require('./infrastructure/config');
 const logger = require('./infrastructure/logger');
-const appInsights = require('applicationinsights');
 const express = require('express');
 const bodyParser = require('body-parser');
 const https = require('https');
@@ -19,10 +18,6 @@ const healthCheck = require('login.dfe.healthcheck');
 const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.config.schema');
 
 validateConfigAndQuitOnError(directoriesSchema, config, logger);
-
-if (config.hostingEnvironment.applicationInsights) {
-  appInsights.setup(config.hostingEnvironment.applicationInsights).start();
-}
 
 const app = express();
 

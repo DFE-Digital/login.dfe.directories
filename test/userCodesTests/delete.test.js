@@ -3,6 +3,11 @@ jest.mock('./../../src/infrastructure/config', () => ({
     type: 'static',
   },
 }));
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+    warn :jest.fn(),
+  };
+});
 
 jest.mock('./../../src/app/userCodes/data/staticUserCodeStorage', () => {
   const deleteUserPasswordResetCodeStub = jest.fn();

@@ -3,6 +3,8 @@
 require('winston-redis').Redis;
 const winston = require('winston');
 const config = require('./../config');
+const appInsights = require('applicationinsights');
+const WinstonApplicationInsights = require('winston-azure-application-insights').AzureApplicationInsightsLogger;
 
 const logLevel = (config && config.loggerSettings && config.loggerSettings.logLevel) ? config.loggerSettings.logLevel : 'info';
 
@@ -34,6 +36,11 @@ if (config && config.loggerSettings && config.loggerSettings.redis && config.log
     port: config.loggerSettings.redis.port,
     auth: config.loggerSettings.redis.auth,
   }));
+}
+
+if (config.hostingEnvironment.applicationInsights) {
+  appInsights.setup(config.hostingEnvironment.applicationInsights).start();
+  loggerConfig.transports.push(new WinstonApplicationInsights({ client: appInsights.defaultClient }));
 }
 
 const logger = new (winston.Logger)(loggerConfig);

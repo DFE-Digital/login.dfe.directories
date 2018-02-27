@@ -19,7 +19,11 @@ jest.mock('./../../src/infrastructure/config', () => (
       },
     },
   }));
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
 
+  };
+});
 const UserRedisAdapter = require('./../../src/app/user/adapter/UserRedisAdapter');
 
 

@@ -46,7 +46,11 @@ const deleteUserPasswordResetCode = async (uid, correlationId) => {
     if (!uid) {
       return;
     }
-    await userCode.deleteById(uid);
+
+    const code = await userCode.findById(uid);
+    if (code) {
+      await code.destroy();
+    }
   } catch (e) {
     logger.error(`Delete User Password Reset Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

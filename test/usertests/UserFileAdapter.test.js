@@ -1,4 +1,9 @@
 jest.mock('fs');
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+
+  };
+});
 const adapter = require('./../../src/app/user/adapter/UserFileAdapter');
 const fsMock = require('fs');
 

@@ -24,7 +24,10 @@ jest.mock('./../../src/infrastructure/config', () => ({
     },
   },
 }));
-
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+  };
+});
 jest.mock('./../../src/app/user/adapter', () => {
   const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local' });
   return {

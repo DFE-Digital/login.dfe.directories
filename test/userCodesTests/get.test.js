@@ -13,6 +13,10 @@ jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
     getUserPasswordResetCode: jest.fn().mockImplementation(getUserPasswordResetCodeStub),
   };
 });
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+  };
+});
 
 const redisUserCodeStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
 const get = require('./../../src/app/userCodes/api/get');

@@ -12,7 +12,10 @@ jest.mock('./../../src/infrastructure/config', () => ({
     },
   },
 }));
-
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+  };
+});
 const validate = require('./../../src/app/userCodes/api/validate');
 const httpMocks = require('node-mocks-http');
 const redisStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');

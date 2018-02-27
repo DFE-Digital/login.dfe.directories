@@ -1,6 +1,9 @@
 'use strict';
 
-jest.mock('./../../src/infrastructure/logger');
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+  };
+});
 jest.mock('login.dfe.notifications.client');
 jest.mock('./../../src/infrastructure/config', () => ({
   redis: {

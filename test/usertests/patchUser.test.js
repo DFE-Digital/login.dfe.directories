@@ -1,9 +1,9 @@
-jest.mock('./../../src/app/user/adapter', () => {
-  return {
-    find: jest.fn(),
-    update: jest.fn(),
-  };
-});
+jest.mock('./../../src/app/user/adapter', () => ({
+  find: jest.fn(),
+  update: jest.fn(),
+}));
+jest.mock('./../../src/utils/deprecateMiddleware', () => {});
+
 
 const { find, update } = require('./../../src/app/user/adapter');
 const patchUser = require('./../../src/app/user/api/patchUser');

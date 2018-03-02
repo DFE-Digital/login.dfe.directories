@@ -2,12 +2,13 @@
 
 const listEndpoints = require('express-list-endpoints');
 const express = require('express');
-
-const router = express.Router();
-
+const { asyncWrapper } = require('login.dfe.express-error-handling');
 const config = require('./../../infrastructure/config');
+
 const usersAdapter = require('./../user/adapter');
 const codesAdapter = require('./../userCodes/data');
+
+const router = express.Router();
 
 const getUsersCodes = async (userId) => {
   const codes = [];
@@ -21,7 +22,7 @@ const getUsersCodes = async (userId) => {
 };
 
 const routes = () => {
-  router.get('/', async (req, res) => {
+  router.get('/', asyncWrapper(async (req, res) => {
     try {
       let page = 1;
       if (req.query.page && parseInt(req.query.page, 10) !== NaN) {
@@ -56,9 +57,9 @@ const routes = () => {
         throw e;
       }
     }
-  });
+  }));
 
-  router.get('/user/:userid', async (req, res) => {
+  router.get('/user/:userid', asyncWrapper(async (req, res) => {
     const user = await usersAdapter.find(req.params.userid);
     if (!user) {
       res.status(404).send();
@@ -71,7 +72,7 @@ const routes = () => {
       user,
       codes,
     });
-  });
+  }));
 
   return router;
 };

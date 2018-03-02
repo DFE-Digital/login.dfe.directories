@@ -4,6 +4,7 @@ const express = require('express');
 const apiAuth = require('login.dfe.api.auth');
 const config = require('./../../../infrastructure/config');
 const { deprecateWith } = require('./../../../utils');
+const { asyncWrapper } = require('login.dfe.express-error-handling');
 
 const list = require('./list');
 const authenticate = require('./authenticate');
@@ -25,23 +26,23 @@ const routeExport = () => {
   }
 
   // Map routes to functions.
-  router.get('/:directoryId/user/:id', deprecateWith('/users/:id'), find);
-  router.get('/users', list);
-  router.get('/users/by-ids', search);
-  router.get('/users/:id', find);
+  router.get('/:directoryId/user/:id', deprecateWith('/users/:id'), asyncWrapper(find));
+  router.get('/users', asyncWrapper(list));
+  router.get('/users/by-ids', asyncWrapper(search));
+  router.get('/users/:id', asyncWrapper(find));
 
-  router.post('/:directoryId/user/authenticate', deprecateWith('/users/authenticate'), authenticate);
-  router.post('/users/authenticate', authenticate);
+  router.post('/:directoryId/user/authenticate', deprecateWith('/users/authenticate'), asyncWrapper(authenticate));
+  router.post('/users/authenticate', asyncWrapper(authenticate));
 
-  router.post('/:directoryId/user/:id/changepassword', deprecateWith('/users/:id/changepassword'), changePassword);
-  router.patch('/users/:id', patchUser);
-  router.post('/users/:id/changepassword', changePassword);
+  router.post('/:directoryId/user/:id/changepassword', deprecateWith('/users/:id/changepassword'), asyncWrapper(changePassword));
+  router.patch('/users/:id', asyncWrapper(patchUser));
+  router.post('/users/:id/changepassword', asyncWrapper(changePassword));
 
-  router.post('/users/:id/deactivate', deactivateUser);
-  router.post('/users/:id/activate', activateUser);
+  router.post('/users/:id/deactivate', asyncWrapper(deactivateUser));
+  router.post('/users/:id/activate', asyncWrapper(activateUser));
 
-  router.get('/users/:id/devices', getDevices);
-  router.post('/users/:id/devices', createDevice);
+  router.get('/users/:id/devices', asyncWrapper(getDevices));
+  router.post('/users/:id/devices', asyncWrapper(createDevice));
 
   return router;
 };

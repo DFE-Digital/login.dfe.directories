@@ -3,6 +3,8 @@
 const express = require('express');
 const apiAuth = require('login.dfe.api.auth');
 const config = require('./../../../infrastructure/config');
+const { asyncWrapper } = require('login.dfe.express-error-handling');
+
 const listInvitations = require('./listInvitations');
 const postInvitations = require('./postInvitations');
 const getInvitations = require('./getInvitation');
@@ -20,11 +22,11 @@ const routeExport = () => {
   assert(config.invitations.redisUrl, 'the invitations.redisUrl config property must be set');
 
   // Map routed to functions.
-  router.get('/', listInvitations);
-  router.post('/', postInvitations);
-  router.get('/:id', getInvitations);
-  router.patch('/:id', patchInvitation);
-  router.post('/:id/create_user', createUser);
+  router.get('/', asyncWrapper(listInvitations));
+  router.post('/', asyncWrapper(postInvitations));
+  router.get('/:id', asyncWrapper(getInvitations));
+  router.patch('/:id', asyncWrapper(patchInvitation));
+  router.post('/:id/create_user', asyncWrapper(createUser));
   return router;
 };
 

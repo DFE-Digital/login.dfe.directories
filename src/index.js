@@ -13,6 +13,7 @@ const userCodes = require('./app/userCodes/api');
 const invitations = require('./app/invitations/api');
 const dev = require('./app/dev');
 const healthCheck = require('login.dfe.healthcheck');
+const { getErrorHandler } = require('login.dfe.express-error-handling');
 
 
 const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.config.schema');
@@ -46,6 +47,10 @@ app.use('/devices', devices);
 app.use('/userCodes', userCodes);
 app.use('/invitations', invitations);
 
+// Error handing
+app.use(getErrorHandler({
+  logger,
+}));
 
 if (config.hostingEnvironment.env === 'dev') {
   app.proxy = true;

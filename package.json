@@ -32,7 +32,7 @@
     "pg-hstore": "^2.3.2",
     "redis": "^2.8.0",
     "request-promise": "^4.2.2",
-    "sequelize": "^4.31.2",
+    "sequelize": "^4.35.2",
     "tedious": "^2.2.3",
     "uuid": "^3.1.0",
     "winston": "^2.4.0",

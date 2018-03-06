@@ -29,6 +29,22 @@ if (config.adapter.params && config.adapter.params.postgresUrl) {
   assert(config.adapter.params.dialect, 'Database property dialect must be supplied, this must be postgres or mssql');
 
   const dbOpts = {
+    retry: {
+      match: [
+        /SequelizeConnectionError/,
+        /SequelizeConnectionRefusedError/,
+        /SequelizeHostNotFoundError/,
+        /SequelizeHostNotReachableError/,
+        /SequelizeInvalidConnectionError/,
+        /SequelizeConnectionTimedOutError/,
+        /TimeoutError/,
+      ],
+      name: 'query',
+      backoffBase: 100,
+      backoffExponent: 1.1,
+      timeout: 60000,
+      max: 5,
+    },
     host: config.adapter.params.host,
     dialect: config.adapter.params.dialect,
     dialectOptions: {

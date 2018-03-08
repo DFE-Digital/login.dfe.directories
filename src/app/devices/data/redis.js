@@ -49,7 +49,7 @@ const createUserDevices = async (userId, device, correlationId) => {
     const devices = await getUserDevices(userId);
     devices.push(device);
 
-    await redis.set(`UserDevices_${userId}`, JSON.stringify(devices));
+    await redis.set(`UserDevices_${userId.toLowerCase()}`, JSON.stringify(devices));
   } catch (e) {
     logger.error(`Create user devices failed for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);

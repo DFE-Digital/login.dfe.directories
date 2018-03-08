@@ -17,7 +17,7 @@ jest.mock('uuid/v4');
 const httpMocks = require('node-mocks-http');
 const deleteDevice = require('./../../src/app/user/api/deleteDevice');
 
-describe('when getting a list of devices for user', () => {
+describe('when deleting a device for user', () => {
   let req;
   let res;
   let devices;
@@ -49,7 +49,7 @@ describe('when getting a list of devices for user', () => {
     require('uuid/v4').mockReturnValue('b8107414-969c-46f4-b0fa-47d3e132e8e1');
   });
 
-  it('then it should create device for user', async () => {
+  it('then it calls deleteUserDevice for user', async () => {
     await deleteDevice(req, res);
 
     expect(devices.deleteUserDevice.mock.calls).toHaveLength(1);

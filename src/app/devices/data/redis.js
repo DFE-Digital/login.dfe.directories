@@ -56,6 +56,24 @@ const createUserDevices = async (userId, device, correlationId) => {
   }
 };
 
+const deleteUserDevice = async (userId, device, correlationId) => {
+  try {
+    logger.info(`Removing user device: ${device.serialNumber} for request: ${correlationId}`, { correlationId });
+    const devices = await getUserDevices(userId);
+
+    const indexOfSerialNumber = devices.findIndex(c => c.serialNumber === device.serialNumber);
+
+    if (indexOfSerialNumber !== -1) {
+      devices.splice(indexOfSerialNumber, 1);
+    }
+
+    await redis.set(`UserDevices_${userId}`, JSON.stringify(devices));
+  } catch (e) {
+    logger.error(`Remove user device: ${device.serialNumber} failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw (e);
+  }
+};
+
 const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
   try {
     logger.info(`Get user associated to device for request: ${correlationId}`, { correlationId });
@@ -79,4 +97,5 @@ module.exports = {
   getUserDevices,
   createUserDevices,
   getUserAssociatedToDevice,
+  deleteUserDevice,
 };

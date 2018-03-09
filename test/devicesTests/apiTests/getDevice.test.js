@@ -84,10 +84,47 @@ describe('When getting user associated with device', () => {
     expect(res._isEndCalled()).toBe(true);
   });
 
+  it('then it should return invitation if no associated user but invitation and invitation from migration', async () => {
+    getUserAssociatedToDevice.mockReturnValue(null);
+    list.mockReturnValue({
+      invitations: [{
+        firstName: 'User',
+        lastName: 'One',
+        email: 'user.one@invited.test',
+        keyToSuccessId: '12345678901',
+        oldCredentials: {
+          tokenSerialNumber: '123456789',
+        },
+        id: 'invite-1',
+      }],
+      page: 1,
+      numberOfPages: 1,
+    });
+
+    await getDevice(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res._isJSON()).toBe(true);
+    expect(res._getData()).toMatchObject({
+      associatedWith: {
+        type: 'invitation',
+        sub: 'invite-1',
+      },
+    });
+    expect(res._isEndCalled()).toBe(true);
+  });
+
   it('then it should return 404 if user not invitation not found', async () => {
     getUserAssociatedToDevice.mockReturnValue(null);
     list.mockReturnValue({
-      invitations: [],
+      invitations: [{
+        firstName: 'User',
+        lastName: 'One',
+        email: 'user.one@invited.test',
+        keyToSuccessId: '12345678901',
+        tokenSerialNumber: '987654321',
+        id: 'invite-1',
+      }],
       page: 1,
       numberOfPages: 1,
     });

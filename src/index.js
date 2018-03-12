@@ -4,6 +4,7 @@ const config = require('./infrastructure/config');
 const logger = require('./infrastructure/logger');
 const express = require('express');
 const bodyParser = require('body-parser');
+const http = require('http');
 const https = require('https');
 const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
@@ -14,9 +15,25 @@ const invitations = require('./app/invitations/api');
 const dev = require('./app/dev');
 const healthCheck = require('login.dfe.healthcheck');
 const { getErrorHandler } = require('login.dfe.express-error-handling');
+const KeepAliveAgent = require('agentkeepalive');
 
 
 const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.config.schema');
+
+
+http.GlobalAgent = new KeepAliveAgent({
+  maxSockets: 10,
+  maxFreeSockets: 2,
+  timeout: 60000,
+  keepAliveTimeout: 300000,
+});
+https.GlobalAgent = new KeepAliveAgent({
+  maxSockets: 10,
+  maxFreeSockets: 2,
+  timeout: 60000,
+  keepAliveTimeout: 300000,
+});
+
 
 validateConfigAndQuitOnError(directoriesSchema, config, logger);
 

@@ -22,14 +22,14 @@ const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.c
 
 
 http.GlobalAgent = new KeepAliveAgent({
-  maxSockets: 10,
-  maxFreeSockets: 2,
+  maxSockets: 160,
+  maxFreeSockets: 10,
   timeout: 60000,
   keepAliveTimeout: 300000,
 });
 https.GlobalAgent = new KeepAliveAgent({
-  maxSockets: 10,
-  maxFreeSockets: 2,
+  maxSockets: 160,
+  maxFreeSockets: 10,
   timeout: 60000,
   keepAliveTimeout: 300000,
 });

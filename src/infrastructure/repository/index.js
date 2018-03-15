@@ -46,6 +46,7 @@ if (config.adapter.params && config.adapter.params.postgresUrl) {
       max: 5,
     },
     host: config.adapter.params.host,
+    operatorsAliases: Op,
     dialect: config.adapter.params.dialect,
     dialectOptions: {
       encrypt: encryptDb,

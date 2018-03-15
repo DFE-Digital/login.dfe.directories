@@ -28,6 +28,7 @@
     "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v1.1",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
     "mongoose": "^4.13.3",
+    "newrelic": "^3.2.0",
     "path": "^0.12.7",
     "pg": "^7.4.1",
     "pg-hstore": "^2.3.2",

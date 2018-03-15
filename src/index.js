@@ -1,5 +1,6 @@
 'use strict';
 
+require('newrelic');
 const config = require('./infrastructure/config');
 const logger = require('./infrastructure/logger');
 const express = require('express');

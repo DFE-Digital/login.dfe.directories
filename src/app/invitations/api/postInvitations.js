@@ -6,6 +6,13 @@ const storage = require('./../data/redisInvitationStorage');
 const { generateInvitationCode } = require('./../utils');
 const NotificationClient = require('login.dfe.notifications.client');
 
+const classifyInvite = (invitation) => {
+  if (invitation.oldCredentials && invitation.oldCredentials.source.toUpperCase() === 'EAS') {
+    return 'eas-migration';
+  }
+  return 'new-user';
+};
+
 const post = async (req, res) => {
   try {
     if (!req.body.firstName || !req.body.lastName || !req.body.email) {
@@ -21,8 +28,14 @@ const post = async (req, res) => {
       connectionString: config.notifications.connectionString,
     });
 
-    await notificationClient.sendInvitation(
-      requestedInvite.email, requestedInvite.firstName, requestedInvite.lastName, invitation.id, requestedInvite.code);
+    const classOfInvite = classifyInvite(requestedInvite);
+    if (classOfInvite === 'eas-migration') {
+      await notificationClient.sendMigrationInvitation(
+        requestedInvite.email, requestedInvite.firstName, requestedInvite.lastName, invitation.id, requestedInvite.code);
+    } else {
+      await notificationClient.sendInvitation(
+        requestedInvite.email, requestedInvite.firstName, requestedInvite.lastName, invitation.id, requestedInvite.code);
+    }
 
     res.status(201).send(invitation);
   } catch (e) {

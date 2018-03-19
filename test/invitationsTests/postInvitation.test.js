@@ -7,8 +7,7 @@ jest.mock('./../../src/app/invitations/utils', () => {
   };
 });
 jest.mock('./../../src/infrastructure/logger', () => {
-  return {
-  };
+  return {};
 });
 jest.mock('login.dfe.notifications.client');
 jest.mock('./../../src/infrastructure/config', () => ({
@@ -36,6 +35,7 @@ describe('When creating an invitation', () => {
   let req;
   let logger;
   let sendInvitationStub;
+  let sendMigrationInvitationStub;
   let notificationClient;
   let post;
 
@@ -82,10 +82,12 @@ describe('When creating an invitation', () => {
         (email, firstName, lastName, invitationId) => {
         });
 
+    sendMigrationInvitationStub = jest.fn();
 
     notificationClient = require('login.dfe.notifications.client');
     notificationClient.mockImplementation(() => ({
       sendInvitation: sendInvitationStub,
+      sendMigrationInvitation: sendMigrationInvitationStub,
     }));
     post = require('../../src/app/invitations/api/postInvitations');
   });
@@ -159,6 +161,26 @@ describe('When creating an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][2]).toBe(expectedLastName);
     expect(sendInvitationStub.mock.calls[0][3]).toBe(expectedInvitationId);
     expect(sendInvitationStub.mock.calls[0][4]).toBe('invite-code');
+  });
+  it('then an invitation email is sent with migration invite template when the record is first created and source is EAS', async () => {
+    redisStorage.createUserInvitation.mockReset();
+    redisStorage.createUserInvitation.mockReturnValue({
+      id: expectedInvitationId,
+      firstName: expectedFirstName,
+      lastName: expectedLastName,
+    });
+    req.body.oldCredentials = {
+      source: 'EAS',
+    };
+
+    await post(req, res);
+
+    expect(sendMigrationInvitationStub.mock.calls).toHaveLength(1);
+    expect(sendMigrationInvitationStub.mock.calls[0][0]).toBe(expectedEmailAddress);
+    expect(sendMigrationInvitationStub.mock.calls[0][1]).toBe(expectedFirstName);
+    expect(sendMigrationInvitationStub.mock.calls[0][2]).toBe(expectedLastName);
+    expect(sendMigrationInvitationStub.mock.calls[0][3]).toBe(expectedInvitationId);
+    expect(sendMigrationInvitationStub.mock.calls[0][4]).toBe('invite-code');
   });
   it('then a 500 response is returned if there is an error', async () => {
     redisStorage.createUserInvitation.mockReset();

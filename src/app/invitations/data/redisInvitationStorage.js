@@ -5,7 +5,7 @@ const uuid = require('uuid/v4');
 const { chunk } = require('lodash');
 
 const tls = config.invitations.redisUrl.includes('6380');
-const client = new Redis(config.invitations.redisUrl, { tls });
+const client = new Redis(config.invitations.redisUrl, { tls, connectTimeout: 3600 });
 
 const list = async (pageNumber, pageSize) => {
   const allKeys = await new Promise((resolve, reject) => {

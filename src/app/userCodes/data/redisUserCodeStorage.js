@@ -6,7 +6,7 @@ const resetCode = require('./../utils/generateResetCode');
 const logger = require('./../../../infrastructure/logger');
 
 const tls = config.userCodes.params.redisUrl.includes('6380');
-const client = new Redis(config.userCodes.params.redisUrl, { tls });
+const client = new Redis(config.userCodes.params.redisUrl, { tls, connectTimeout: 3600 });
 
 const find = async (uid) => {
   const result = await client.get(`UserResetCode_${uid}`);

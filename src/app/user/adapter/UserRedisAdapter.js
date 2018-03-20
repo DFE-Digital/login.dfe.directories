@@ -10,7 +10,7 @@ const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 
 const tls = config.adapter.params.redisurl.includes('6380');
-const client = new Redis(config.adapter.params.redisurl, { tls });
+const client = new Redis(config.adapter.params.redisurl, { tls, connectTimeout: 3600 });
 
 const findById = async (id) => {
   const result = await client.get(`User_${id}`);

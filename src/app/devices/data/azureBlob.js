@@ -1,6 +1,9 @@
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
-const rp = require('request-promise');
+const rp = require('request-promise').defaults({
+  forever: true,
+  keepAlive: true,
+});
 const { URL } = require('url');
 const { DOMParser } = require('xmldom');
 const xpath = require('xpath');

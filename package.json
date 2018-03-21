@@ -22,7 +22,7 @@
     "ioredis": "^3.2.1",
     "lodash": "^4.17.4",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v1.0.0",
-    "login.dfe.config.schema": "git+https://github.com/DFE-Digital/login.dfe.config.schema.git#v3.1",
+    "login.dfe.config.schema": "git+https://github.com/DFE-Digital/login.dfe.config.schema.git#v4.6",
     "login.dfe.express-error-handling": "git+https://github.com/DFE-Digital/login.dfe.express-error-handling.git#v1.2",
     "login.dfe.healthcheck": "git+https://github.com/DFE-Digital/login.dfe.healthcheck.git#v1.4",
     "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v1.3",
@@ -38,7 +38,6 @@
     "uuid": "^3.1.0",
     "winston": "^2.4.0",
     "winston-azure-application-insights": "^1.1.1",
-    "winston-redis": "^1.0.0",
     "xmldom": "^0.1.27",
     "xpath": "0.0.27"
   },

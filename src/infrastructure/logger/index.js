@@ -1,6 +1,5 @@
 'use strict';
 
-require('winston-redis').Redis;
 const winston = require('winston');
 const config = require('./../config');
 const appInsights = require('applicationinsights');

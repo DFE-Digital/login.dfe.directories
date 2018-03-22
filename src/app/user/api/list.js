@@ -30,7 +30,7 @@ const getSafePageOfUsers = async (pageNumber) => {
 const addDevicesToUsers = async (pageOfUsers, correlationId) => {
   for (let i = 0; i < pageOfUsers.users.length; i++) {
     const user = pageOfUsers.users[i];
-    user.devices = await getUserDevices(user.sub, correlationId);
+    user.devices = await getUserDevices(user.sub.toLowerCase(), correlationId);
   }
 };
 

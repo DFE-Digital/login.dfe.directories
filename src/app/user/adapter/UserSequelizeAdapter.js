@@ -187,7 +187,7 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
       ['email', 'DESC'],
     ],
     limit: pageSize,
-    offset: page !== 1 ? pageSize * page : 0,
+    offset: page !== 1 ? pageSize * (page - 1) : 0,
   });
 
   if (!users) {

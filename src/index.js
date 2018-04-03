@@ -18,7 +18,7 @@ const { getErrorHandler } = require('login.dfe.express-error-handling');
 const KeepAliveAgent = require('agentkeepalive');
 
 
-const { directoriesSchema, validateConfigAndQuitOnError } = require('login.dfe.config.schema');
+const { directoriesSchema, validateConfig } = require('login.dfe.config.schema');
 
 
 http.GlobalAgent = new KeepAliveAgent({
@@ -35,7 +35,7 @@ https.GlobalAgent = new KeepAliveAgent({
 });
 
 
-validateConfigAndQuitOnError(directoriesSchema, config, logger);
+validateConfig(directoriesSchema, config, logger, config.hostingEnvironment.env !== 'dev');
 
 const app = express();
 

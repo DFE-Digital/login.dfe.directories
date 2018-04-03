@@ -25,7 +25,7 @@
     "login.dfe.config.schema": "git+https://github.com/DFE-Digital/login.dfe.config.schema.git#v4.6",
     "login.dfe.express-error-handling": "git+https://github.com/DFE-Digital/login.dfe.express-error-handling.git#v1.2",
     "login.dfe.healthcheck": "git+https://github.com/DFE-Digital/login.dfe.healthcheck.git#v1.4",
-    "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v1.3",
+    "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v2.0",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v1.1",
     "mongoose": "^4.13.3",

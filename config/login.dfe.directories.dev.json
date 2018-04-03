@@ -38,6 +38,9 @@
     "type": "redis",
     "redisUrl" :"redis://localhost:6379"
   },
+  "hotConfig": {
+    "type": "static"
+  },
   "auth":{
     "type" :"secret"
   },

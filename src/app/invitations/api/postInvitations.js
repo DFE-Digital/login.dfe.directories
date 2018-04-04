@@ -38,13 +38,18 @@ const post = async (req, res) => {
       return;
     }
 
-    const requestedInvite = Object.assign({}, req.body);
-    requestedInvite.code = generateInvitationCode();
-    const invitation = await storage.createUserInvitation(requestedInvite, req.header('x-correlation-id'));
+    let invitation = await storage.findInvitationForEmail(req.body.email, true, req.header('x-correlation-id'));
+    let statusCode = 202;
+    if (!invitation) {
+      const requestedInvite = Object.assign({}, req.body);
+      requestedInvite.code = generateInvitationCode();
+      invitation = await storage.createUserInvitation(requestedInvite, req.header('x-correlation-id'));
+      statusCode = 201;
+    }
 
     await sendInvitation(invitation);
 
-    res.status(201).send(invitation);
+    res.status(statusCode).send(invitation);
   } catch (e) {
     logger.error(e);
     res.status(500).send(e);

@@ -7,7 +7,10 @@ jest.mock('./../../src/app/invitations/utils', () => {
   };
 });
 jest.mock('./../../src/infrastructure/logger', () => {
-  return {};
+  return {
+    info: jest.fn(),
+    error: jest.fn(),
+  };
 });
 jest.mock('login.dfe.notifications.client');
 jest.mock('./../../src/infrastructure/config', () => ({
@@ -24,25 +27,26 @@ jest.mock('./../../src/infrastructure/config', () => ({
 
 jest.mock('./../../src/infrastructure/hotConfig');
 jest.mock('./../../src/app/invitations/data/redisInvitationStorage', () => {
-  const createUserInvitationStub = jest.fn();
   return {
-    createUserInvitation: jest.fn().mockImplementation(createUserInvitationStub),
+    createUserInvitation: jest.fn(),
+    findInvitationForEmail: jest.fn(),
   };
 });
 
+
+const logger = require('./../../src/infrastructure/logger');
+const notificationClient = require('login.dfe.notifications.client');
 const redisStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
-const { getOidcClientById } = require('./../../src/infrastructure/hotConfig')
+const { getOidcClientById } = require('./../../src/infrastructure/hotConfig');
+const post = require('../../src/app/invitations/api/postInvitations');
 
 const httpMocks = require('node-mocks-http');
 
 describe('When creating an invitation', () => {
   let res;
   let req;
-  let logger;
   let sendInvitationStub;
   let sendMigrationInvitationStub;
-  let notificationClient;
-  let post;
 
   const expectedEmailAddress = 'test@local.com';
   const expectedFirstName = 'Test';
@@ -95,24 +99,18 @@ describe('When creating an invitation', () => {
       };
     });
 
-    logger = require('./../../src/infrastructure/logger');
-    logger.error = (() => ({}));
-
-    sendInvitationStub = jest.fn()
-      .mockImplementation(
-        (email, firstName, lastName, invitationId) => {
-        });
-
-    sendMigrationInvitationStub = jest.fn();
+    logger.info.mockReset();
+    logger.error.mockReset();
 
     redisStorage.createUserInvitation.mockReset().mockImplementation((requestedInvitation) => Object.assign(requestedInvitation, { id: expectedInvitationId }));
+    redisStorage.findInvitationForEmail.mockReset();
 
-    notificationClient = require('login.dfe.notifications.client');
-    notificationClient.mockImplementation(() => ({
+    sendInvitationStub = jest.fn();
+    sendMigrationInvitationStub = jest.fn();
+    notificationClient.mockReset().mockImplementation(() => ({
       sendInvitation: sendInvitationStub,
       sendMigrationInvitation: sendMigrationInvitationStub,
     }));
-    post = require('../../src/app/invitations/api/postInvitations');
   });
   afterEach(() => {
     expect(res._isEndCalled()).toBe(true);
@@ -192,12 +190,108 @@ describe('When creating an invitation', () => {
   });
 
   it('then a 500 response is returned if there is an error', async () => {
-    redisStorage.createUserInvitation = () => {
+    redisStorage.createUserInvitation.mockImplementation(() => {
       throw new Error();
-    };
+    });
 
     await post(req, res);
 
     expect(res.statusCode).toBe(500);
+  });
+
+
+  it('then it should not create new invitation if an invitation already exists for email', async () => {
+    redisStorage.findInvitationForEmail.mockReturnValue({
+      id: 'existing-invitation-id',
+      email: 'existing.user@unit.test',
+      firstName: 'Existing',
+      lastName: 'User',
+      code: 'XYZ987',
+      selfStarted: true,
+      origin: {
+        clientId: 'client1',
+        redirectUri: 'https://source.test',
+      },
+    });
+
+    await post(req, res);
+
+    expect(redisStorage.createUserInvitation.mock.calls).toHaveLength(0);
+  });
+
+  it('then it should use existing invitation details to send notification', async () => {
+    redisStorage.findInvitationForEmail.mockReturnValue({
+      id: 'existing-invitation-id',
+      email: 'existing.user@unit.test',
+      firstName: 'Existing',
+      lastName: 'User',
+      code: 'XYZ987',
+      selfStarted: true,
+      origin: {
+        clientId: 'client1',
+        redirectUri: 'https://source.test',
+      },
+    });
+
+    await post(req, res);
+
+    expect(sendInvitationStub.mock.calls).toHaveLength(1);
+    expect(sendInvitationStub.mock.calls[0][0]).toBe('existing.user@unit.test');
+    expect(sendInvitationStub.mock.calls[0][1]).toBe('Existing');
+    expect(sendInvitationStub.mock.calls[0][2]).toBe('User');
+    expect(sendInvitationStub.mock.calls[0][3]).toBe('existing-invitation-id');
+    expect(sendInvitationStub.mock.calls[0][4]).toBe('XYZ987');
+    expect(sendInvitationStub.mock.calls[0][5]).toBe('Client One');
+    expect(sendInvitationStub.mock.calls[0][6]).toBe(true);
+    expect(sendInvitationStub.mock.calls[0][7]).toBe(true);
+  });
+
+  it('then it should send status 202', async () => {
+    redisStorage.findInvitationForEmail.mockReturnValue({
+      id: 'existing-invitation-id',
+      email: 'existing.user@unit.test',
+      firstName: 'Existing',
+      lastName: 'User',
+      code: 'XYZ987',
+      selfStarted: true,
+      origin: {
+        clientId: 'client1',
+        redirectUri: 'https://source.test',
+      },
+    });
+
+    await post(req, res);
+
+    expect(res.statusCode).toBe(202);
+  });
+
+  it('then it should send existing invitation', async () => {
+    redisStorage.findInvitationForEmail.mockReturnValue({
+      id: 'existing-invitation-id',
+      email: 'existing.user@unit.test',
+      firstName: 'Existing',
+      lastName: 'User',
+      code: 'XYZ987',
+      selfStarted: true,
+      origin: {
+        clientId: 'client1',
+        redirectUri: 'https://source.test',
+      },
+    });
+
+    await post(req, res);
+
+    expect(res._getData()).toEqual({
+      id: 'existing-invitation-id',
+      email: 'existing.user@unit.test',
+      firstName: 'Existing',
+      lastName: 'User',
+      code: 'XYZ987',
+      selfStarted: true,
+      origin: {
+        clientId: 'client1',
+        redirectUri: 'https://source.test',
+      },
+    });
   });
 });

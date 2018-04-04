@@ -137,8 +137,9 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
         })
         .on('error', reject);
     });
-    for (let i = 0; i < allKeys; i += 1) {
-      const invitation = await client.get(allKeys[i]);
+    for (let i = 0; i < allKeys.length; i += 1) {
+      const json = await client.get(allKeys[i]);
+      const invitation = json ? JSON.parse(json) : null;
       if (invitation && invitation.email && invitation.email.toLowerCase() === email.toLowerCase()
         && (!excludeComplete || !invitation.isCompleted)) {
         return invitation;

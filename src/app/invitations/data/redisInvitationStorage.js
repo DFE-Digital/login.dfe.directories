@@ -70,7 +70,7 @@ const createInvitation = async (invitation) => {
 
   newInvitation.id = id;
 
-  return await storeInvitation(newInvitation);
+  return storeInvitation(newInvitation);
 };
 
 const deleteInvitationForUser = async (id) => {
@@ -81,7 +81,6 @@ const deleteInvitationForUser = async (id) => {
 
   return '';
 };
-
 
 const getUserInvitation = async (id, correlationId) => {
   try {
@@ -121,6 +120,37 @@ const updateInvitation = async (invitation, correlationId) => {
   }
 };
 
+const findInvitationForEmail = async (email, excludeComplete, correlationId) => {
+  try {
+    logger.info(`Find UserInvitations for request: ${correlationId}`, { correlationId });
+
+    const allKeys = await new Promise((resolve, reject) => {
+      const keys = [];
+      client.scanStream({ match: 'UserInvitation_*' })
+        .on('data', (batch) => {
+          for (let i = 0; i < batch.length; i += 1) {
+            keys.push(batch[i]);
+          }
+        })
+        .on('end', () => {
+          resolve(keys);
+        })
+        .on('error', reject);
+    });
+    for (let i = 0; i < allKeys; i += 1) {
+      const invitation = await client.get(allKeys[i]);
+      if (invitation && invitation.email && invitation.email.toLowerCase() === email.toLowerCase()
+        && (!excludeComplete || !invitation.isCompleted)) {
+        return invitation;
+      }
+    }
+    return null;
+  } catch (e) {
+    logger.error(`Find UserInvitations failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
 
 module.exports = {
   list,
@@ -128,4 +158,5 @@ module.exports = {
   createUserInvitation,
   getUserInvitation,
   updateInvitation,
+  findInvitationForEmail,
 };

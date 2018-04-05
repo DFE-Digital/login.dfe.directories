@@ -32,11 +32,17 @@ jest.mock('./../../src/app/invitations/data/redisInvitationStorage', () => {
     findInvitationForEmail: jest.fn(),
   };
 });
+jest.mock('./../../src/app/user/adapter', () => {
+  return {
+    findByUsername: jest.fn(),
+  };
+});
 
 
 const logger = require('./../../src/infrastructure/logger');
 const notificationClient = require('login.dfe.notifications.client');
 const redisStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
+const userStorage = require('./../../src/app/user/adapter');
 const { getOidcClientById } = require('./../../src/infrastructure/hotConfig');
 const post = require('../../src/app/invitations/api/postInvitations');
 
@@ -46,6 +52,7 @@ describe('When creating an invitation', () => {
   let res;
   let req;
   let sendInvitationStub;
+  let sendRegisterExistingUserStub;
   let sendMigrationInvitationStub;
 
   const expectedEmailAddress = 'test@local.com';
@@ -105,11 +112,15 @@ describe('When creating an invitation', () => {
     redisStorage.createUserInvitation.mockReset().mockImplementation((requestedInvitation) => Object.assign(requestedInvitation, { id: expectedInvitationId }));
     redisStorage.findInvitationForEmail.mockReset();
 
+    userStorage.findByUsername.mockReset().mockReturnValue(null);
+
     sendInvitationStub = jest.fn();
     sendMigrationInvitationStub = jest.fn();
+    sendRegisterExistingUserStub = jest.fn();
     notificationClient.mockReset().mockImplementation(() => ({
       sendInvitation: sendInvitationStub,
       sendMigrationInvitation: sendMigrationInvitationStub,
+      sendRegisterExistingUser: sendRegisterExistingUserStub,
     }));
   });
   afterEach(() => {
@@ -293,5 +304,35 @@ describe('When creating an invitation', () => {
         redirectUri: 'https://source.test',
       },
     });
+  });
+
+
+  it('then it should not create new invitation if an account already exists for email', async () => {
+    userStorage.findByUsername.mockReset().mockReturnValue({});
+
+    await post(req, res);
+
+    expect(redisStorage.createUserInvitation.mock.calls).toHaveLength(0);
+  });
+
+  it('then it should use invitation details to notify of existing account', async () => {
+    userStorage.findByUsername.mockReset().mockReturnValue({});
+
+    await post(req, res);
+
+    expect(sendRegisterExistingUserStub.mock.calls).toHaveLength(1);
+    expect(sendRegisterExistingUserStub.mock.calls[0][0]).toBe(expectedEmailAddress);
+    expect(sendRegisterExistingUserStub.mock.calls[0][1]).toBe(expectedFirstName);
+    expect(sendRegisterExistingUserStub.mock.calls[0][2]).toBe(expectedLastName);
+    expect(sendRegisterExistingUserStub.mock.calls[0][3]).toBe('Client One');
+    expect(sendRegisterExistingUserStub.mock.calls[0][4]).toBe('https://source.test');
+  });
+
+  it('then it should send status 202 if an account already exists for email', async () => {
+    userStorage.findByUsername.mockReset().mockReturnValue({});
+
+    await post(req, res);
+
+    expect(res.statusCode).toBe(202);
   });
 });

@@ -1,7 +1,7 @@
 'use strict';
 
 const logger = require('./../../../infrastructure/logger');
-const storage = require('./../data/redisInvitationStorage');
+const { getUserInvitation, updateInvitation } = require('./../data/redisInvitationStorage');
 const userStorage = require('./../../user/adapter');
 const { safeUser } = require('./../../../utils');
 
@@ -18,13 +18,15 @@ const createUser = async (req, res) => {
       return res.status(400).send();
     }
 
-    const invitation = await storage.getUserInvitation(req.params.id, req.header('x-correlation-id'));
-
+    const invitation = await getUserInvitation(req.params.id, req.header('x-correlation-id'));
     if (!invitation) {
       return res.status(404).send();
     }
 
     const user = await userStorage.create(invitation.email, password, invitation.firstName, invitation.lastName, req.header('x-correlation-id'));
+
+    const completedInvitation = Object.assign(invitation, { isCompleted: true, userId: user.id });
+    await updateInvitation(completedInvitation);
 
     return res.status(201).send(safeUser(user));
   } catch (e) {

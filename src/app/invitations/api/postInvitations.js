@@ -3,6 +3,7 @@
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const storage = require('./../data/redisInvitationStorage');
+const userStorage = require('./../../user/adapter');
 const { generateInvitationCode } = require('./../utils');
 const NotificationClient = require('login.dfe.notifications.client');
 const { getOidcClientById } = require('./../../../infrastructure/hotConfig');
@@ -30,6 +31,25 @@ const sendInvitation = async (invitation) => {
     invitation.email, invitation.firstName, invitation.lastName, invitation.id, invitation.code,
     friendlyName, digipassRequired, invitation.selfStarted);
 };
+const checkIfExistingUserAndNotifyIfIs = async (invitation) => {
+  const account = await userStorage.findByUsername(invitation.email);
+  if (account) {
+    let friendlyName;
+    const client = invitation.origin ? await getOidcClientById(invitation.origin.clientId) : undefined;
+    if (client) {
+      friendlyName = client.friendlyName;
+    }
+
+    const notificationClient = new NotificationClient({
+      connectionString: config.notifications.connectionString,
+    });
+    await notificationClient.sendRegisterExistingUser(invitation.email, invitation.firstName, invitation.lastName,
+      friendlyName, invitation.origin.redirectUri);
+
+    return true;
+  }
+  return false;
+};
 
 const post = async (req, res) => {
   try {
@@ -38,10 +58,16 @@ const post = async (req, res) => {
       return;
     }
 
-    let invitation = await storage.findInvitationForEmail(req.body.email, true, req.header('x-correlation-id'));
+    const requestedInvite = Object.assign({}, req.body);
+
+    if (await checkIfExistingUserAndNotifyIfIs(requestedInvite)) {
+      res.status(202).send();
+      return;
+    }
+
+    let invitation = await storage.findInvitationForEmail(requestedInvite.email, true, req.header('x-correlation-id'));
     let statusCode = 202;
     if (!invitation) {
-      const requestedInvite = Object.assign({}, req.body);
       requestedInvite.code = generateInvitationCode();
       invitation = await storage.createUserInvitation(requestedInvite, req.header('x-correlation-id'));
       statusCode = 201;

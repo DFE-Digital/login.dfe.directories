@@ -118,6 +118,14 @@ const userCode = db.define('user_code', {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  context_data: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  email: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: true,
   tableName: 'user_code',

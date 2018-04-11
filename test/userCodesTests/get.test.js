@@ -8,8 +8,8 @@ jest.mock('./../../src/infrastructure/config', () => ({
 }));
 
 jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
-  const getUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
-  const getUserCodeByEmailStub = jest.fn().mockReturnValue({ uid: '44335566', email: 'test@test.local', code: 'XYZ123', redirectUri: 'http://local.test' });
+  const getUserCodeStub = jest.fn().mockReturnValue({ uid: '8332e8c9-d665-4ca8-8eed-379ce773e0f6', code: 'ABC123', redirectUri: 'http://local.test' });
+  const getUserCodeByEmailStub = jest.fn().mockReturnValue({ uid: '7332e8c9-d665-4ca8-8eed-379ce773e0f6', email: 'test@test.local', code: 'XYZ123', redirectUri: 'http://local.test' });
   return {
     getUserCode: jest.fn().mockImplementation(getUserCodeStub),
     getUserCodeByEmail: jest.fn().mockImplementation(getUserCodeByEmailStub),
@@ -34,7 +34,7 @@ describe('When getting a user code', () => {
     res = httpMocks.createResponse();
     req = {
       params: {
-        uid: '7654321',
+        uid: '8332e8c9-d665-4ca8-8eed-379ce773e0f6',
       },
       headers: {
         'x-correlation-id': expectedRequestCorrelationId,
@@ -59,22 +59,22 @@ describe('When getting a user code', () => {
     await get(req, res);
 
     expect(res._getData().code).toBe('ABC123');
-    expect(res._getData().uid).toBe('7654321');
+    expect(res._getData().uid).toBe('8332e8c9-d665-4ca8-8eed-379ce773e0f6');
   });
   it('then if no code is found for the uid it is checked against the find by email', async () => {
     redisUserCodeStorage.getUserCode.mockReturnValue(null);
 
     await get(req, res);
 
-    expect(redisUserCodeStorage.getUserCodeByEmail.mock.calls[0][0]).toBe('7654321');
+    expect(redisUserCodeStorage.getUserCodeByEmail.mock.calls[0][0]).toBe('8332e8c9-d665-4ca8-8eed-379ce773e0f6');
     expect(redisUserCodeStorage.getUserCodeByEmail.mock.calls[0][1]).toBe('PasswordReset');
     expect(res._getData().code).toBe('XYZ123');
-    expect(res._getData().uid).toBe('44335566');
+    expect(res._getData().uid).toBe('7332e8c9-d665-4ca8-8eed-379ce773e0f6');
   });
   it('then the parameters are passed to the storage provider', async () => {
     await get(req, res);
 
-    expect(redisUserCodeStorage.getUserCode.mock.calls[0][0]).toBe('7654321');
+    expect(redisUserCodeStorage.getUserCode.mock.calls[0][0]).toBe('8332e8c9-d665-4ca8-8eed-379ce773e0f6');
     expect(redisUserCodeStorage.getUserCode.mock.calls[0][1]).toBe('PasswordReset');
     expect(redisUserCodeStorage.getUserCode.mock.calls[0][2]).toBe(expectedRequestCorrelationId);
   });

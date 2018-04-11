@@ -39,9 +39,9 @@ const put = async (req, res) => {
 
     const user = await userAdapter.find(uid, req.header('x-correlation-id'));
 
-    if (!req.body.type) {
+    if (codeType.toLowerCase() === 'passwordreset') {
       await client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
-    } else if (req.body.type === 'migrate-email') {
+    } else if (codeType.toLowerCase() === 'migrateemail') {
       // await client.sendUserMigration(req.body.email, code.code, req.body.clientId, uid);
     }
 

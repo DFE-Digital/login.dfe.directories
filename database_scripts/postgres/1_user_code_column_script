@@ -1,5 +1,7 @@
 ALTER TABLE directories.user_code ADD COLUMN IF NOT EXISTS email varchar(255) null;
 
-ALTER TABLE directories.user_code ADD COLUMN IF NOT EXISTS context_data varchar(5000) null;
+ALTER TABLE directories.user_code ADD COLUMN IF NOT EXISTS codeType varchar(100) null;
+
+ALTER TABLE directories.user_code ADD COLUMN IF NOT EXISTS contextData varchar(5000) null;
 
 CREATE INDEX IF NOT EXISTS user_code_email ON directories.user_code (email);

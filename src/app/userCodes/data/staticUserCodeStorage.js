@@ -1,6 +1,6 @@
 const logger = require('./../../../infrastructure/logger');
 
-const getUserPasswordResetCode = async (uid, correlationId) => {
+const getUserCode = async (uid, correlationId) => {
   try {
     logger.info(`Static - Find User Password Reset Code for request: ${correlationId}`, { correlationId });
     return Promise.resolve('ABC123');
@@ -10,7 +10,18 @@ const getUserPasswordResetCode = async (uid, correlationId) => {
   }
 };
 
-const createUserPasswordResetCode = async (uid, clientId, redirectUri, correlationId) => {
+
+const getUserCodeByEmail = async (email, correlationId) => {
+  try {
+    logger.info(`Static - Find User Password Reset Code by email for request: ${correlationId}`, { correlationId });
+    return Promise.resolve('ABC123');
+  } catch (e) {
+    logger.error(`Static - Create User Password Reset Code failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
+const createUserCode = async (uid, clientId, redirectUri, email, contextData, emailType, correlationId) => {
   try {
     logger.info(`Static - Create User Password Reset Code for request: ${correlationId}`, { correlationId });
     return Promise.resolve({
@@ -18,6 +29,9 @@ const createUserPasswordResetCode = async (uid, clientId, redirectUri, correlati
       clientId,
       code: 'ABC123',
       redirectUri,
+      email,
+      contextData,
+      emailType
     });
   } catch (e) {
     logger.error(`Static - Create User Password Reset Code failed for request ${correlationId} error: ${e}`, { correlationId });
@@ -25,7 +39,7 @@ const createUserPasswordResetCode = async (uid, clientId, redirectUri, correlati
   }
 };
 
-const deleteUserPasswordResetCode = async (uid, correlationId) => {
+const deleteUserCode = async (uid, correlationId) => {
   try {
     logger.info(`Static - Delete User Password Reset Code for request: ${correlationId}`, { correlationId });
     return Promise.resolve(uid);
@@ -36,7 +50,8 @@ const deleteUserPasswordResetCode = async (uid, correlationId) => {
 };
 
 module.exports = {
-  getUserPasswordResetCode,
-  createUserPasswordResetCode,
-  deleteUserPasswordResetCode,
+  getUserCode,
+  getUserCodeByEmail,
+  createUserCode,
+  deleteUserCode,
 };

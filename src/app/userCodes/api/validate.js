@@ -11,7 +11,12 @@ const validate = async (req, res) => {
     }
     const uid = req.params.uid;
 
-    const code = await storage.getUserPasswordResetCode(uid, req.header('x-correlation-id'));
+    let codeType = 'PasswordReset';
+    if (req.params.codeType) {
+      codeType = req.params.codeType;
+    }
+
+    const code = await storage.getUserCode(uid, codeType, req.header('x-correlation-id'));
 
     if (!code) {
       res.status(404).send();

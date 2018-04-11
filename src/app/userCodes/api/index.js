@@ -18,10 +18,10 @@ const routeExport = () => {
     router.use('/', apiAuth(router, config));
   }
   // Map routed to functions.
-  router.get('/:uid', asyncWrapper(getCode));
+  router.get('/:uid/:codeType?', asyncWrapper(getCode));
   router.put('/upsert', asyncWrapper(putUpsertCode));
-  router.get('/validate/:uid/:code', asyncWrapper(validateCode));
-  router.delete('/:uid', asyncWrapper(deleteCode));
+  router.get('/validate/:uid/:code/:codeType?', asyncWrapper(validateCode));
+  router.delete('/:uid/:codeType?', asyncWrapper(deleteCode));
   return router;
 };
 

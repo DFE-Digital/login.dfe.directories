@@ -1,9 +1,11 @@
 jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
-  const getUserPasswordResetCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
-  const createUserPasswordResetCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test' });
+  const getUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
+  const getUserCodeByEmailStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test' });
+  const createUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test' });
   return {
-    createUserPasswordResetCode: jest.fn().mockImplementation(createUserPasswordResetCodeStub),
-    getUserPasswordResetCode: jest.fn().mockImplementation(getUserPasswordResetCodeStub),
+    createUserCode: jest.fn().mockImplementation(createUserCodeStub),
+    getUserCode: jest.fn().mockImplementation(getUserCodeStub),
+    getUserCodeByEmail: jest.fn().mockImplementation(getUserCodeByEmailStub),
   };
 });
 jest.mock('login.dfe.notifications.client');
@@ -56,6 +58,7 @@ describe('When getting a user code', () => {
     req = {
       body: {
         uid: expectedUuid,
+        email: expectedEmailAddress,
         clientId: expectedClientId,
         redirectUri: expectedRedirectUri,
       },
@@ -78,8 +81,9 @@ describe('When getting a user code', () => {
 
     put = require('./../../src/app/userCodes/api/putUpsertCode');
   });
-  it('then a bad request is returned if the uid is not passed and the status code set to bad request', async () => {
+  it('then a bad request is returned if the uid and email is not passed and the status code set to bad request', async () => {
     req.body.uid = '';
+    req.body.email = '';
 
     await put(req, res);
 
@@ -100,7 +104,8 @@ describe('When getting a user code', () => {
     expect(res.statusCode).toBe(400);
   });
   it('then a code is generated if the uid is supplied', async () => {
-    redisStorage.getUserPasswordResetCode.mockReturnValue(null);
+    req.body.email = '';
+    redisStorage.getUserCode.mockReturnValue(null);
 
     await put(req, res);
 
@@ -108,7 +113,7 @@ describe('When getting a user code', () => {
     expect(res._getData().uid).toBe('7654321');
   });
   it('then if a code exists for a uid the same one is returned', async () => {
-    redisStorage.getUserPasswordResetCode.mockReturnValue({ uid: '7654321', code: 'ABC123' });
+    redisStorage.getUserCode.mockReturnValue({ uid: '7654321', code: 'ABC123' });
 
     await put(req, res);
 
@@ -124,13 +129,24 @@ describe('When getting a user code', () => {
     expect(emailObject.uid).toBe(expectedUuid);
   });
   it('then the code is generated with the passed in parameters', async () => {
-    redisStorage.getUserPasswordResetCode.mockReturnValue(null);
+    req.body.email = undefined;
+    redisStorage.getUserCode.mockReturnValue(null);
 
     await put(req, res);
 
-    expect(redisStorage.createUserPasswordResetCode.mock.calls[0][0]).toBe(expectedUuid);
-    expect(redisStorage.createUserPasswordResetCode.mock.calls[0][1]).toBe(expectedClientId);
-    expect(redisStorage.createUserPasswordResetCode.mock.calls[0][2]).toBe(expectedRedirectUri);
-    expect(redisStorage.createUserPasswordResetCode.mock.calls[0][3]).toBe(expectedRequestCorrelationId);
+    expect(redisStorage.createUserCode.mock.calls[0][0]).toBe(expectedUuid);
+    expect(redisStorage.createUserCode.mock.calls[0][1]).toBe(expectedClientId);
+    expect(redisStorage.createUserCode.mock.calls[0][2]).toBe(expectedRedirectUri);
+    expect(redisStorage.createUserCode.mock.calls[0][3]).toBe(undefined);
+    expect(redisStorage.createUserCode.mock.calls[0][4]).toBe(undefined);
+    expect(redisStorage.createUserCode.mock.calls[0][5]).toBe('PasswordReset');
+    expect(redisStorage.createUserCode.mock.calls[0][6]).toBe(expectedRequestCorrelationId);
+  });
+  it('then if an email is passed that is checked to see if a code exists', async () => {
+    req.body.uid = '';
+
+    await put(req, res);
+
+    expect(redisStorage.getUserCodeByEmail.mock.calls).toHaveLength(1);
   });
 });

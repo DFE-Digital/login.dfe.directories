@@ -1,7 +1,7 @@
 jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
-  const getUserPasswordResetCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
+  const getUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
   return {
-    getUserPasswordResetCode: jest.fn().mockImplementation(getUserPasswordResetCodeStub),
+    getUserCode: jest.fn().mockImplementation(getUserCodeStub),
   };
 });
 jest.mock('./../../src/infrastructure/config', () => ({
@@ -61,7 +61,7 @@ describe('When validating a user code', () => {
     }));
   });
   it('then if a code exists for the uid and the code matches a successful response is returned', async () => {
-    redisStorage.getUserPasswordResetCode.mockReturnValue({ uid: '7654321', code: 'ABC123' });
+    redisStorage.getUserCode.mockReturnValue({ uid: '7654321', code: 'ABC123' });
 
     await validate(req, res);
 
@@ -69,14 +69,14 @@ describe('When validating a user code', () => {
     expect(res._getData().uid).toBe('7654321');
   });
   it('then if the code does not match then a 404 response is returned', async () => {
-    redisStorage.getUserPasswordResetCode.mockReturnValue({ uid: '7654321', code: 'ZXY789' });
+    redisStorage.getUserCode.mockReturnValue({ uid: '7654321', code: 'ZXY789' });
 
     await validate(req, res);
 
     expect(res.statusCode).toBe(404);
   });
   it('then the code is not matched against case', async () => {
-    redisStorage.getUserPasswordResetCode.mockReturnValue({ uid: '7654321', code: 'ABC123' });
+    redisStorage.getUserCode.mockReturnValue({ uid: '7654321', code: 'ABC123' });
     req.params.code = 'abc123';
 
     await validate(req, res);
@@ -87,7 +87,8 @@ describe('When validating a user code', () => {
   it('then the parameters are passed to the storage provider', async () => {
     await validate(req, res);
 
-    expect(redisStorage.getUserPasswordResetCode.mock.calls[0][0]).toBe('7654321');
-    expect(redisStorage.getUserPasswordResetCode.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
+    expect(redisStorage.getUserCode.mock.calls[0][0]).toBe('7654321');
+    expect(redisStorage.getUserCode.mock.calls[0][1]).toBe('PasswordReset');
+    expect(redisStorage.getUserCode.mock.calls[0][2]).toBe(expectedRequestCorrelationId);
   });
 });

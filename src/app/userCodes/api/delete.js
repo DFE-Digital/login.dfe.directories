@@ -11,7 +11,12 @@ const deleteCode = async (req, res) => {
     }
     const uid = req.params.uid;
 
-    const code = await storage.deleteUserPasswordResetCode(uid, req.header('x-correlation-id'));
+    let codeType = 'PasswordReset';
+    if (req.params.codeType) {
+      codeType = req.params.codeType;
+    }
+
+    const code = await storage.deleteUserCode(uid, codeType, req.header('x-correlation-id'));
     res.status(200).send(code);
   } catch (e) {
     logger.error(e);

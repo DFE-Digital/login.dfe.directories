@@ -10,9 +10,9 @@ jest.mock('./../../src/infrastructure/logger', () => {
 });
 
 jest.mock('./../../src/app/userCodes/data/staticUserCodeStorage', () => {
-  const deleteUserPasswordResetCodeStub = jest.fn();
+  const deleteUserCodeStub = jest.fn();
   return {
-    deleteUserPasswordResetCode: jest.fn().mockImplementation(deleteUserPasswordResetCodeStub),
+    deleteUserCode: jest.fn().mockImplementation(deleteUserCodeStub),
   };
 });
 
@@ -58,7 +58,8 @@ describe('When deleting a user code', () => {
   it('then the params are passed to the storage provider', async () => {
     await deleteUserCode(req, res);
 
-    expect(redisUserCodeStorage.deleteUserPasswordResetCode.mock.calls[0][0]).toBe('7654321');
-    expect(redisUserCodeStorage.deleteUserPasswordResetCode.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
+    expect(redisUserCodeStorage.deleteUserCode.mock.calls[0][0]).toBe('7654321');
+    expect(redisUserCodeStorage.deleteUserCode.mock.calls[0][1]).toBe('PasswordReset');
+    expect(redisUserCodeStorage.deleteUserCode.mock.calls[0][2]).toBe(expectedRequestCorrelationId);
   });
 });

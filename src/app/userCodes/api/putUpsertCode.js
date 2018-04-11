@@ -8,7 +8,7 @@ const config = require('./../../../infrastructure/config');
 
 const put = async (req, res) => {
   try {
-    if (!req.body.uid || !req.body.clientId || !req.body.redirectUri) {
+    if ((!req.body.uid && !req.body.email) || !req.body.clientId || !req.body.redirectUri) {
       res.status(400).contentType('json').send(JSON.stringify({
         message: 'You must provide uid, clientId and redirectUri',
         uid: req.body.uid ? req.body.uid : 'NOT SUPPLIED',
@@ -19,10 +19,18 @@ const put = async (req, res) => {
     }
     const uid = req.body.uid;
 
-    let code = await storage.getUserPasswordResetCode(uid, req.header('x-correlation-id'));
+    let codeType = 'PasswordReset';
+    if (req.body.codeType) {
+      codeType = req.body.codeType;
+    }
+
+    let code = await storage.getUserCode(uid, codeType, req.header('x-correlation-id'));
+    if (!code && req.body.email) {
+      code = await storage.getUserCodeByEmail(req.body.email, codeType, req.header('x-correlation-id'));
+    }
 
     if (!code) {
-      code = await storage.createUserPasswordResetCode(uid, req.body.clientId, req.body.redirectUri, req.header('x-correlation-id'));
+      code = await storage.createUserCode(uid, req.body.clientId, req.body.redirectUri, req.body.email, req.body.contextData, codeType, req.header('x-correlation-id'));
     }
 
     const client = new NotificatonClient({
@@ -31,7 +39,11 @@ const put = async (req, res) => {
 
     const user = await userAdapter.find(uid, req.header('x-correlation-id'));
 
-    await client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
+    if (!req.body.type) {
+      await client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
+    } else if (req.body.type === 'migrate-email') {
+      // await client.sendUserMigration(req.body.email, code.code, req.body.clientId, uid);
+    }
 
     res.send(code);
   } catch (e) {

@@ -1,21 +1,60 @@
 'use strict';
 
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
 const { userCode } = require('./../../../infrastructure/repository');
 const generateResetCode = require('./../utils/generateResetCode');
 
 
-const getUserPasswordResetCode = async (uid, correlationId) => {
+const getUserCode = async (uid, codeType, correlationId) => {
   try {
-    logger.info(`Find User Password Reset Code for request: ${correlationId}`, { correlationId });
-    return await userCode.findById(uid);
+    logger.info(`Find User Code for request: ${correlationId}`, { correlationId });
+
+    const code = await userCode.find({
+      where: {
+        uid: {
+          [Op.eq]: uid,
+        },
+        codeType: {
+          [Op.eq]: codeType,
+        },
+      },
+    });
+    if (!code) {
+      return null;
+    }
+    return code;
   } catch (e) {
     logger.error(`Create User Password Reset Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };
 
-const createUserPasswordResetCode = async (uid, clientId, redirectUri, correlationId) => {
+const getUserCodeByEmail = async (email, codeType, correlationId) => {
+  try {
+    logger.info(`Find User Code by email for request: ${correlationId}`, { correlationId });
+    const code = await userCode.find({
+      where: {
+        email: {
+          [Op.eq]: email,
+        },
+        codeType: {
+          [Op.eq]: codeType,
+        },
+      },
+    });
+    if (!code) {
+      return null;
+    }
+    return code;
+  } catch (e) {
+    logger.error(`Find User Password Reset Code by email for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
+const createUserCode = async (uid, clientId, redirectUri, email, contextData, codeType, correlationId) => {
   try {
     logger.info(`Create User Password Reset Code for request: ${correlationId}`, { correlationId });
 
@@ -29,20 +68,23 @@ const createUserPasswordResetCode = async (uid, clientId, redirectUri, correlati
       code,
       clientId,
       redirectUri,
+      email,
+      contextData: JSON.stringify(contextData),
+      codeType,
     };
 
     await userCode.create(userResetCode);
 
     return userResetCode;
   } catch (e) {
-    logger.error(`Create User Password Reset Code failed for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(`Create User Password Reset Code for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };
 
-const deleteUserPasswordResetCode = async (uid, correlationId) => {
+const deleteUserCode = async (uid, correlationId) => {
   try {
-    logger.info(`Delete User Password Reset Code for request: ${correlationId}`, { correlationId });
+    logger.info(`Delete User Code for request: ${correlationId}`, { correlationId });
     if (!uid) {
       return;
     }
@@ -52,13 +94,14 @@ const deleteUserPasswordResetCode = async (uid, correlationId) => {
       await code.destroy();
     }
   } catch (e) {
-    logger.error(`Delete User Password Reset Code failed for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(`Delete User Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };
 
 module.exports = {
-  getUserPasswordResetCode,
-  createUserPasswordResetCode,
-  deleteUserPasswordResetCode,
+  getUserCode,
+  getUserCodeByEmail,
+  createUserCode,
+  deleteUserCode,
 };

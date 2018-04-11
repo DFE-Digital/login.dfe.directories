@@ -1,7 +1,7 @@
 const { find, update } = require('./../adapter');
 const { safeUser } = require('./../../../utils');
 
-const allowablePatchProperties = ['given_name', 'family_name'];
+const allowablePatchProperties = ['given_name', 'family_name', 'email'];
 const allowablePropertiesMessage = allowablePatchProperties.concat();
 
 const validateRequestData = (req) => {

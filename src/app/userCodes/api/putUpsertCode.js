@@ -41,8 +41,8 @@ const put = async (req, res) => {
 
     if (codeType.toLowerCase() === 'passwordreset') {
       await client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
-    } else if (codeType.toLowerCase() === 'migrateemail') {
-      // await client.sendUserMigration(req.body.email, code.code, req.body.clientId, uid);
+    } else if (codeType.toLowerCase() === 'confirmmigratedemail') {
+      await client.sendConfirmMigratedEmail(code.email, code.code, req.body.clientId, code.uid);
     }
 
     res.send(code);

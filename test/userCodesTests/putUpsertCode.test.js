@@ -1,7 +1,7 @@
 jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
   const getUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
-  const getUserCodeByEmailStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test' });
-  const createUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test' });
+  const getUserCodeByEmailStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local' });
+  const createUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test', email: 'test@unit.local' });
   return {
     createUserCode: jest.fn().mockImplementation(createUserCodeStub),
     getUserCode: jest.fn().mockImplementation(getUserCodeStub),
@@ -51,6 +51,7 @@ describe('When getting a user code', () => {
   let emailObject;
   let notificationClient;
   let sendPasswordResetStub;
+  let sendConfirmMigrationEmailStub;
   let put;
 
   beforeEach(() => {
@@ -71,12 +72,16 @@ describe('When getting a user code', () => {
     };
 
     sendPasswordResetStub = jest.fn().mockImplementation((email, code, clientId, uid) => emailObject = {
-      email, code, clientId, uid,
+      email, code, clientId, uid, type: 'passwordreset',
+    });
+    sendConfirmMigrationEmailStub = jest.fn().mockImplementation((email, code, clientId, uid) => emailObject = {
+      email, code, clientId, uid, type: 'migrateemail',
     });
 
     notificationClient = require('login.dfe.notifications.client');
     notificationClient.mockImplementation(() => ({
       sendPasswordReset: sendPasswordResetStub,
+      sendConfirmMigratedEmail: sendConfirmMigrationEmailStub,
     }));
 
     put = require('./../../src/app/userCodes/api/putUpsertCode');
@@ -127,6 +132,7 @@ describe('When getting a user code', () => {
     expect(emailObject.email).toBe(expectedEmailAddress);
     expect(emailObject.clientId).toBe('client1');
     expect(emailObject.uid).toBe(expectedUuid);
+    expect(emailObject.type).toBe('passwordreset');
   });
   it('then the code is generated with the passed in parameters', async () => {
     req.body.email = undefined;
@@ -148,5 +154,18 @@ describe('When getting a user code', () => {
     await put(req, res);
 
     expect(redisStorage.getUserCodeByEmail.mock.calls).toHaveLength(1);
+  });
+  it('then if the code type is migration email then the correct email is shown', async () => {
+    redisStorage.getUserCode.mockReturnValue(null);
+    req.body.uid = '';
+    req.body.codeType = 'confirmmigratedemail';
+
+    await put(req, res);
+
+    expect(emailObject.code).toBe('EDC345');
+    expect(emailObject.email).toBe(expectedEmailAddress);
+    expect(emailObject.clientId).toBe('client1');
+    expect(emailObject.uid).toBe(expectedUuid);
+    expect(emailObject.type).toBe('migrateemail');
   });
 });

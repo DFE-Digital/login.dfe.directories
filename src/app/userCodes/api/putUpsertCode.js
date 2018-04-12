@@ -5,6 +5,7 @@ const storage = require('./../data');
 const NotificatonClient = require('login.dfe.notifications.client');
 const userAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config');
+const uuid = require('uuid/v4');
 
 const put = async (req, res) => {
   try {
@@ -17,7 +18,7 @@ const put = async (req, res) => {
       }));
       return;
     }
-    const uid = req.body.uid;
+    let uid = req.body.uid;
 
     let codeType = 'PasswordReset';
     if (req.body.codeType) {
@@ -30,6 +31,9 @@ const put = async (req, res) => {
     }
 
     if (!code) {
+      if (!uid) {
+        uid = uuid();
+      }
       code = await storage.createUserCode(uid, req.body.clientId, req.body.redirectUri, req.body.email, req.body.contextData, codeType, req.header('x-correlation-id'));
     }
 

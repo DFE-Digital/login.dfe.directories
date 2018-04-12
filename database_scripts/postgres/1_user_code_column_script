@@ -5,3 +5,17 @@ ALTER TABLE directories.user_code ADD COLUMN IF NOT EXISTS codeType varchar(100)
 ALTER TABLE directories.user_code ADD COLUMN IF NOT EXISTS contextData varchar(5000) null;
 
 CREATE INDEX IF NOT EXISTS user_code_email ON directories.user_code (email);
+
+
+
+/*
+
+SELECT constraint_name
+FROM information_schema.key_column_usage
+WHERE table_name = 'user_code';
+
+ALTER TABLE directories.user_code DROP CONSTRAINT user_code_pkey;
+
+ALTER TABLE directories.user_code ADD PRIMARY KEY (uid, codeType);
+
+*/

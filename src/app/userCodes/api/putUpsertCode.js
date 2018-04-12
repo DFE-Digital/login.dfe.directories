@@ -7,6 +7,26 @@ const userAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config');
 const uuid = require('uuid/v4');
 
+const sendNotification = async (user, codeType, code, req, uid) => {
+  const client = new NotificatonClient({
+    connectionString: config.notifications.connectionString,
+  });
+
+  if (codeType.toLowerCase() === 'passwordreset') {
+    return client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
+  }
+
+  if (codeType.toLowerCase() === 'confirmmigratedemail') {
+    return client.sendConfirmMigratedEmail(code.email, code.code, req.body.clientId, code.uid);
+  }
+
+  if (codeType.toLowerCase() === 'changeemail') {
+    return client.sendVerifyChangeEmail(code.email, user.given_name, user.family_name, code.code);
+  }
+
+  return Promise.resolve();
+};
+
 const put = async (req, res) => {
   try {
     if ((!req.body.uid && !req.body.email) || !req.body.clientId || !req.body.redirectUri) {
@@ -37,17 +57,9 @@ const put = async (req, res) => {
       code = await storage.createUserCode(uid, req.body.clientId, req.body.redirectUri, req.body.email, req.body.contextData, codeType, req.header('x-correlation-id'));
     }
 
-    const client = new NotificatonClient({
-      connectionString: config.notifications.connectionString,
-    });
-
     const user = await userAdapter.find(uid, req.header('x-correlation-id'));
 
-    if (codeType.toLowerCase() === 'passwordreset') {
-      await client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
-    } else if (codeType.toLowerCase() === 'confirmmigratedemail') {
-      await client.sendConfirmMigratedEmail(code.email, code.code, req.body.clientId, code.uid);
-    }
+    await sendNotification(user, codeType, code, req, uid);
 
     res.send(code);
   } catch (e) {

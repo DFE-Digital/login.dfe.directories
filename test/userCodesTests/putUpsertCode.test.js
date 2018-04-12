@@ -26,16 +26,15 @@ jest.mock('./../../src/infrastructure/config', () => ({
     },
   },
 }));
-jest.mock('./../../src/infrastructure/logger', () => {
-  return {
-  };
-});
+jest.mock('./../../src/infrastructure/logger', () => ({
+}));
 jest.mock('./../../src/app/user/adapter', () => {
   const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local' });
   return {
     find: jest.fn().mockImplementation(findStub),
   };
 });
+jest.mock('uuid/v4');
 
 const redisStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
 const httpMocks = require('node-mocks-http');
@@ -53,6 +52,8 @@ describe('When getting a user code', () => {
   let sendPasswordResetStub;
   let sendConfirmMigrationEmailStub;
   let put;
+  let uuid;
+  let uuidStub;
 
   beforeEach(() => {
     res = httpMocks.createResponse();
@@ -70,6 +71,11 @@ describe('When getting a user code', () => {
         return this.headers[header];
       },
     };
+
+    uuidStub = jest.fn().mockReturnValue('1dcf73dd-1613-470e-a35e-378a3375a6fe');
+
+    uuid = require('uuid/v4');
+    uuid.mockImplementation(uuidStub);
 
     sendPasswordResetStub = jest.fn().mockImplementation((email, code, clientId, uid) => emailObject = {
       email, code, clientId, uid, type: 'passwordreset',
@@ -168,4 +174,20 @@ describe('When getting a user code', () => {
     expect(emailObject.uid).toBe(expectedUuid);
     expect(emailObject.type).toBe('migrateemail');
   });
+  it('then if no code exists for the email then one is created', async () => {
+    redisStorage.getUserCode.mockReturnValue(null);
+    redisStorage.getUserCodeByEmail.mockReturnValue(null);
+    req.body.uid = '';
+    req.body.codeType = 'ConfirmMigratedEmail';
+
+    await put(req, res);
+
+    expect(redisStorage.createUserCode.mock.calls[0][0]).toBe('1dcf73dd-1613-470e-a35e-378a3375a6fe');
+    expect(redisStorage.createUserCode.mock.calls[0][1]).toBe(expectedClientId);
+    expect(redisStorage.createUserCode.mock.calls[0][2]).toBe(expectedRedirectUri);
+    expect(redisStorage.createUserCode.mock.calls[0][3]).toBe('test@unit.local');
+    expect(redisStorage.createUserCode.mock.calls[0][4]).toBe(undefined);
+    expect(redisStorage.createUserCode.mock.calls[0][5]).toBe('ConfirmMigratedEmail');
+    expect(redisStorage.createUserCode.mock.calls[0][6]).toBe(expectedRequestCorrelationId);
+  })
 });

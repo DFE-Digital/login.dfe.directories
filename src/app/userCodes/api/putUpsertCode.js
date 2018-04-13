@@ -22,8 +22,8 @@ const sendNotification = async (user, code, req, uid) => {
 
   if (code.codeType.toLowerCase() === 'changeemail') {
     const emailUid = req.body.selfInvoked ? undefined : uid;
-    return await client.sendVerifyChangeEmail(code.email, user.given_name, user.family_name, code.code, emailUid);
-
+    await client.sendVerifyChangeEmail(code.email, user.given_name, user.family_name, code.code, emailUid);
+    return client.sendNotifyMigratedEmail(user.email, user.given_name, user.family_name, code.email);
   }
 
   return Promise.resolve();

@@ -7,21 +7,23 @@ const userAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config');
 const uuid = require('uuid/v4');
 
-const sendNotification = async (user, codeType, code, req, uid) => {
+const sendNotification = async (user, code, req, uid) => {
   const client = new NotificatonClient({
     connectionString: config.notifications.connectionString,
   });
 
-  if (codeType.toLowerCase() === 'passwordreset') {
+  if (code.codeType.toLowerCase() === 'passwordreset') {
     return client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
   }
 
-  if (codeType.toLowerCase() === 'confirmmigratedemail') {
+  if (code.codeType.toLowerCase() === 'confirmmigratedemail') {
     return client.sendConfirmMigratedEmail(code.email, code.code, req.body.clientId, code.uid);
   }
 
-  if (codeType.toLowerCase() === 'changeemail') {
-    return client.sendVerifyChangeEmail(code.email, user.given_name, user.family_name, code.code);
+  if (code.codeType.toLowerCase() === 'changeemail') {
+    const emailUid = req.body.selfInvoked ? undefined : uid;
+    return await client.sendVerifyChangeEmail(code.email, user.given_name, user.family_name, code.code, emailUid);
+
   }
 
   return Promise.resolve();
@@ -59,7 +61,7 @@ const put = async (req, res) => {
 
     const user = await userAdapter.find(uid, req.header('x-correlation-id'));
 
-    await sendNotification(user, codeType, code, req, uid);
+    await sendNotification(user, code, req, uid);
 
     res.send(code);
   } catch (e) {

@@ -1,7 +1,7 @@
 jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
-  const getUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test' });
-  const getUserCodeByEmailStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local' });
-  const createUserCodeStub = jest.fn().mockReturnValue({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test', email: 'test@unit.local' });
+  const getUserCodeStub = jest.fn().mockImplementation((uid, codeType) => ({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test', codeType }));
+  const getUserCodeByEmailStub = jest.fn().mockImplementation((email, codeType) => ({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType }));
+  const createUserCodeStub = jest.fn().mockImplementation((uid, cid, ruri, email, data, codeType) => ({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test', email: 'test@unit.local', codeType }));
   return {
     createUserCode: jest.fn().mockImplementation(createUserCodeStub),
     getUserCode: jest.fn().mockImplementation(getUserCodeStub),
@@ -27,6 +27,7 @@ jest.mock('./../../src/infrastructure/config', () => ({
   },
 }));
 jest.mock('./../../src/infrastructure/logger', () => ({
+  error: console.error,
 }));
 jest.mock('./../../src/app/user/adapter', () => {
   const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local' });
@@ -124,7 +125,7 @@ describe('When getting a user code', () => {
     expect(res._getData().uid).toBe('7654321');
   });
   it('then if a code exists for a uid the same one is returned', async () => {
-    redisStorage.getUserCode.mockReturnValue({ uid: '7654321', code: 'ABC123' });
+    redisStorage.getUserCode.mockImplementation((uid, codeType) => ({ uid: '7654321', code: 'ABC123', codeType }));
 
     await put(req, res);
 

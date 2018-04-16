@@ -17,6 +17,7 @@ const deleteDevice = require('./deleteDevice');
 const activateUser = require('./activateUser');
 const deactivateUser = require('./deactivateUser');
 const patchUser = require('./patchUser');
+const createUser = require('./createUser');
 
 const router = express.Router();
 
@@ -29,6 +30,7 @@ const routeExport = () => {
   // Map routes to functions.
   router.get('/:directoryId/user/:id', deprecateWith('/users/:id'), asyncWrapper(find));
   router.get('/users', asyncWrapper(list));
+  router.post('/users', asyncWrapper(createUser));
   router.get('/users/by-ids', asyncWrapper(search));
   router.get('/users/:id', asyncWrapper(find));
 

@@ -49,9 +49,21 @@ const deleteUserCode = async (uid, correlationId) => {
   }
 };
 
+const updateUserCode = async (uid, email, contextData, redirectUri, clientId) => {
+  return Promise.resolve({
+    uid,
+    clientId,
+    code: 'ABC123',
+    redirectUri,
+    email,
+    contextData,
+  });
+};
+
 module.exports = {
   getUserCode,
   getUserCodeByEmail,
   createUserCode,
   deleteUserCode,
+  updateUserCode,
 };

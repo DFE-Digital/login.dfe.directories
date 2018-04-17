@@ -2,10 +2,12 @@ jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
   const getUserCodeStub = jest.fn().mockImplementation((uid, codeType) => ({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test', codeType }));
   const getUserCodeByEmailStub = jest.fn().mockImplementation((email, codeType) => ({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType }));
   const createUserCodeStub = jest.fn().mockImplementation((uid, cid, ruri, email, data, codeType) => ({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test', email: 'test@unit.local', codeType }));
+  const updateUserCodeStub = jest.fn().mockImplementation((uid, email, data, ruri, cid) => ({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local' }));
   return {
     createUserCode: jest.fn().mockImplementation(createUserCodeStub),
     getUserCode: jest.fn().mockImplementation(getUserCodeStub),
     getUserCodeByEmail: jest.fn().mockImplementation(getUserCodeByEmailStub),
+    updateUserCode: jest.fn().mockImplementation(updateUserCodeStub),
   };
 });
 jest.mock('login.dfe.notifications.client');
@@ -126,6 +128,7 @@ describe('When getting a user code', () => {
   });
   it('then if a code exists for a uid the same one is returned', async () => {
     redisStorage.getUserCode.mockImplementation((uid, codeType) => ({ uid: '7654321', code: 'ABC123', codeType }));
+    redisStorage.updateUserCode.mockImplementation((uid, codeType) => ({ uid: '7654321', code: 'ABC123', codeType }));
 
     await put(req, res);
 
@@ -135,7 +138,7 @@ describe('When getting a user code', () => {
   it('then an email is sent with the code', async () => {
     await put(req, res);
 
-    expect(emailObject.code).toBe('ABC123');
+    expect(emailObject.code).toBe('ZXY789');
     expect(emailObject.email).toBe(expectedEmailAddress);
     expect(emailObject.clientId).toBe('client1');
     expect(emailObject.uid).toBe(expectedUuid);
@@ -164,11 +167,13 @@ describe('When getting a user code', () => {
   });
   it('then if the code type is migration email then the correct email is shown', async () => {
     redisStorage.getUserCode.mockReturnValue(null);
+    redisStorage.updateUserCode.mockReturnValue({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType: 'confirmmigratedemail' });
     req.body.uid = '';
     req.body.codeType = 'confirmmigratedemail';
 
     await put(req, res);
 
+    expect(emailObject.code).toBe('EDC345');
     expect(emailObject.code).toBe('EDC345');
     expect(emailObject.email).toBe(expectedEmailAddress);
     expect(emailObject.clientId).toBe('client1');

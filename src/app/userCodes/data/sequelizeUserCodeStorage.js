@@ -1,6 +1,7 @@
 'use strict';
 
 const Sequelize = require('sequelize');
+
 const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
 const { userCode } = require('./../../../infrastructure/repository');
@@ -99,9 +100,38 @@ const deleteUserCode = async (uid, correlationId) => {
   }
 };
 
+const updateUserCode = async (uid, email, contextData, redirectUri, clientId, correlationId) => {
+  try {
+    logger.info(`Update User Code for request: ${correlationId}`, { correlationId });
+    const codeFromFind = await userCode.findById(uid);
+
+    if (!codeFromFind) {
+      return null;
+    }
+
+    let code = codeFromFind.code;
+    if (code.email.toLowerCase() !== email.toLowerCase()) {
+      code = generateResetCode();
+    }
+
+    await codeFromFind.updateAttributes({
+      contextData: JSON.stringify(contextData),
+      email,
+      redirectUri,
+      clientId,
+      code,
+    });
+    return userCode;
+  } catch (e) {
+    logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
 module.exports = {
   getUserCode,
   getUserCodeByEmail,
   createUserCode,
   deleteUserCode,
+  updateUserCode,
 };

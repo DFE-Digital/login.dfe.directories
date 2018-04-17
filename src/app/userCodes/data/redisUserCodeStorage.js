@@ -87,10 +87,42 @@ const deleteUserCode = async (uid, codeType, correlationId) => {
   }
 };
 
+const updateUserCode = async (uid, email, contextData, redirectUri, clientId, correlationId, codeType) => {
+  try {
+    logger.info(`Update User Code for request: ${correlationId}`, { correlationId });
+    const code = await getUserCode(uid, codeType);
+
+    if (code) {
+      let userCode = code.code;
+      if (code.email.toLowerCase() !== email.toLowerCase()) {
+        userCode = resetCode();
+      }
+
+      code.email = email;
+      code.code = userCode;
+      code.contextData = JSON.stringify(contextData);
+      code.redirectUri = redirectUri;
+      code.clientId = clientId;
+
+      const content = JSON.stringify(code);
+
+      await client.set(`UserResetCode_${uid.toLowerCase()}_${code.codeType.toLowerCase()}`, content);
+
+      return code;
+
+    }
+    return null;
+  } catch (e) {
+    logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
 
 module.exports = {
   getUserCode,
   getUserCodeByEmail,
   createUserCode,
   deleteUserCode,
+  updateUserCode,
 };

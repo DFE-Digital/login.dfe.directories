@@ -121,7 +121,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
       clientId,
       code,
     });
-    return userCode;
+    return await userCode.findById(uid);
   } catch (e) {
     logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

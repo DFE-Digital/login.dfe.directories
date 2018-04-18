@@ -52,19 +52,18 @@ const put = async (req, res) => {
       code = await storage.getUserCodeByEmail(req.body.email, codeType, req.header('x-correlation-id'));
     }
 
+    if (!uid) {
+      uid = uuid();
+    }
+
     if (!code) {
-      if (!uid) {
-        uid = uuid();
-      }
       code = await storage.createUserCode(uid, req.body.clientId, req.body.redirectUri, req.body.email, req.body.contextData, codeType, req.header('x-correlation-id'));
     } else {
       code = await storage.updateUserCode(uid, req.body.email, req.body.contextData, req.body.redirectUri, req.body.clientId, req.header('x-correlation-id'));
     }
 
-    let user;
-    if (uid !== undefined) {
-      user = await userAdapter.find(uid, req.header('x-correlation-id'));
-    }
+    const user = await userAdapter.find(uid, req.header('x-correlation-id'));
+
 
     await sendNotification(user, code, req, uid);
 

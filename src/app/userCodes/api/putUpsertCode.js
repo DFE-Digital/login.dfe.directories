@@ -59,6 +59,7 @@ const put = async (req, res) => {
     if (!code) {
       code = await storage.createUserCode(uid, req.body.clientId, req.body.redirectUri, req.body.email, req.body.contextData, codeType, req.header('x-correlation-id'));
     } else {
+      uid = code.uid;
       code = await storage.updateUserCode(uid, req.body.email, req.body.contextData, req.body.redirectUri, req.body.clientId, req.header('x-correlation-id'));
     }
 

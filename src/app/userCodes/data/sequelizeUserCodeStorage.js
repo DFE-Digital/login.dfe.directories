@@ -110,7 +110,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
     }
 
     let code = codeFromFind.code;
-    if (code.email.toLowerCase() !== email.toLowerCase()) {
+    if (codeFromFind.email.toLowerCase() !== email.toLowerCase()) {
       code = generateResetCode();
     }
 

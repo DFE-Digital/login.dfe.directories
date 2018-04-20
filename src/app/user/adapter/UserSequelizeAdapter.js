@@ -4,7 +4,7 @@ const Sequelize = require('sequelize');
 
 const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
-const { user } = require('./../../../infrastructure/repository');
+const { user, userLegacyUsername } = require('./../../../infrastructure/repository');
 const generateSalt = require('./../utils/generateSalt');
 const uuid = require('uuid');
 const { promisify } = require('util');
@@ -52,21 +52,21 @@ const findByUsername = async (username, correlationId) => {
   }
 };
 
-const findByLegacyUsername = async(username, correlationId) => {
+const findByLegacyUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user by legacy username for request ${username}`, { correlationId });
-    const userEntity = await user.find({
+    const userLegacyUsernameEntity = await userLegacyUsername.find({
       where: {
         legacy_username: {
           [Op.eq]: username,
         },
       },
     });
-    if (!userEntity) {
+    if (!userLegacyUsernameEntity) {
       return null;
     }
 
-    return userEntity;
+    return userLegacyUsernameEntity;
   } catch (e) {
     logger.error(`error getting user with legacy username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
@@ -185,7 +185,6 @@ const create = async (username, password, firstName, lastName, legacyUsername, c
     email: username,
     salt,
     password: encryptedPassword,
-    legacy_username: legacyUsername,
   };
 
   await user.create({
@@ -196,6 +195,10 @@ const create = async (username, password, firstName, lastName, legacyUsername, c
     salt,
     password: encryptedPassword,
     status: 1,
+  });
+
+  await userLegacyUsername.create({
+    uid: id,
     legacy_username: legacyUsername,
   });
 

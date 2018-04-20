@@ -26,6 +26,12 @@ class UserModel {
   set email(value) {
     this._email = value;
   }
+  get legacyUsername() {
+    return this._legacyUsername;
+  }
+  set legacyUsername(value) {
+    this._legacyUsername = value;
+  }
 }
 
 module.exports = UserModel;

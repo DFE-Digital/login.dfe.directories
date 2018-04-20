@@ -46,7 +46,7 @@ const findByUsername = async (username, correlationId) => {
   }
 };
 
-const createUser = async (username, password, firstName, lastName, correlationId) => {
+const createUser = async (username, password, firstName, lastName, legacyUsername, correlationId) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || !password) {
@@ -70,6 +70,7 @@ const createUser = async (username, password, firstName, lastName, correlationId
     email: username,
     salt,
     password: encryptedPassword,
+    legacy_username: legacyUsername,
   };
 
   const content = JSON.stringify(newUser);

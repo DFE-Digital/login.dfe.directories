@@ -197,10 +197,12 @@ const create = async (username, password, firstName, lastName, legacyUsername, c
     status: 1,
   });
 
-  await userLegacyUsername.create({
-    uid: id,
-    legacy_username: legacyUsername,
-  });
+  if (legacyUsername) {
+    await userLegacyUsername.create({
+      uid: id,
+      legacy_username: legacyUsername,
+    });
+  }
 
   return newUser;
 };

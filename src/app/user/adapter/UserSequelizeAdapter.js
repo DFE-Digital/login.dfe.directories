@@ -52,6 +52,27 @@ const findByUsername = async (username, correlationId) => {
   }
 };
 
+const findByLegacyUsername = async(username, correlationId) => {
+  try {
+    logger.info(`Get user by legacy username for request ${username}`, { correlationId });
+    const userEntity = await user.find({
+      where: {
+        legacy_username: {
+          [Op.eq]: username,
+        },
+      },
+    });
+    if (!userEntity) {
+      return null;
+    }
+
+    return userEntity;
+  } catch (e) {
+    logger.error(`error getting user with legacy username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
 const getUsers = async (uids, correlationId) => {
   try {
     logger.info(`Get Users for request: ${correlationId}`, { correlationId });
@@ -241,4 +262,5 @@ module.exports = {
   authenticate,
   changeStatus,
   update,
+  findByLegacyUsername,
 };

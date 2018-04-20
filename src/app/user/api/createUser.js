@@ -14,7 +14,7 @@ const createUser = async (req, res) => {
       return res.status(409).send();
     }
 
-    const user = await create(req.body.email, req.body.password, req.body.firstName, req.body.lastName, req.header('x-correlation-id'));
+    const user = await create(req.body.email, req.body.password, req.body.firstName, req.body.lastName, req.body.legacy_username, req.header('x-correlation-id'));
 
     return res.send(safeUser(user));
   } catch (e) {

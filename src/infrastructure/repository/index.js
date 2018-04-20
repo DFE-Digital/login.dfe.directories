@@ -94,6 +94,10 @@ const user = db.define('user', {
     allowNull: false,
     defaultValue: 0,
   },
+  legacy_username: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: true,
   tableName: 'user',

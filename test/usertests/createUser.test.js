@@ -73,7 +73,15 @@ describe('When creating a user', () => {
     expect(create.mock.calls[0][1]).toBe(req.body.password);
     expect(create.mock.calls[0][2]).toBe(req.body.firstName);
     expect(create.mock.calls[0][3]).toBe(req.body.lastName);
-    expect(create.mock.calls[0][4]).toBe(expectedRequestCorrelationId);
+    expect(create.mock.calls[0][5]).toBe(expectedRequestCorrelationId);
+  });
+  it('then if the legacy_username is provided in the body it is passed to the repository', async () => {
+    req.body.legacy_username = '123asd';
+
+    await createUser(req, res);
+
+    expect(create.mock.calls).toHaveLength(1);
+    expect(create.mock.calls[0][4]).toBe(req.body.legacy_username);
   });
   it('then the user is returned in the response', async () => {
     await createUser(req, res);

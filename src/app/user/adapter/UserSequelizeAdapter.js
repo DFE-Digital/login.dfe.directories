@@ -140,7 +140,7 @@ const authenticate = async (username, password, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, correlationId) => {
+const create = async (username, password, firstName, lastName, legacyUsername, correlationId) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || !password) {
@@ -164,6 +164,7 @@ const create = async (username, password, firstName, lastName, correlationId) =>
     email: username,
     salt,
     password: encryptedPassword,
+    legacy_username: legacyUsername,
   };
 
   await user.create({
@@ -174,6 +175,7 @@ const create = async (username, password, firstName, lastName, correlationId) =>
     salt,
     password: encryptedPassword,
     status: 1,
+    legacy_username: legacyUsername,
   });
 
   return newUser;

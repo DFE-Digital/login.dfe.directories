@@ -58,7 +58,7 @@ const find = async (id) => {
   return user === undefined ? null : user;
 };
 
-const create = async (username, password, firstName, lastName) => {
+const create = async (username, password, firstName, lastName, legacyUsername) => {
   const users = await readAllUsers();
   if (users.find(u => u.email.toLowerCase() === username.toLowerCase())) {
     const err = new Error('User already exists');
@@ -68,7 +68,7 @@ const create = async (username, password, firstName, lastName) => {
 
   const salt = generateSalt();
   const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
-  const newUser = {sub: uuid.v4(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword};
+  const newUser = {sub: uuid.v4(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword, legacy_username: legacyUsername };
   users.push(newUser);
   return writeAllUsers(users);
 };

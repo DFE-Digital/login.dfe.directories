@@ -1,6 +1,12 @@
 
-IF NOT EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME = 'user' and COLUMN_NAME = 'legacy_username')
+IF NOT EXISTS(SELECT 1 FROM INFORMATION_SCHEMA.TABLES where TABLE_NAME = 'user_legacy_username')
 BEGIN
-    ALTER TABLE [dbo].[user] ADD legacy_username varchar(255) null
+    CREATE TABLE [dbo].[user_legacy_username]
+    (
+        uid uniqueidentifier PRIMARY KEY NOT NULL,
+        legacy_username PRIMARY KEY VARCHAR(255) NOT NULL,
+        createdAt datetime2 NOT NULL,
+        updatedAt datetime2 NOT NULL
+    )
 END
 GO

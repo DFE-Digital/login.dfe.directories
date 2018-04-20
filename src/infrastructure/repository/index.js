@@ -94,10 +94,6 @@ const user = db.define('user', {
     allowNull: false,
     defaultValue: 0,
   },
-  legacy_username: {
-    type: Sequelize.STRING,
-    allowNull: true,
-  },
 }, {
   timestamps: true,
   tableName: 'user',
@@ -141,7 +137,25 @@ const userCode = db.define('user_code', {
   schema: dbSchema,
 });
 
+const userLegacyUsername = db.define('user_legacy_username', {
+  uid: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  legacy_username: {
+    type: Sequelize.STRING,
+    primaryKey: true,
+    allowNull: true,
+  },
+}, {
+  timestamps: true,
+  tableName: 'user_legacy_username',
+  schema: dbSchema,
+});
+
 module.exports = {
   user,
   userCode,
+  userLegacyUsername,
 };

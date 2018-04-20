@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS "directories"."user_legacy_username" (
+"uid" UUID NOT NULL ,
+"legacy_username" VARCHAR(255) NOT NULL,
+"createdAt" TIMESTAMP NOT NULL,
+"updatedAt" TIMESTAMP NOT NULL,
+PRIMARY KEY ("uid","legacy_username"));

@@ -4,7 +4,7 @@ const Sequelize = require('sequelize');
 
 const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
-const { user } = require('./../../../infrastructure/repository');
+const { user, userLegacyUsername } = require('./../../../infrastructure/repository');
 const generateSalt = require('./../utils/generateSalt');
 const uuid = require('uuid');
 const { promisify } = require('util');
@@ -48,6 +48,27 @@ const findByUsername = async (username, correlationId) => {
     return userEntity;
   } catch (e) {
     logger.error(`error getting user with username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
+const findByLegacyUsername = async (username, correlationId) => {
+  try {
+    logger.info(`Get user by legacy username for request ${username}`, { correlationId });
+    const userLegacyUsernameEntity = await userLegacyUsername.find({
+      where: {
+        legacy_username: {
+          [Op.eq]: username,
+        },
+      },
+    });
+    if (!userLegacyUsernameEntity) {
+      return null;
+    }
+
+    return userLegacyUsernameEntity;
+  } catch (e) {
+    logger.error(`error getting user with legacy username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };
@@ -140,7 +161,7 @@ const authenticate = async (username, password, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, correlationId) => {
+const create = async (username, password, firstName, lastName, legacyUsername, correlationId) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || !password) {
@@ -175,6 +196,13 @@ const create = async (username, password, firstName, lastName, correlationId) =>
     password: encryptedPassword,
     status: 1,
   });
+
+  if (legacyUsername) {
+    await userLegacyUsername.create({
+      uid: id,
+      legacy_username: legacyUsername,
+    });
+  }
 
   return newUser;
 };
@@ -239,4 +267,5 @@ module.exports = {
   authenticate,
   changeStatus,
   update,
+  findByLegacyUsername,
 };

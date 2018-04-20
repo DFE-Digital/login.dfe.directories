@@ -64,6 +64,12 @@ const update = async (uid, given_name, family_name, email, correlationId) => {
   throw error;
 };
 
+const findByLegacyUsername = async (username, correlationId) => {
+  throw new Error('Find by legacy username is not implemented for AAD');
+  error.type = 'E_NOTIMPLEMENTED';
+  throw error;
+};
+
 
 module.exports = {
   authenticate,

@@ -26,7 +26,7 @@ describe('when deleting a device for user', () => {
   beforeEach(() => {
     req = {
       params: {
-        id: 'a516696c-168c-4680-8dfb-1512d6fc234c',
+        id: 'A516696C-168C-4680-8DFB-1512D6FC234C',
       },
       body: {
         type: 'digipass',

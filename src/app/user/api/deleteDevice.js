@@ -28,7 +28,7 @@ const action = async (req, res) => {
 
   try {
     const id = uuid();
-    await deleteUserDevice(req.params.id, {
+    await deleteUserDevice(req.params.id.toLowerCase(), {
       id,
       type: req.body.type,
       serialNumber: req.body.serialNumber,

@@ -1,6 +1,6 @@
 const { getUserInvitation, updateInvitation } = require('./../data/redisInvitationStorage');
 
-const patchableProperties = ['isCompleted'];
+const patchableProperties = ['isCompleted', 'deactivated', 'reason'];
 const patchablePropertiesMessage = patchableProperties.concat();
 
 const validatePatchProperties = (req) => {

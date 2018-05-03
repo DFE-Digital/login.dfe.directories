@@ -62,7 +62,20 @@ describe('When patching an invitation', () => {
     await patchInvitation(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Invalid property patched - bad1. Patchable properties are isCompleted');
+    expect(res._getData()).toBe('Invalid property patched - bad1. Patchable properties are isCompleted,deactivated,reason');
+    expect(res._isEndCalled()).toBe(true);
+  });
+
+  it('then it allows deactivated and reason to be patched', async () => {
+    req.body = {
+      isCompleted: true,
+      deactivated: true,
+      reason: 'test reason',
+    };
+
+    await patchInvitation(req, res);
+
+    expect(res.statusCode).toBe(202);
     expect(res._isEndCalled()).toBe(true);
   });
 

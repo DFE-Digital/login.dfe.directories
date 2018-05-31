@@ -33,6 +33,17 @@ const addDevicesToUsers = async (pageOfUsers, correlationId) => {
     user.devices = await getUserDevices(user.sub.toLowerCase(), correlationId);
   }
 };
+const addLegacyUsernames = async (pageOfUsers, correlationId) => {
+  const uids = pageOfUsers.users.map(u => u.sub);
+  const legacyUsernames = await adapter.getLegacyUsernames(uids, correlationId);
+  for (let i = 0; i < pageOfUsers.users.length; i++) {
+    const user = pageOfUsers.users[i];
+    const userLegacyUsernames = legacyUsernames.filter(lun => lun.uid.toLowerCase() === user.sub.toLowerCase());
+    if (userLegacyUsernames && userLegacyUsernames.length > 0) {
+      user.legacyUsernames = userLegacyUsernames.map(lun => lun.legacy_username);
+    }
+  }
+};
 
 const list = async (req, res) => {
   const pageNumber = extractPageNumber(req);
@@ -46,8 +57,11 @@ const list = async (req, res) => {
   try {
     const safePageOfUsers = await getSafePageOfUsers(pageNumber);
 
-    if (include.find(x => x === 'devices')) {
+    if (include.find(x => x.toLowerCase() === 'devices')) {
       await addDevicesToUsers(safePageOfUsers, correlationId);
+    }
+    if (include.find(x => x.toLowerCase() === 'legacyusernames')) {
+      await addLegacyUsernames(safePageOfUsers, correlationId);
     }
 
     return res.contentType('json').send(JSON.stringify(safePageOfUsers));

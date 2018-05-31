@@ -264,6 +264,12 @@ const findByLegacyUsername = async (username, correlationId) => {
   throw error;
 };
 
+const getLegacyUsernames = async (username, correlationId) => {
+  throw new Error('Get legacy usernames is not implemented for Redis Adapter');
+  error.type = 'E_NOTIMPLEMENTED';
+  throw error;
+};
+
 module.exports = {
   getUsers,
   changePassword,
@@ -275,4 +281,5 @@ module.exports = {
   changeStatus,
   update,
   findByLegacyUsername,
+  getLegacyUsernames,
 };

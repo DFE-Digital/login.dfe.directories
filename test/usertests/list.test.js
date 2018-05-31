@@ -7,6 +7,7 @@ jest.mock('./../../src/infrastructure/config', () => (
 jest.mock('./../../src/app/user/adapter', () => {
   return {
     list: jest.fn(),
+    getLegacyUsernames: jest.fn(),
   };
 });
 jest.mock('./../../src/app/user/devices');
@@ -55,6 +56,9 @@ describe('when listing users in response to an api request', () => {
       ],
       numberOfPages: 22,
     });
+
+    adapter.getLegacyUsernames.mockReset();
+    adapter.getLegacyUsernames.mockReturnValue([]);
 
     getUserDevices.mockReset().mockReturnValue([
       {
@@ -196,5 +200,75 @@ describe('when listing users in response to an api request', () => {
       type: 'digipass',
       serialNumber: '2222222',
     });
+  });
+
+
+  it('then it should not attempt to get legacy usernames if include is not specified', async () => {
+    await listActon(req, res);
+
+    expect(adapter.getLegacyUsernames.mock.calls).toHaveLength(0);
+  });
+
+  it('then it should not attempt to get legacy usernames if include does not contain devices', async () => {
+    req.query.include = 'field1,field2';
+
+    await listActon(req, res);
+
+    expect(adapter.getLegacyUsernames.mock.calls).toHaveLength(0);
+  });
+
+  it('then it should get and return legacy usernames for users when include contains legacyusernames', async () => {
+    adapter.list.mockReturnValue({
+      users: [
+        {
+          sub: '963a0a68-aa60-11e7-abc4-cec278b6b50a',
+          given_name: 'Test',
+          family_name: 'Tester',
+          email: 'test@localuser.com',
+          password: '0dqy81MVA9lqs2+xinvOXbbGMhd18X4pq5aRfiE65pIKxcWB0OtAffY9NdJy0/ksjhBG9EOYywti2WYmtqwxypRil+x0/nBeBlJUfN7/Q9l8tRiDcqq8NghC8wqSEuyzLKXoE/+VDPkW35Vo8czsOp5PT0xN3IQ31vlld/4PqsqQWYE4WBTBO/PO6SoAfNapDxb4M9C8TiReek43pfVL3wTst8Bv4wkeFcLy7NMGVyM48LmjlyvYPIY5NTz8RGOSCAyB7kIxYEsf9SB0Sp0IMGhHIoM8/Yhso3cJNTKTLod0Uz3Htc0JAStugt6RCrnar3Yc7yUzSGDNZcvM31HsP74i5TifaJiavHOiZxjaHYn/KsLFi5/zqNRcYkzN+dYzWY1hjCSY47za9HMh89ZHxGkmrknQY4YKRp/uvg2driXwZDaIm7NUt90mXim4PGM0kYejp9SUwlIGmc5F4QO5F3tBoRb/AYsf3f6mDw7SXAMnO/OVfglvf/x3ICE7UCLkuMXZAECe8MJoJnpP+LVrNQfJjSrjmBYrVRVkS2QFrte0g2WO1SprE9KH8kkmNEmkC6Z3orDczx5jW7LSl37ZHzq1dvMYAJrEoWH21e6ug5usMSl1X6S5uBIsSrj8kOlTYgr4huPjN54aBTVYazCn6UFVrt83E81nbuyZTadrnA4=',
+          salt: 'PasswordIs-password-',
+        },
+        {
+          sub: '7ef008ae-966d-46c9-ae11-389f5f7b4222',
+          given_name: 'Fred',
+          family_name: 'Fixer',
+          email: 'fred.fixer@unit.tests',
+          password: '0dqy81MVA9lqs2+xinvOXbbGMhd18X4pq5aRfiE65pIKxcWB0OtAffY9NdJy0/ksjhBG9EOYywti2WYmtqwxypRil+x0/nBeBlJUfN7/Q9l8tRiDcqq8NghC8wqSEuyzLKXoE/+VDPkW35Vo8czsOp5PT0xN3IQ31vlld/4PqsqQWYE4WBTBO/PO6SoAfNapDxb4M9C8TiReek43pfVL3wTst8Bv4wkeFcLy7NMGVyM48LmjlyvYPIY5NTz8RGOSCAyB7kIxYEsf9SB0Sp0IMGhHIoM8/Yhso3cJNTKTLod0Uz3Htc0JAStugt6RCrnar3Yc7yUzSGDNZcvM31HsP74i5TifaJiavHOiZxjaHYn/KsLFi5/zqNRcYkzN+dYzWY1hjCSY47za9HMh89ZHxGkmrknQY4YKRp/uvg2driXwZDaIm7NUt90mXim4PGM0kYejp9SUwlIGmc5F4QO5F3tBoRb/AYsf3f6mDw7SXAMnO/OVfglvf/x3ICE7UCLkuMXZAECe8MJoJnpP+LVrNQfJjSrjmBYrVRVkS2QFrte0g2WO1SprE9KH8kkmNEmkC6Z3orDczx5jW7LSl37ZHzq1dvMYAJrEoWH21e6ug5usMSl1X6S5uBIsSrj8kOlTYgr4huPjN54aBTVYazCn6UFVrt83E81nbuyZTadrnA4=',
+          salt: 'PasswordIs-password-',
+        },
+        {
+          sub: '17f79740-2ecf-4831-b05e-95b85f0b26ae',
+          given_name: 'Fran',
+          family_name: 'Finder',
+          email: 'fran.finder@unit.tests',
+          password: '0dqy81MVA9lqs2+xinvOXbbGMhd18X4pq5aRfiE65pIKxcWB0OtAffY9NdJy0/ksjhBG9EOYywti2WYmtqwxypRil+x0/nBeBlJUfN7/Q9l8tRiDcqq8NghC8wqSEuyzLKXoE/+VDPkW35Vo8czsOp5PT0xN3IQ31vlld/4PqsqQWYE4WBTBO/PO6SoAfNapDxb4M9C8TiReek43pfVL3wTst8Bv4wkeFcLy7NMGVyM48LmjlyvYPIY5NTz8RGOSCAyB7kIxYEsf9SB0Sp0IMGhHIoM8/Yhso3cJNTKTLod0Uz3Htc0JAStugt6RCrnar3Yc7yUzSGDNZcvM31HsP74i5TifaJiavHOiZxjaHYn/KsLFi5/zqNRcYkzN+dYzWY1hjCSY47za9HMh89ZHxGkmrknQY4YKRp/uvg2driXwZDaIm7NUt90mXim4PGM0kYejp9SUwlIGmc5F4QO5F3tBoRb/AYsf3f6mDw7SXAMnO/OVfglvf/x3ICE7UCLkuMXZAECe8MJoJnpP+LVrNQfJjSrjmBYrVRVkS2QFrte0g2WO1SprE9KH8kkmNEmkC6Z3orDczx5jW7LSl37ZHzq1dvMYAJrEoWH21e6ug5usMSl1X6S5uBIsSrj8kOlTYgr4huPjN54aBTVYazCn6UFVrt83E81nbuyZTadrnA4=',
+          salt: 'PasswordIs-password-',
+        },
+      ],
+      numberOfPages: 22,
+    });
+    req.query.include = 'field1,legacyusernames,field2';
+    adapter.getLegacyUsernames.mockReturnValue([
+      { uid: '963a0a68-aa60-11e7-abc4-cec278b6b50a', legacy_username: 'ttester1' },
+      { uid: '963a0a68-aa60-11e7-abc4-cec278b6b50a', legacy_username: 'ttester2' },
+      { uid: '17f79740-2ecf-4831-b05e-95b85f0b26ae', legacy_username: 'franf1' },
+    ]);
+
+    await listActon(req, res);
+
+    expect(adapter.getLegacyUsernames.mock.calls).toHaveLength(1);
+    expect(adapter.getLegacyUsernames.mock.calls[0][0]).toEqual(['963a0a68-aa60-11e7-abc4-cec278b6b50a', '7ef008ae-966d-46c9-ae11-389f5f7b4222', '17f79740-2ecf-4831-b05e-95b85f0b26ae']);
+
+    const actual = JSON.parse(res.send.mock.calls[0][0]);
+    expect(actual.users[0].legacyUsernames).toBeDefined();
+    expect(actual.users[0].legacyUsernames).toHaveLength(2);
+    expect(actual.users[0].legacyUsernames[0]).toBe('ttester1');
+    expect(actual.users[0].legacyUsernames[1]).toBe('ttester2');
+
+    expect(actual.users[1].legacyUsernames).toBeUndefined();
+
+    expect(actual.users[2].legacyUsernames).toBeDefined();
+    expect(actual.users[2].legacyUsernames).toHaveLength(1);
+    expect(actual.users[2].legacyUsernames[0]).toBe('franf1');
   });
 });

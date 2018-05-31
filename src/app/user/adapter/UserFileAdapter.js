@@ -123,6 +123,12 @@ const findByLegacyUsername = async (username, correlationId) => {
   throw error;
 };
 
+const getLegacyUsernames = async (username, correlationId) => {
+  throw new Error('Get legacy usernames is not implemented for File');
+  error.type = 'E_NOTIMPLEMENTED';
+  throw error;
+};
+
 module.exports = {
   list,
   findByUsername,
@@ -130,5 +136,6 @@ module.exports = {
   find,
   authenticate,
   update,
+  getLegacyUsernames,
 };
 

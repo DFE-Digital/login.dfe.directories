@@ -70,6 +70,12 @@ const findByLegacyUsername = async (username, correlationId) => {
   throw error;
 };
 
+const getLegacyUsernames = async (username, correlationId) => {
+  throw new Error('Get legacy usernames is not implemented for AAD');
+  error.type = 'E_NOTIMPLEMENTED';
+  throw error;
+};
+
 
 module.exports = {
   authenticate,
@@ -77,4 +83,5 @@ module.exports = {
   find,
   findByUsername,
   update,
+  getLegacyUsernames,
 };

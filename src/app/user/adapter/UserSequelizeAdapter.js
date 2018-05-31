@@ -257,6 +257,27 @@ const update = async (uid, given_name, family_name, email, correlationId) => {
   }
 };
 
+const getLegacyUsernames = async (uids, correlationId) => {
+  try {
+    logger.info(`Get legacy user names`, { correlationId });
+    const legacyUsernameEntities = await userLegacyUsername.findAll({
+      where: {
+        uid: {
+          [Op.or]: uids,
+        },
+      },
+    });
+    if (!legacyUsernameEntities) {
+      return [];
+    }
+
+    return legacyUsernameEntities;
+  } catch (e) {
+    logger.error(`Get legacy user names - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
 module.exports = {
   find,
   getUsers,
@@ -268,4 +289,5 @@ module.exports = {
   changeStatus,
   update,
   findByLegacyUsername,
+  getLegacyUsernames,
 };

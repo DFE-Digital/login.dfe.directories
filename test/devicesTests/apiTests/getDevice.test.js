@@ -114,7 +114,7 @@ describe('When getting user associated with device', () => {
     expect(res._isEndCalled()).toBe(true);
   });
 
-  it('then it should return 404 if user not invitation not found', async () => {
+  it('then it should return 404 if not user or invitation associated', async () => {
     getUserAssociatedToDevice.mockReturnValue(null);
     list.mockReturnValue({
       invitations: [{
@@ -124,6 +124,28 @@ describe('When getting user associated with device', () => {
         keyToSuccessId: '12345678901',
         tokenSerialNumber: '987654321',
         id: 'invite-1',
+      }],
+      page: 1,
+      numberOfPages: 1,
+    });
+
+    await getDevice(req, res);
+
+    expect(res.statusCode).toBe(404);
+    expect(res._isEndCalled()).toBe(true);
+  });
+
+  it('then it should return 404 if no associated user but invitation that is completed', async () => {
+    getUserAssociatedToDevice.mockReturnValue(null);
+    list.mockReturnValue({
+      invitations: [{
+        firstName: 'User',
+        lastName: 'One',
+        email: 'user.one@invited.test',
+        keyToSuccessId: '12345678901',
+        tokenSerialNumber: '123456789',
+        id: 'invite-1',
+        isCompleted: true,
       }],
       page: 1,
       numberOfPages: 1,

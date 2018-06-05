@@ -13,7 +13,7 @@ const getInvitationIdAssociatedToDevice = async (type, serialNumber) => {
 
     const invitation = page.invitations.find(i => i.tokenSerialNumber === serialNumber
       || (i.oldCredentials && i.oldCredentials.tokenSerialNumber === serialNumber));
-    if (invitation) {
+    if (invitation && !invitation.isCompleted) {
       return invitation.id;
     }
 

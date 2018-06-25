@@ -94,6 +94,9 @@ const user = db.define('user', {
     allowNull: false,
     defaultValue: 0,
   },
+  phone_number: {
+    type: Sequelize.STRING,
+  },
 }, {
   timestamps: true,
   tableName: 'user',

@@ -161,7 +161,7 @@ const authenticate = async (username, password, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, legacyUsername, correlationId) => {
+const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || !password) {
@@ -185,6 +185,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, c
     email: username,
     salt,
     password: encryptedPassword,
+    phone_number: phone_number,
   };
 
   await user.create({
@@ -195,6 +196,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, c
     salt,
     password: encryptedPassword,
     status: 1,
+    phone_number: phone_number,
   });
 
   if (legacyUsername) {
@@ -235,8 +237,9 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
     numberOfPages: pageOfUsers,
   };
 };
+};
 
-const update = async (uid, given_name, family_name, email, correlationId) => {
+const update = async (uid, given_name, family_name, email, phone_number, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
 
@@ -248,6 +251,7 @@ const update = async (uid, given_name, family_name, email, correlationId) => {
       given_name,
       family_name,
       email,
+      phone_number,
     });
 
     return userEntity;

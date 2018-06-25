@@ -28,6 +28,7 @@ describe('When creating a user', () => {
         password: 'password-test',
         firstName: 'Test',
         lastName: 'Tester',
+        phone_number: '07700 900000',
       },
       headers: {
         'x-correlation-id': expectedRequestCorrelationId,
@@ -73,7 +74,8 @@ describe('When creating a user', () => {
     expect(create.mock.calls[0][1]).toBe(req.body.password);
     expect(create.mock.calls[0][2]).toBe(req.body.firstName);
     expect(create.mock.calls[0][3]).toBe(req.body.lastName);
-    expect(create.mock.calls[0][5]).toBe(expectedRequestCorrelationId);
+    expect(create.mock.calls[0][5]).toBe(req.body.phone_number);
+    expect(create.mock.calls[0][6]).toBe(expectedRequestCorrelationId);
   });
   it('then if the legacy_username is provided in the body it is passed to the repository', async () => {
     req.body.legacy_username = '123asd';

@@ -237,7 +237,7 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
     numberOfPages: pageOfUsers,
   };
 };
-};
+
 
 const update = async (uid, given_name, family_name, email, phone_number, correlationId) => {
   try {

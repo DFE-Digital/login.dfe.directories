@@ -23,6 +23,7 @@ describe('When patching a user', () => {
         given_name: 'Jennifer',
         family_name: 'Potter',
         email: 'jenny.potter@dumbledores-army.test',
+        phone_number: '07700 900000',
       },
     };
 
@@ -67,7 +68,8 @@ describe('When patching a user', () => {
     expect(update.mock.calls[0][1]).toBe('Jennifer');
     expect(update.mock.calls[0][2]).toBe('Potter');
     expect(update.mock.calls[0][3]).toBe('jenny.potter@dumbledores-army.test');
-    expect(update.mock.calls[0][4]).toBe('correlation-id');
+    expect(update.mock.calls[0][4]).toBe('07700 900000');
+    expect(update.mock.calls[0][5]).toBe('correlation-id');
   });
 
   it('then it should send 400 with error message if body has unknown property', async () => {
@@ -76,7 +78,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email');
+    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email,phone_number');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -86,7 +88,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email');
+    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email,phone_number');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -96,7 +98,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email');
+    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email,phone_number');
     expect(res._isEndCalled()).toBe(true);
   });
 });

@@ -58,7 +58,7 @@ const find = async (id) => {
   return user === undefined ? null : user;
 };
 
-const create = async (username, password, firstName, lastName, legacyUsername) => {
+const create = async (username, password, firstName, lastName, legacyUsername, phone_number) => {
   const users = await readAllUsers();
   if (users.find(u => u.email.toLowerCase() === username.toLowerCase())) {
     const err = new Error('User already exists');
@@ -68,7 +68,7 @@ const create = async (username, password, firstName, lastName, legacyUsername) =
 
   const salt = generateSalt();
   const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
-  const newUser = {sub: uuid.v4(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword, legacy_username: legacyUsername };
+  const newUser = {sub: uuid.v4(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword, legacy_username: legacyUsername, phone_number: phone_number };
   users.push(newUser);
   return writeAllUsers(users);
 };
@@ -111,7 +111,7 @@ const authenticate = async (username, password) => {
   return null;
 };
 
-const update = async (uid, given_name, family_name, email, correlationId) => {
+const update = async (uid, given_name, family_name, email, phone_number, correlationId) => {
   throw new Error('Update method is not implemented for File');
   error.type = 'E_NOTIMPLEMENTED';
   throw error;

@@ -46,7 +46,7 @@ const findByUsername = async (username, correlationId) => {
   }
 };
 
-const createUser = async (username, password, firstName, lastName, legacyUsername, correlationId) => {
+const createUser = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || !password) {
@@ -71,6 +71,7 @@ const createUser = async (username, password, firstName, lastName, legacyUsernam
     salt,
     password: encryptedPassword,
     legacy_username: legacyUsername,
+    phone_number: phone_number,
   };
 
   const content = JSON.stringify(newUser);
@@ -139,7 +140,7 @@ const find = async (id, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, correlationId) => createUser(username, password, firstName, lastName, correlationId);
+const create = async (username, password, firstName, lastName, phone_number, correlationId) => createUser(username, password, firstName, lastName, phone_number, correlationId);
 
 const findAllKeys = async () => {
   const keys = [];
@@ -237,7 +238,7 @@ const authenticate = async (username, password, correlationId) => {
   return null;
 };
 
-const update = async (uid, given_name, family_name, email, correlationId) => {
+const update = async (uid, given_name, family_name, email, phone_number, correlationId) => {
   try {
     logger.info(`Updating user for request: ${correlationId}`, { correlationId });
 
@@ -250,6 +251,7 @@ const update = async (uid, given_name, family_name, email, correlationId) => {
     user.given_name = given_name;
     user.family_name = family_name;
     user.email = email;
+    user.phone_number = phone_number;
 
     await client.set(`User_${uid}`, JSON.stringify(user));
   } catch (e) {

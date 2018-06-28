@@ -26,6 +26,10 @@ const sendNotification = async (user, code, req, uid) => {
     return client.sendNotifyMigratedEmail(user.email, user.given_name, user.family_name, code.email);
   }
 
+  if (code.codeType.toLowerCase() === 'smslogin') {
+    return client.sendSecondFactorLoginCode(user.phone_number, code.code);
+  }
+
   return Promise.resolve();
 };
 

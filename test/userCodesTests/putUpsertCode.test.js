@@ -32,7 +32,7 @@ jest.mock('./../../src/infrastructure/logger', () => ({
   error: console.error,
 }));
 jest.mock('./../../src/app/user/adapter', () => {
-  const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local' });
+  const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local', phone_number:'07700900000' });
   return {
     find: jest.fn().mockImplementation(findStub),
   };
@@ -54,6 +54,7 @@ describe('When getting a user code', () => {
   let notificationClient;
   let sendPasswordResetStub;
   let sendConfirmMigrationEmailStub;
+  let sendSecondFactorLoginCodeStub;
   let put;
   let uuid;
   let uuidStub;
@@ -86,11 +87,13 @@ describe('When getting a user code', () => {
     sendConfirmMigrationEmailStub = jest.fn().mockImplementation((email, code, clientId, uid) => emailObject = {
       email, code, clientId, uid, type: 'migrateemail',
     });
+    sendSecondFactorLoginCodeStub = jest.fn();
 
     notificationClient = require('login.dfe.notifications.client');
     notificationClient.mockImplementation(() => ({
       sendPasswordReset: sendPasswordResetStub,
       sendConfirmMigratedEmail: sendConfirmMigrationEmailStub,
+      sendSecondFactorLoginCode: sendSecondFactorLoginCodeStub,
     }));
 
     put = require('./../../src/app/userCodes/api/putUpsertCode');
@@ -195,5 +198,21 @@ describe('When getting a user code', () => {
     expect(redisStorage.createUserCode.mock.calls[0][4]).toBe(undefined);
     expect(redisStorage.createUserCode.mock.calls[0][5]).toBe('ConfirmMigratedEmail');
     expect(redisStorage.createUserCode.mock.calls[0][6]).toBe(expectedRequestCorrelationId);
-  })
+  });
+  it('then if the code type is smslogin then the sms is sent', async () => {
+    redisStorage.getUserCode.mockReturnValue(null);
+    redisStorage.createUserCode.mockReturnValue({ uid: '7654321', code: 'EDC345', codeType: 'smslogin' });
+    req.body = {
+      uid: '7654321',
+      codeType: 'smslogin',
+      clientId: 'client1',
+      redirectUri: 'na',
+    };
+
+    await put(req, res);
+
+    expect(sendSecondFactorLoginCodeStub.mock.calls).toHaveLength(1);
+    expect(sendSecondFactorLoginCodeStub.mock.calls[0][0]).toBe('07700900000');
+    expect(sendSecondFactorLoginCodeStub.mock.calls[0][1]).toBe('EDC345');
+  });
 });

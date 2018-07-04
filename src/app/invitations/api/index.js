@@ -8,6 +8,7 @@ const { asyncWrapper } = require('login.dfe.express-error-handling');
 const listInvitations = require('./listInvitations');
 const postInvitations = require('./postInvitations');
 const getInvitations = require('./getInvitation');
+const getInvitationByEmail = require('./getInvitationByEmail');
 const createUser = require('./createUser');
 const patchInvitation = require('./patchInvitation');
 const assert = require('assert');
@@ -25,6 +26,7 @@ const routeExport = () => {
   router.get('/', asyncWrapper(listInvitations));
   router.post('/', asyncWrapper(postInvitations));
   router.get('/:id', asyncWrapper(getInvitations));
+  router.get('/by-email/:email', asyncWrapper(getInvitationByEmail));
   router.patch('/:id', asyncWrapper(patchInvitation));
   router.post('/:id/create_user', asyncWrapper(createUser));
   return router;

@@ -33,8 +33,8 @@ describe('When using redis storage service', () => {
 
     it('the user are retrieved from redis', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
-        const redisMock = new RedisMock();
+        const RedisMock = require('ioredis-mock');
+        const redisMock = new RedisMock;
         redisMock.set('User_e_test@localuser.com', '{"sub": "12345"}');
         redisMock.set('User_12345', '{"sub": "test@localuser.com"}');
         return redisMock;
@@ -48,7 +48,7 @@ describe('When using redis storage service', () => {
     });
     it('then null is returned if there is no data', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         return redisMock;
       }));
@@ -60,7 +60,7 @@ describe('When using redis storage service', () => {
     });
     it('then the json is parsed and returned', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('User_e_test3@localuser.com', '{"sub": "12345"}');
         redisMock.set('User_12345', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
@@ -75,7 +75,7 @@ describe('When using redis storage service', () => {
     });
     it('then if the user is not found then null is returned', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('User_e_test4@localuser.com', '{"sub": "54321"}');
         redisMock.set('User_12345', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
@@ -96,7 +96,7 @@ describe('When using redis storage service', () => {
     });
     it('if the user does not exist false is returned', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('User_test3@localuser.com', '[{"sub": "test@localuser.com"}]');
         return redisMock;
@@ -109,7 +109,7 @@ describe('When using redis storage service', () => {
     });
     it('if the user exists the record is updated', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('User_test3@localuser.com', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing", "salt":"123456768"}');
         return redisMock;
@@ -146,7 +146,7 @@ describe('When using redis storage service', () => {
 
     it('returns an existing user if the username already exists', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('User_e_test3@localuser.com', '{"sub": "12345"}');
         redisMock.set('User_12345', '{"sub": "12345","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
@@ -179,7 +179,7 @@ describe('When using redis storage service', () => {
     });
     it('a list of users is returned matching the ids', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('User_12345', '{"sub": "12345","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing"}');
         redisMock.set('User_54321', '{"sub": "54321","email":"test4@localuser.com", "first_name": "Retset", "last_name" : "Gnitset"}');
@@ -196,7 +196,7 @@ describe('When using redis storage service', () => {
     });
     it('then null is returned if there are no users found', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         return redisMock;
       }));
@@ -216,7 +216,7 @@ describe('When using redis storage service', () => {
     });
     it('if the user does not exist false is returned', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('User_test3@localuser.com', '[{"sub": "test@localuser.com"}]');
         return redisMock;
@@ -229,7 +229,7 @@ describe('When using redis storage service', () => {
     });
     it('if the user exists the record is updated', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('User_test3@localuser.com', '{"sub": "test3@localuser.com","email":"test3@localuser.com", "first_name": "Tester", "last_name" : "Testing", "salt":"123456768", "status":1}');
         return redisMock;

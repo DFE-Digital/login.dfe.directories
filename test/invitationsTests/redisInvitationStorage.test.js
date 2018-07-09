@@ -31,7 +31,7 @@ describe('When using the redis invitation storage', () => {
   describe('and getting the invitation by email', () => {
     it('then null is returned if the invitation does not exist', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         return redisMock;
       }));
@@ -44,7 +44,7 @@ describe('When using the redis invitation storage', () => {
     });
     it('then the invitation is returned if it exists', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
         return redisMock;
@@ -60,7 +60,7 @@ describe('When using the redis invitation storage', () => {
   describe('and creating the invitation', () => {
     it('then the uuid is used to create the record', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         return redisMock;
       }));
@@ -84,7 +84,7 @@ describe('When using the redis invitation storage', () => {
   describe('and deleting the invitation', () => {
     it('then if the uid is not supplied the record is not deleted', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
         return redisMock;
@@ -98,7 +98,7 @@ describe('When using the redis invitation storage', () => {
     });
     it('then the uid is used to find the record and delete it', async () => {
       jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock').default;
+        const RedisMock = require('ioredis-mock');
         const redisMock = new RedisMock();
         redisMock.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
         return redisMock;

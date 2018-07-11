@@ -1,11 +1,11 @@
 'use strict';
 
-const config = require('./../../../infrastructure/config');
+// const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const { getUserInvitation, updateInvitation } = require('./../data/redisInvitationStorage');
 const userStorage = require('./../../user/adapter');
 const { safeUser } = require('./../../../utils');
-const NotificationClient = require('login.dfe.notifications.client');
+// const NotificationClient = require('login.dfe.notifications.client');
 
 const createUser = async (req, res) => {
   try {
@@ -30,10 +30,10 @@ const createUser = async (req, res) => {
     const completedInvitation = Object.assign(invitation, { isCompleted: true, userId: user.id });
     await updateInvitation(completedInvitation);
 
-    const notificationClient = new NotificationClient({
+    /* const notificationClient = new NotificationClient({
       connectionString: config.notifications.connectionString,
     });
-    notificationClient.sendRegistrationComplete(user.email, user.given_name, user.family_name);
+    notificationClient.sendRegistrationComplete(user.email, user.given_name, user.family_name); */
 
     return res.status(201).send(safeUser(user));
   } catch (e) {

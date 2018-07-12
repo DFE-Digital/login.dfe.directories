@@ -111,7 +111,7 @@ describe('When patching an invitation', () => {
     await patchInvitation(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Invalid property patched - bad1. Patchable properties are email,isCompleted,deactivated,reason');
+    expect(res._getData()).toBe('Invalid property patched - bad1. Patchable properties are email,isCompleted,deactivated,reason,callbacks');
     expect(res._isEndCalled()).toBe(true);
   });
 

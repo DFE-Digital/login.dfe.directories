@@ -4,7 +4,7 @@ const { generateInvitationCode } = require('./../utils');
 const NotificationClient = require('login.dfe.notifications.client');
 const { getOidcClientById } = require('./../../../infrastructure/hotConfig');
 
-const patchableProperties = ['email', 'isCompleted', 'deactivated', 'reason'];
+const patchableProperties = ['email', 'isCompleted', 'deactivated', 'reason', 'callbacks'];
 const patchablePropertiesMessage = patchableProperties.concat();
 
 const validatePatchProperties = (req) => {

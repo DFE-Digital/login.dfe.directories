@@ -11,6 +11,7 @@ const getInvitations = require('./getInvitation');
 const getInvitationByEmail = require('./getInvitationByEmail');
 const createUser = require('./createUser');
 const patchInvitation = require('./patchInvitation');
+const postResendInvitation = require('./postResendInvitation')
 const assert = require('assert');
 
 const router = express.Router();
@@ -27,6 +28,7 @@ const routeExport = () => {
   router.post('/', asyncWrapper(postInvitations));
   router.get('/:id', asyncWrapper(getInvitations));
   router.get('/by-email/:email', asyncWrapper(getInvitationByEmail));
+  router.post('/:id/resend_invite', asyncWrapper(postResendInvitation));
   router.patch('/:id', asyncWrapper(patchInvitation));
   router.post('/:id/create_user', asyncWrapper(createUser));
   return router;

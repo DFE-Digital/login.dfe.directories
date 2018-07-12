@@ -28,7 +28,7 @@ const routeExport = () => {
   router.post('/', asyncWrapper(postInvitations));
   router.get('/:id', asyncWrapper(getInvitations));
   router.get('/by-email/:email', asyncWrapper(getInvitationByEmail));
-  router.post('/:id/resend_invite', asyncWrapper(postResendInvitation));
+  router.post('/:id/resend', asyncWrapper(postResendInvitation));
   router.patch('/:id', asyncWrapper(patchInvitation));
   router.post('/:id/create_user', asyncWrapper(createUser));
   return router;

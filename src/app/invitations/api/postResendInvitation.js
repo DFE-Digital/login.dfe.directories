@@ -7,10 +7,10 @@ const post = async (req, res) => {
   try {
     const invitation = await (req.params.id, req.header('x-correlation-id'));
     if (!invitation) {
-      return res.status(400);
+      return res.status(400).send();
     }
     await sendInvitation(invitation);
-    return res.status(200);
+    return res.status(200).send();
   } catch (e) {
     logger.error(e);
     return res.status(500).send(e);

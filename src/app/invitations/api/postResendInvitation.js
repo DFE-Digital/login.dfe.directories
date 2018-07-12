@@ -1,7 +1,7 @@
 'use strict';
 
 const logger = require('./../../../infrastructure/logger');
-const { sendInvitation } = require('./../utils/sendInvitation');
+const sendInvitation = require('./../utils/sendInvitation');
 
 const post = async (req, res) => {
   try {

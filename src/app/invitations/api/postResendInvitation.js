@@ -16,6 +16,6 @@ const post = async (req, res) => {
     logger.error(e);
     return res.status(500).send(e);
   }
-}
+};
 
 module.exports = post;

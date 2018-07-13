@@ -27,6 +27,7 @@
     "login.dfe.healthcheck": "git+https://github.com/DFE-Digital/login.dfe.healthcheck.git#v1.4.2",
     "login.dfe.jwt-strategies": "github:DFE-Digital/login.dfe.jwt-strategies#v2.0.1",
     "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v2.6",
+    "login.dfe.public-api.jobs.client": "git+https://github.com/DFE-Digital/login.dfe.public-api.jobs.client.git#v1.0",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v1.1",
     "mongoose": "^4.13.3",

@@ -1,11 +1,12 @@
 'use strict';
 
-// const config = require('./../../../infrastructure/config');
+const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 const { getUserInvitation, updateInvitation } = require('./../data/redisInvitationStorage');
 const userStorage = require('./../../user/adapter');
 const { safeUser } = require('./../../../utils');
 // const NotificationClient = require('login.dfe.notifications.client');
+const PublicApiClient = require('llogin.dfe.public-api.jobs.client');
 
 const createUser = async (req, res) => {
   try {
@@ -34,6 +35,11 @@ const createUser = async (req, res) => {
       connectionString: config.notifications.connectionString,
     });
     notificationClient.sendRegistrationComplete(user.email, user.given_name, user.family_name); */
+
+    const publicApiClient = new PublicApiClient({
+      connectionString: config.notifications.connectionString,
+    });
+    await publicApiClient.sendInvitationComplete(user.id, invitation.callbacks);
 
     return res.status(201).send(safeUser(user));
   } catch (e) {

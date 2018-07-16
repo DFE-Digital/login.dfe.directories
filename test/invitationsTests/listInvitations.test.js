@@ -67,16 +67,6 @@ describe('when listing invitations', () => {
     expect(list.mock.calls[0][1]).toBe(25);
   });
 
-  it('then it should use page 1 if page number in query string not a number', async () => {
-    req.query.page = 'abc';
-
-    await listInvitations(req, res);
-
-    expect(list.mock.calls).toHaveLength(1);
-    expect(list.mock.calls[0][0]).toBe(1);
-    expect(list.mock.calls[0][1]).toBe(25);
-  });
-
   it('then it should send invitations', async () => {
     await listInvitations(req, res);
 

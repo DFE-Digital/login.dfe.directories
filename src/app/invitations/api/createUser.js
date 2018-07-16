@@ -6,7 +6,7 @@ const { getUserInvitation, updateInvitation } = require('./../data/redisInvitati
 const userStorage = require('./../../user/adapter');
 const { safeUser } = require('./../../../utils');
 // const NotificationClient = require('login.dfe.notifications.client');
-const PublicApiClient = require('llogin.dfe.public-api.jobs.client');
+const PublicApiClient = require('login.dfe.public-api.jobs.client');
 
 const createUser = async (req, res) => {
   try {

@@ -6,6 +6,7 @@ const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
 const { userCode } = require('./../../../infrastructure/repository');
 const generateResetCode = require('./../utils/generateResetCode');
+const generateSmsCode = require('./../utils/generateSmsCode');
 
 
 const getUserCode = async (uid, codeType, correlationId) => {
@@ -63,7 +64,7 @@ const createUserCode = async (uid, clientId, redirectUri, email, contextData, co
       return null;
     }
 
-    const code = generateResetCode();
+    const code = codeType.toLowerCase() === 'smslogin' ? generateSmsCode() : generateResetCode();
     const userResetCode = {
       uid,
       code,
@@ -111,7 +112,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
 
     let code = codeFromFind.code;
     if (!codeFromFind.email || codeFromFind.email.toLowerCase() !== email.toLowerCase()) {
-      code = generateResetCode();
+      code = (codeFromFind.codeType || '').toLowerCase() === 'smslogin' ? generateSmsCode() : generateResetCode();
     }
 
     await codeFromFind.updateAttributes({

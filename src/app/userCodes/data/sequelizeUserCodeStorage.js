@@ -111,8 +111,8 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
     }
 
     let code = codeFromFind.code;
-    if (!codeFromFind.email || codeFromFind.email.toLowerCase() !== email.toLowerCase()) {
-      code = (codeFromFind.codeType || '').toLowerCase() === 'smslogin' ? generateSmsCode() : generateResetCode();
+    if ((codeFromFind.codeType || '').toLowerCase() !== 'smslogin' && (!codeFromFind.email || codeFromFind.email.toLowerCase() !== email.toLowerCase())) {
+      code = generateResetCode();
     }
 
     await codeFromFind.updateAttributes({

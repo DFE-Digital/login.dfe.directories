@@ -1,5 +1,6 @@
 'use strict';
 
+const NUMERIC_CHARSET = '123456789';
 const DEC_CHARSET = '46789BCDFGHJKLMNPRSTVWXY';
 const FULL_CHARSET = 'ABCDEFGHJKMNPQRSTWXYZabcdefghjkmnpqrstwxyz23456789-.><!@%&*+_';
 
@@ -12,6 +13,7 @@ const generate = (length = 8, charset = DEC_CHARSET) => {
 };
 
 module.exports = {
+  NUMERIC_CHARSET,
   DEC_CHARSET,
   FULL_CHARSET,
   generate,

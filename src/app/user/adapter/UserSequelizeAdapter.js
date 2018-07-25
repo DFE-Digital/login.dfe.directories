@@ -239,7 +239,7 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
 };
 
 
-const update = async (uid, given_name, family_name, email, phone_number, correlationId) => {
+const update = async (uid, given_name, family_name, email, phone_number, legacyUsernames, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
 
@@ -253,6 +253,20 @@ const update = async (uid, given_name, family_name, email, phone_number, correla
       email,
       phone_number,
     });
+
+    if (legacyUsernames) {
+      await userLegacyUsername.destroy({
+        where: {
+          uid,
+        },
+      });
+      for (let i = 0; i < legacyUsernames.length; i += 1) {
+        await userLegacyUsername.create({
+          uid: uid,
+          legacy_username: legacyUsernames[i],
+        });
+      }
+    }
 
     return userEntity;
   } catch (e) {

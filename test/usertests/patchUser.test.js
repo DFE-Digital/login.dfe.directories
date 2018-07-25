@@ -2,7 +2,8 @@ jest.mock('./../../src/app/user/adapter', () => ({
   find: jest.fn(),
   update: jest.fn(),
 }));
-jest.mock('./../../src/utils/deprecateMiddleware', () => {});
+jest.mock('./../../src/utils/deprecateMiddleware', () => {
+});
 
 
 const { find, update } = require('./../../src/app/user/adapter');
@@ -24,6 +25,7 @@ describe('When patching a user', () => {
         family_name: 'Potter',
         email: 'jenny.potter@dumbledores-army.test',
         phone_number: '07700 900000',
+        legacyUsernames: ['luser1', 'luser2'],
       },
     };
 
@@ -69,7 +71,12 @@ describe('When patching a user', () => {
     expect(update.mock.calls[0][2]).toBe('Potter');
     expect(update.mock.calls[0][3]).toBe('jenny.potter@dumbledores-army.test');
     expect(update.mock.calls[0][4]).toBe('07700 900000');
-    expect(update.mock.calls[0][5]).toBe('correlation-id');
+    expect(update.mock.calls[0][5]).toEqual(['luser1', 'luser2']);
+    expect(update.mock.calls[0][6]).toBe('correlation-id');
+  });
+
+  it('then it should update users legacy usernames in storage', async () => {
+    await patchUser(req, res);
   });
 
   it('then it should send 400 with error message if body has unknown property', async () => {
@@ -78,7 +85,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email,phone_number');
+    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -88,7 +95,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email,phone_number');
+    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -98,7 +105,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email,phone_number');
+    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 });

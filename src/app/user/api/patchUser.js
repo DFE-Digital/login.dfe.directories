@@ -1,7 +1,7 @@
 const { find, update } = require('./../adapter');
 const { safeUser } = require('./../../../utils');
 
-const allowablePatchProperties = ['given_name', 'family_name', 'email', 'phone_number'];
+const allowablePatchProperties = ['given_name', 'family_name', 'email', 'phone_number', 'legacyUsernames'];
 const allowablePropertiesMessage = allowablePatchProperties.concat();
 
 const validateRequestData = (req) => {
@@ -36,7 +36,8 @@ const patchUser = async (req, res) => {
 
   // Patch user
   const updatedUser = Object.assign(userModel, req.body);
-  await update(updatedUser.sub, updatedUser.given_name, updatedUser.family_name, updatedUser.email, updatedUser.phone_number, req.header('x-correlation-id'));
+  await update(updatedUser.sub, updatedUser.given_name, updatedUser.family_name,
+    updatedUser.email, updatedUser.phone_number, updatedUser.legacyUsernames, req.header('x-correlation-id'));
 
   return res.status(202).send();
 };

@@ -55,18 +55,22 @@ const findByUsername = async (username, correlationId) => {
 const findByLegacyUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user by legacy username for request ${username}`, { correlationId });
-    const userLegacyUsernameEntity = await userLegacyUsername.find({
-      where: {
-        legacy_username: {
-          [Op.eq]: username,
+
+    const userEntity = await user.find({
+      include: [{
+        model: userLegacyUsername,
+        where: {
+          legacy_username: {
+            [Op.eq]: username,
+          },
         },
-      },
+      }],
     });
-    if (!userLegacyUsernameEntity) {
+    if (!userEntity) {
       return null;
     }
 
-    return userLegacyUsernameEntity;
+    return userEntity;
   } catch (e) {
     logger.error(`error getting user with legacy username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

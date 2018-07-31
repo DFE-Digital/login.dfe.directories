@@ -156,6 +156,7 @@ const userLegacyUsername = db.define('user_legacy_username', {
   tableName: 'user_legacy_username',
   schema: dbSchema,
 });
+user.hasMany(userLegacyUsername, { foreignKey: 'uid', sourceKey: 'sub' });
 
 module.exports = {
   user,

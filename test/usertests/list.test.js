@@ -3,6 +3,9 @@ jest.mock('./../../src/infrastructure/config', () => (
     devices: {
       type: 'static',
     },
+    userCodes: {
+      type: 'static',
+    },
   }));
 jest.mock('./../../src/app/user/adapter', () => {
   return {
@@ -11,14 +14,17 @@ jest.mock('./../../src/app/user/adapter', () => {
   };
 });
 jest.mock('./../../src/app/user/devices');
+jest.mock('./../../src/app/user/userCodes');
 jest.mock('./../../src/infrastructure/logger', () => {
   return {
-    error: console.error,
+    error: jest.fn(),
+    warn: jest.fn(),
   };
 });
 
 const adapter = require('./../../src/app/user/adapter');
 const { getUserDevices } = require('./../../src/app/user/devices');
+const { listUsersCodes } = require('./../../src/app/user/userCodes');
 const listActon = require('./../../src/app/user/api/list');
 
 describe('when listing users in response to an api request', () => {
@@ -65,6 +71,11 @@ describe('when listing users in response to an api request', () => {
         type: 'digipass',
         serialNumber: '123456',
       },
+    ]);
+
+    listUsersCodes.mockReset().mockReturnValue([
+      { code: 'ABC123', type: 'PasswordReset' },
+      { code: '123456', type: 'SmsLogin' },
     ]);
   });
 
@@ -202,7 +213,6 @@ describe('when listing users in response to an api request', () => {
     });
   });
 
-
   it('then it should not attempt to get legacy usernames if include is not specified', async () => {
     await listActon(req, res);
 
@@ -270,5 +280,44 @@ describe('when listing users in response to an api request', () => {
     expect(actual.users[2].legacyUsernames).toBeDefined();
     expect(actual.users[2].legacyUsernames).toHaveLength(1);
     expect(actual.users[2].legacyUsernames[0]).toBe('franf1');
+  });
+
+
+
+
+  it('then it should not attempt to get user codes if include is not specified', async () => {
+    await listActon(req, res);
+
+    expect(listUsersCodes.mock.calls).toHaveLength(0);
+  });
+
+  it('then it should not attempt to get user codes if include does not contain codes', async () => {
+    req.query.include = 'field1,field2';
+
+    await listActon(req, res);
+
+    expect(listUsersCodes.mock.calls).toHaveLength(0);
+  });
+
+  it('then it should get and return user codes for users when include contains codes', async () => {
+    req.query.include = 'field1,codes,field2';
+
+    await listActon(req, res);
+
+    expect(listUsersCodes).toHaveBeenCalledTimes(1);
+    expect(listUsersCodes).toHaveBeenCalledWith('963a0a68-aa60-11e7-abc4-cec278b6b50a', 'some-correlation-id');
+    expect(res.send.mock.calls[0][0]).toBe(JSON.stringify({
+      users: [{
+        sub: '963a0a68-aa60-11e7-abc4-cec278b6b50a',
+        given_name: 'Test',
+        family_name: 'Tester',
+        email: 'test@localuser.com',
+        codes: [
+          { code: 'ABC123', type: 'PasswordReset' },
+          { code: '123456', type: 'SmsLogin' },
+        ],
+      }],
+      numberOfPages: 22,
+    }));
   });
 });

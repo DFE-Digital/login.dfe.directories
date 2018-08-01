@@ -2,6 +2,7 @@ const logger = require('./../../../infrastructure/logger');
 const adapter = require('./../adapter');
 const { safeUser } = require('./../../../utils');
 const { getUserDevices } = require('./../devices');
+const { listUsersCodes } = require('./../userCodes');
 
 const extractPageNumber = (req) => {
   if (!req.query || req.query.page === undefined) {
@@ -52,6 +53,12 @@ const addLegacyUsernames = async (pageOfUsers, correlationId) => {
     }
   }
 };
+const addUserCodes = async (pageOfUsers, correlationId) => {
+  for (let i = 0; i < pageOfUsers.users.length; i++) {
+    const user = pageOfUsers.users[i];
+    user.codes = await listUsersCodes(user.sub.toLowerCase(), correlationId);
+  }
+};
 
 const list = async (req, res) => {
   const pageNumber = extractPageNumber(req);
@@ -77,6 +84,9 @@ const list = async (req, res) => {
     }
     if (include.find(x => x.toLowerCase() === 'legacyusernames')) {
       await addLegacyUsernames(safePageOfUsers, correlationId);
+    }
+    if (include.find(x => x.toLowerCase() === 'codes')) {
+      await addUserCodes(safePageOfUsers, correlationId);
     }
 
     return res.contentType('json').send(JSON.stringify(safePageOfUsers));

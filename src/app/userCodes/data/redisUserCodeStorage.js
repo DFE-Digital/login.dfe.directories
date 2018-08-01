@@ -8,6 +8,9 @@ const logger = require('./../../../infrastructure/logger');
 const tls = config.userCodes.params.redisUrl.includes('6380');
 const client = new Redis(config.userCodes.params.redisUrl, { tls });
 
+const listUsersCodes = async (uid, correlationId) => {
+  throw new Error('listUsersCodes not implemented in redis adapter');
+};
 const find = async (uid, codeType) => {
   const result = await client.get(`UserResetCode_${uid.toLowerCase()}_${codeType.toLowerCase()}`);
   if (!result) {
@@ -120,6 +123,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
 
 
 module.exports = {
+  listUsersCodes,
   getUserCode,
   getUserCodeByEmail,
   createUserCode,

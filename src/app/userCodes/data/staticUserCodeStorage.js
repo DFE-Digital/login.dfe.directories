@@ -1,5 +1,12 @@
 const logger = require('./../../../infrastructure/logger');
 
+
+const listUsersCodes = async (uid, correlationId) => {
+  return Promise.resolve([
+    { code: 'ABC123', type: 'PasswordReset' },
+  ]);
+};
+
 const getUserCode = async (uid, correlationId) => {
   try {
     logger.info(`Static - Find User Password Reset Code for request: ${correlationId}`, { correlationId });
@@ -61,6 +68,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId) =>
 };
 
 module.exports = {
+  listUsersCodes,
   getUserCode,
   getUserCodeByEmail,
   createUserCode,

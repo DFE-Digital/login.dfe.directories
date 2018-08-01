@@ -9,6 +9,27 @@ const generateResetCode = require('./../utils/generateResetCode');
 const generateSmsCode = require('./../utils/generateSmsCode');
 
 
+const listUsersCodes = async (uid, correlationId) => {
+  try {
+    logger.info(`List user ${uid}'s codes for request ${correlationId}`, { correlationId });
+
+    const codes = await userCode.findAll({
+      where: {
+        uid: {
+          [Op.eq]: uid,
+        },
+      },
+    });
+    return codes.map(code => ({
+      code: code.code,
+      type: code.codeType,
+    }));
+  } catch (e) {
+    logger.error(`List user ${uid}'s codes for request ${correlationId} failed - ${e.message}`, { correlationId });
+    throw e;
+  }
+};
+
 const getUserCode = async (uid, codeType, correlationId) => {
   try {
     logger.info(`Find User Code for request: ${correlationId}`, { correlationId });
@@ -130,6 +151,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
 };
 
 module.exports = {
+  listUsersCodes,
   getUserCode,
   getUserCodeByEmail,
   createUserCode,

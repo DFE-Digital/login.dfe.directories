@@ -23,6 +23,7 @@ const listUsersCodes = async (uid, correlationId) => {
     return codes.map(code => ({
       code: code.code,
       type: code.codeType,
+      email: code.email,
     }));
   } catch (e) {
     logger.error(`List user ${uid}'s codes for request ${correlationId} failed - ${e.message}`, { correlationId });

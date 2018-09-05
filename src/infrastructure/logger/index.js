@@ -50,7 +50,7 @@ if (config.hostingEnvironment.applicationInsights) {
 const logger = new (winston.Logger)(loggerConfig);
 
 process.on('unhandledRejection', (reason, p) => {
-  logger.error(`Unhandled Rejection at: ${p} reason: ${reason}`);
+  logger.error('Unhandled Rejection at: ', p, 'reason: ', reason);
 });
 
 module.exports = logger;

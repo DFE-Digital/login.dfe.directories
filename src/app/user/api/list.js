@@ -20,6 +20,17 @@ const extractPageSize = (req) => {
   const pageSize = parseInt(req.query.pageSize);
   return isNaN(pageSize) ? 0 : pageSize;
 };
+const extractChangedAfter = (req) => {
+  if (!req.query || req.query.changedAfter === undefined) {
+    return undefined;
+  }
+
+  const changedAfter = new Date(req.query.changedAfter);
+  if (isNaN(changedAfter.valueOf())) {
+    return null;
+  }
+  return changedAfter;
+};
 
 const unpackIncludes = (req) => {
   if (!req.query || !req.query.include) {
@@ -29,8 +40,8 @@ const unpackIncludes = (req) => {
   return req.query.include.split(',').map(x => x.trim().toLowerCase());
 };
 
-const getSafePageOfUsers = async (pageNumber, pageSize) => {
-  const pageOfUsers = await adapter.list(pageNumber, pageSize);
+const getSafePageOfUsers = async (pageNumber, pageSize, changedAfter) => {
+  const pageOfUsers = await adapter.list(pageNumber, pageSize, changedAfter);
   return {
     users: pageOfUsers ? pageOfUsers.users.map((u) => safeUser(u)) : [],
     numberOfPages: pageOfUsers ? pageOfUsers.numberOfPages : 0,
@@ -73,11 +84,16 @@ const list = async (req, res) => {
     return res.status(400).send('pageSize must not be greater than 500');
   }
 
+  const changedAfter = extractChangedAfter(req);
+  if (changedAfter === null) {
+    return res.status(400).send('changedAfter must be a valid date. (Use format YYYY-MM-DDTHH:MM:SSZ)');
+  }
+
   const correlationId = req.header('x-correlation-id');
   const include = unpackIncludes(req);
 
   try {
-    const safePageOfUsers = await getSafePageOfUsers(pageNumber, pageSize);
+    const safePageOfUsers = await getSafePageOfUsers(pageNumber, pageSize, changedAfter);
 
     if (include.find(x => x.toLowerCase() === 'devices')) {
       await addDevicesToUsers(safePageOfUsers, correlationId);

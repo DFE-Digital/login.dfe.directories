@@ -19,6 +19,17 @@ const extractPageSize = (req) => {
   const pageSize = parseInt(req.query.pageSize);
   return isNaN(pageSize) ? 0 : pageSize;
 };
+const extractChangedAfter = (req) => {
+  if (!req.query || req.query.changedAfter === undefined) {
+    return undefined;
+  }
+
+  const changedAfter = new Date(req.query.changedAfter);
+  if (isNaN(changedAfter.valueOf())) {
+    return null;
+  }
+  return changedAfter;
+};
 
 const listInvitations = async (req, res) => {
   try {
@@ -34,7 +45,12 @@ const listInvitations = async (req, res) => {
       return res.status(400).send('pageSize must not be greater than 500');
     }
 
-    const invitations = await storage.list(pageNumber, pageSize);
+    const changedAfter = extractChangedAfter(req);
+    if (changedAfter === null) {
+      return res.status(400).send('changedAfter must be a valid date. (Use format YYYY-MM-DDTHH:MM:SSZ)');
+    }
+
+    const invitations = await storage.list(pageNumber, pageSize, changedAfter);
 
     res.contentType('json').send(invitations);
   } catch (e) {

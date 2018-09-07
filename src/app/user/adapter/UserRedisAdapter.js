@@ -156,7 +156,7 @@ const findAllKeys = async () => {
   });
 };
 
-const list = async (page = 1, pageSize = 10, correlationId) => {
+const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlationId) => {
   logger.info(`Get user list for request: ${correlationId}`, { correlationId });
 
   const userList = await findAllKeys();

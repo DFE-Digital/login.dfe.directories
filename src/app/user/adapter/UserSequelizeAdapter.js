@@ -213,10 +213,20 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   return newUser;
 };
 
-const list = async (page = 1, pageSize = 10, correlationId) => {
+const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlationId) => {
   logger.info(`Get user list for request: ${correlationId}`, { correlationId });
 
+  let where;
+  if (changedAfter) {
+    where = {
+      updatedAt: {
+        [Op.gte]: changedAfter,
+      },
+    };
+  }
+
   const users = await user.findAll({
+    where,
     order: [
       ['email', 'DESC'],
     ],
@@ -230,6 +240,7 @@ const list = async (page = 1, pageSize = 10, correlationId) => {
 
   const numberOfUsersResult = await user.findAll({
     attributes: [[Sequelize.fn('COUNT', Sequelize.col('sub')), 'NumberOfUsers']],
+    where,
   });
 
   const numberOfUsers = numberOfUsersResult[0].get('NumberOfUsers');

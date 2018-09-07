@@ -282,9 +282,6 @@ describe('when listing users in response to an api request', () => {
     expect(actual.users[2].legacyUsernames[0]).toBe('franf1');
   });
 
-
-
-
   it('then it should not attempt to get user codes if include is not specified', async () => {
     await listActon(req, res);
 
@@ -319,5 +316,24 @@ describe('when listing users in response to an api request', () => {
       }],
       numberOfPages: 22,
     }));
+  });
+
+  it('then it should filter to only users changed after date if specified', async () => {
+    req.query.changedAfter = '2018-09-06T13:46:00Z';
+
+    await listActon(req, res);
+
+    expect(adapter.list).toHaveBeenCalledTimes(1);
+    expect(adapter.list).toHaveBeenCalledWith(req.query.page, 25, new Date(Date.UTC(2018, 8, 6, 13, 46, 0)));
+  });
+
+  it('then it should return 400 if changed after is specified but not a date', async () => {
+    req.query.changedAfter = 'yesterday';
+
+    await listActon(req, res);
+
+    expect(adapter.list.mock.calls).toHaveLength(0);
+    expect(res.status.mock.calls[0][0]).toBe(400);
+    expect(res.send.mock.calls).toHaveLength(1);
   });
 });

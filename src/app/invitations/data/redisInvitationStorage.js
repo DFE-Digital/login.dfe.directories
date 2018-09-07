@@ -7,8 +7,9 @@ const { chunk } = require('lodash');
 const tls = config.invitations.redisUrl.includes('6380');
 const client = new Redis(config.invitations.redisUrl, { tls });
 
-const list = async (pageNumber, pageSize) => {
-  const allKeys = await new Promise((resolve, reject) => {
+
+const getAllKeys = async () => {
+  return new Promise((resolve, reject) => {
     const keys = [];
     client.scanStream({ match: 'UserInvitation_*' })
       .on('data', (batch) => {
@@ -21,29 +22,32 @@ const list = async (pageNumber, pageSize) => {
       })
       .on('error', reject);
   });
-
-  const pagesOfKeys = chunk(allKeys, pageSize);
-  if (pageNumber > pagesOfKeys.length) {
-    return {
-      invitations: [],
-      page: pageNumber,
-      numberOfPages: pagesOfKeys.length,
-    };
-  }
-
-  const page = pagesOfKeys[pageNumber - 1];
-  const invitations = await Promise.all(page.map(async (key) => {
-    const result = await client.get(key);
-    const invitation = JSON.parse(result);
-    return invitation || null;
-  }));
-
-  return {
-    invitations,
-    page: pageNumber,
-    numberOfPages: pagesOfKeys.length,
-  };
 };
+const formatInvitation = (invitation) => {
+  const defaultDate = new Date(Date.UTC(2018, 0, 1)).toISOString();
+  const patched = Object.assign({
+    createdAt: defaultDate,
+    updatedAt: defaultDate,
+  }, invitation);
+  patched.createdAt = new Date(patched.createdAt);
+  patched.updatedAt = new Date(patched.updatedAt);
+  return patched;
+};
+const findInvitationsMatching = async (keys, maximumRequired, matcher) => {
+  const matches = [];
+  for (let i = 0; i < keys.length; i += 1) {
+    const json = await client.get(keys[i]);
+    const invitation = json ? formatInvitation(JSON.parse(json)) : null;
+    if (invitation && matcher(invitation)) {
+      matches.push(invitation);
+      if (maximumRequired && maximumRequired > 0 && matches.length >= maximumRequired) {
+        return matches;
+      }
+    }
+  }
+  return matches;
+};
+
 
 const find = async (id) => {
   const result = await client.get(`UserInvitation_${id}`);
@@ -55,10 +59,11 @@ const find = async (id) => {
 };
 
 const storeInvitation = async (invitation) => {
-  const content = JSON.stringify(invitation);
+  const storable = Object.assign({ createdAt: new Date() }, invitation, { updatedAt: new Date() });
+  const content = JSON.stringify(storable);
 
   await client.set(`UserInvitation_${invitation.id}`, content);
-  return JSON.parse(content);
+  return storable;
 };
 
 const createInvitation = async (invitation) => {
@@ -71,6 +76,36 @@ const createInvitation = async (invitation) => {
   newInvitation.id = id;
 
   return storeInvitation(newInvitation);
+};
+
+
+const list = async (pageNumber, pageSize, changedAfter = undefined) => {
+  const allKeys = await getAllKeys();
+  let invitations = [];
+  let numberOfPages = 0;
+
+  if (changedAfter) {
+    const allMatchingInvitations = await findInvitationsMatching(allKeys, undefined, (invitation) => {
+      return invitation.updatedAt.getTime() >= changedAfter.getTime();
+    });
+    const pagesOfInvitations = chunk(allMatchingInvitations, pageSize);
+    numberOfPages = pagesOfInvitations.length;
+    if (pageNumber <= pagesOfInvitations.length) {
+      invitations = pagesOfInvitations[pageNumber - 1];
+    }
+  } else {
+    const pagesOfKeys = chunk(allKeys, pageSize);
+    numberOfPages = pagesOfKeys.length;
+    if (pageNumber <= pagesOfKeys.length) {
+      invitations = await findInvitationsMatching(pagesOfKeys[pageNumber - 1], pageSize, () => true);
+    }
+  }
+
+  return {
+    invitations,
+    page: pageNumber,
+    numberOfPages,
+  };
 };
 
 const deleteInvitationForUser = async (id) => {
@@ -124,19 +159,7 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
   try {
     logger.info(`Find UserInvitations for request: ${correlationId}`, { correlationId });
 
-    const allKeys = await new Promise((resolve, reject) => {
-      const keys = [];
-      client.scanStream({ match: 'UserInvitation_*' })
-        .on('data', (batch) => {
-          for (let i = 0; i < batch.length; i += 1) {
-            keys.push(batch[i]);
-          }
-        })
-        .on('end', () => {
-          resolve(keys);
-        })
-        .on('error', reject);
-    });
+    const allKeys = await getAllKeys();
     for (let i = 0; i < allKeys.length; i += 1) {
       const json = await client.get(allKeys[i]);
       const invitation = json ? JSON.parse(json) : null;

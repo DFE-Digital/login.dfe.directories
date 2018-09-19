@@ -37,7 +37,7 @@
     "redis": "^2.8.0",
     "request-promise": "^4.2.2",
     "sequelize": "^4.38.0",
-    "tedious": "^2.6.3",
+    "tedious": "^2.6.4",
     "uuid": "^3.3.2",
     "winston": "^2.4.3",
     "xmldom": "^0.1.27",

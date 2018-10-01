@@ -158,8 +158,37 @@ const userLegacyUsername = db.define('user_legacy_username', {
 });
 user.hasMany(userLegacyUsername, { foreignKey: 'uid', sourceKey: 'sub' });
 
+
+
+const userDevice = db.define('user_device', {
+  id: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  uid: {
+    type: Sequelize.UUID,
+    allowNull: false,
+  },
+  deviceType: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  serialNumber: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+}, {
+  timestamps: true,
+  tableName: 'user_device',
+  schema: dbSchema,
+});
+user.hasMany(userDevice, { foreignKey: 'uid', sourceKey: 'sub' });
+userDevice.hasOne(user, { foreignKey: 'sub', sourceKey: 'uid' });
+
 module.exports = {
   user,
   userCode,
   userLegacyUsername,
+  userDevice,
 };

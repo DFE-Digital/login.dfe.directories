@@ -307,6 +307,7 @@ const invitation = db.define('invitation', {
 });
 invitation.hasMany(invitationDevice, { foreignKey: 'invitationId', sourceKey: 'id', as: 'devices' });
 invitation.hasMany(invitationCallback, { foreignKey: 'invitationId', sourceKey: 'id', as: 'callbacks' });
+invitationDevice.belongsTo(invitation, { as: 'invitation' });
 
 module.exports = {
   user,

@@ -9,7 +9,7 @@ jest.mock('./../../src/infrastructure/config', () => ({
     type: 'static',
   },
 }));
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage', () => {
+jest.mock('./../../src/app/invitations/data', () => {
   return {
     getUserInvitation: jest.fn(),
     updateInvitation: jest.fn(),
@@ -25,7 +25,7 @@ jest.mock('./../../src/infrastructure/hotConfig');
 
 const httpMocks = require('node-mocks-http');
 const notificationClient = require('login.dfe.notifications.client');
-const { getUserInvitation, updateInvitation } = require('./../../src/app/invitations/data/redisInvitationStorage');
+const { getUserInvitation, updateInvitation } = require('./../../src/app/invitations/data');
 const { generateInvitationCode } = require('./../../src/app/invitations/utils');
 const { getOidcClientById } = require('./../../src/infrastructure/hotConfig');
 const patchInvitation = require('./../../src/app/invitations/api/patchInvitation');

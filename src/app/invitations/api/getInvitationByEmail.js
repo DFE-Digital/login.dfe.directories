@@ -1,4 +1,4 @@
-const { findInvitationForEmail } = require('./../data/redisInvitationStorage');
+const { findInvitationForEmail } = require('./../data');
 
 const getInvitationByEmail = async (req, res) => {
   const invitation = await findInvitationForEmail(req.params.email, true, req.get('x-correlation-id'));

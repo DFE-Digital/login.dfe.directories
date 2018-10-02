@@ -1,10 +1,10 @@
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage', () => {
+jest.mock('./../../src/app/invitations/data', () => {
   return {
     findInvitationForEmail: jest.fn(),
   };
 });
 
-const { findInvitationForEmail } = require('./../../src/app/invitations/data/redisInvitationStorage');
+const { findInvitationForEmail } = require('./../../src/app/invitations/data');
 const httpMocks = require('node-mocks-http');
 const getInvitationByEmail = require('./../../src/app/invitations/api/getInvitationByEmail');
 

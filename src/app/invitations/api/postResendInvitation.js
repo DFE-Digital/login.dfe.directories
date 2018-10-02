@@ -2,7 +2,7 @@
 
 const logger = require('./../../../infrastructure/logger');
 const sendInvitation = require('./../utils/sendInvitation');
-const storage = require('./../data/redisInvitationStorage');
+const storage = require('./../data');
 
 const post = async (req, res) => {
   try {

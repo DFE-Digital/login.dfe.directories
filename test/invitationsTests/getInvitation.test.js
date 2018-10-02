@@ -1,6 +1,6 @@
 'use strict';
 
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage');
+jest.mock('./../../src/app/invitations/data');
 jest.mock('./../../src/infrastructure/logger', () => {
   return {
   };
@@ -12,14 +12,14 @@ jest.mock('./../../src/infrastructure/config', () => ({
   },
 }));
 
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage', () => {
+jest.mock('./../../src/app/invitations/data', () => {
   const getInvitationStub = jest.fn();
   return {
     getUserInvitation: jest.fn().mockImplementation(getInvitationStub),
   };
 });
 
-const redisInvitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
+const invitationStorage = require('./../../src/app/invitations/data');
 
 const httpMocks = require('node-mocks-http');
 
@@ -62,17 +62,17 @@ describe('When getting an invitation', () => {
     expect(res.statusCode).toBe(400);
   });
   it('then if the record is not found a 404 is returned', async () => {
-    redisInvitationStorage.getUserInvitation.mockReset();
+    invitationStorage.getUserInvitation.mockReset();
 
-    redisInvitationStorage.getUserInvitation.mockReturnValue(null);
+    invitationStorage.getUserInvitation.mockReturnValue(null);
 
     await get(req, res);
 
     expect(res.statusCode).toBe(404);
   });
   it('then if the record is found it is returned in the response', async () => {
-    redisInvitationStorage.getUserInvitation.mockReset();
-    redisInvitationStorage.getUserInvitation.mockReturnValue({
+    invitationStorage.getUserInvitation.mockReset();
+    invitationStorage.getUserInvitation.mockReturnValue({
       id: '123EDCF',
     });
 
@@ -80,12 +80,12 @@ describe('When getting an invitation', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res._getData().id).toBe(expectedInvitationId);
-    expect(redisInvitationStorage.getUserInvitation.mock.calls[0][0]).toBe(expectedInvitationId);
-    expect(redisInvitationStorage.getUserInvitation.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
+    expect(invitationStorage.getUserInvitation.mock.calls[0][0]).toBe(expectedInvitationId);
+    expect(invitationStorage.getUserInvitation.mock.calls[0][1]).toBe(expectedRequestCorrelationId);
   });
   it('then a 500 response is returned if there is an error', async () => {
-    redisInvitationStorage.getUserInvitation.mockReset();
-    redisInvitationStorage.getUserInvitation = () => { throw new Error(); };
+    invitationStorage.getUserInvitation.mockReset();
+    invitationStorage.getUserInvitation = () => { throw new Error(); };
 
     await get(req, res);
 

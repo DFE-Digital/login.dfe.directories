@@ -2,7 +2,7 @@
 
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
-const { getUserInvitation, updateInvitation } = require('./../data/redisInvitationStorage');
+const { getUserInvitation, updateInvitation } = require('./../data');
 const userStorage = require('./../../user/adapter');
 const { safeUser } = require('./../../../utils');
 // const NotificationClient = require('login.dfe.notifications.client');

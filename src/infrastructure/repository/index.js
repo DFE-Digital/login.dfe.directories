@@ -158,8 +158,6 @@ const userLegacyUsername = db.define('user_legacy_username', {
 });
 user.hasMany(userLegacyUsername, { foreignKey: 'uid', sourceKey: 'sub' });
 
-
-
 const userDevice = db.define('user_device', {
   id: {
     type: Sequelize.UUID,
@@ -186,9 +184,136 @@ const userDevice = db.define('user_device', {
 user.hasMany(userDevice, { foreignKey: 'uid', sourceKey: 'sub' });
 userDevice.hasOne(user, { foreignKey: 'sub', sourceKey: 'uid' });
 
+
+const invitationCallback = db.define('invitation_callback', {
+  invitationId: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  sourceId: {
+    type: Sequelize.STRING,
+    primaryKey: true,
+    allowNull: false,
+  },
+  callbackUrl: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+}, {
+  timestamps: true,
+  tableName: 'invitation_callback',
+  schema: dbSchema,
+});
+
+const invitationDevice = db.define('invitation_device', {
+  id: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  invitationId: {
+    type: Sequelize.UUID,
+    allowNull: false,
+  },
+  deviceType: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  serialNumber: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+}, {
+  timestamps: true,
+  tableName: 'invitation_device',
+  schema: dbSchema,
+});
+
+const invitation = db.define('invitation', {
+  id: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  email: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  code: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  firstName: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  lastName: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  originClientId: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  originRedirectUri: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  selfStarted: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+  },
+  overrideSubject: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  overrideBody: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  previousUsername: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  previousPassword: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  previousSalt: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  deactivated: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+  },
+  reason: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  completed: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+  },
+  uid: {
+    type: Sequelize.UUID,
+    allowNull: true,
+  },
+}, {
+  timestamps: true,
+  tableName: 'invitation',
+  schema: dbSchema,
+});
+invitation.hasMany(invitationDevice, { foreignKey: 'invitationId', sourceKey: 'id', as: 'devices' });
+invitation.hasMany(invitationCallback, { foreignKey: 'invitationId', sourceKey: 'id', as: 'callbacks' });
+
 module.exports = {
   user,
   userCode,
   userLegacyUsername,
   userDevice,
+  invitation,
+  invitationDevice,
+  invitationCallback,
 };

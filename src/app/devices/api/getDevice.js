@@ -1,5 +1,5 @@
 const { getUserAssociatedToDevice } = require('./../data');
-const invitationStorage = require('./../../invitations/data/redisInvitationStorage');
+const invitationStorage = require('./../../invitations/data');
 
 const getInvitationIdAssociatedToDevice = async (type, serialNumber) => {
   if (type !== 'digipass') {

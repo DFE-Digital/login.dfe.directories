@@ -1,5 +1,5 @@
 const config = require('./../../../infrastructure/config');
-const { getUserInvitation, updateInvitation } = require('./../data/redisInvitationStorage');
+const { getUserInvitation, updateInvitation } = require('./../data');
 const { generateInvitationCode } = require('./../utils');
 const NotificationClient = require('login.dfe.notifications.client');
 const { getOidcClientById } = require('./../../../infrastructure/hotConfig');

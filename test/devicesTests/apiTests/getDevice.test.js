@@ -3,7 +3,7 @@ jest.mock('./../../../src/app/devices/data', () => {
     getUserAssociatedToDevice: jest.fn(),
   };
 });
-jest.mock('./../../../src/app/invitations/data/redisInvitationStorage', () => {
+jest.mock('./../../../src/app/invitations/data', () => {
   return {
     list: jest.fn(),
   };
@@ -11,7 +11,7 @@ jest.mock('./../../../src/app/invitations/data/redisInvitationStorage', () => {
 
 const httpMocks = require('node-mocks-http');
 const { getUserAssociatedToDevice } = require('./../../../src/app/devices/data');
-const { list } = require('./../../../src/app/invitations/data/redisInvitationStorage');
+const { list } = require('./../../../src/app/invitations/data');
 const getDevice = require('./../../../src/app/devices/api/getDevice');
 
 describe('When getting user associated with device', () => {

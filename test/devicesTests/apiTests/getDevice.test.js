@@ -5,13 +5,13 @@ jest.mock('./../../../src/app/devices/data', () => {
 });
 jest.mock('./../../../src/app/invitations/data', () => {
   return {
-    list: jest.fn(),
+    getInvitationIdAssociatedToDevice: jest.fn(),
   };
 });
 
 const httpMocks = require('node-mocks-http');
 const { getUserAssociatedToDevice } = require('./../../../src/app/devices/data');
-const { list } = require('./../../../src/app/invitations/data');
+const { getInvitationIdAssociatedToDevice } = require('./../../../src/app/invitations/data');
 const getDevice = require('./../../../src/app/devices/api/getDevice');
 
 describe('When getting user associated with device', () => {
@@ -31,19 +31,20 @@ describe('When getting user associated with device', () => {
     getUserAssociatedToDevice.mockReset();
     getUserAssociatedToDevice.mockReturnValue('user-1');
 
-    list.mockReset();
-    list.mockReturnValue({
-      invitations: [{
-        firstName: 'User',
-        lastName: 'One',
-        email: 'user.one@invited.test',
-        keyToSuccessId: '12345678901',
-        tokenSerialNumber: '123456789',
-        id: 'invite-1',
-      }],
-      page: 1,
-      numberOfPages: 1,
-    });
+    getInvitationIdAssociatedToDevice.mockReset().mockReturnValue('invite-1')
+    // list.mockReset();
+    // list.mockReturnValue({
+    //   invitations: [{
+    //     firstName: 'User',
+    //     lastName: 'One',
+    //     email: 'user.one@invited.test',
+    //     keyToSuccessId: '12345678901',
+    //     tokenSerialNumber: '123456789',
+    //     id: 'invite-1',
+    //   }],
+    //   page: 1,
+    //   numberOfPages: 1,
+    // });
   });
 
   it('then it should get associated user from store', async () => {
@@ -86,20 +87,6 @@ describe('When getting user associated with device', () => {
 
   it('then it should return invitation if no associated user but invitation and invitation from migration', async () => {
     getUserAssociatedToDevice.mockReturnValue(null);
-    list.mockReturnValue({
-      invitations: [{
-        firstName: 'User',
-        lastName: 'One',
-        email: 'user.one@invited.test',
-        keyToSuccessId: '12345678901',
-        oldCredentials: {
-          tokenSerialNumber: '123456789',
-        },
-        id: 'invite-1',
-      }],
-      page: 1,
-      numberOfPages: 1,
-    });
 
     await getDevice(req, res);
 
@@ -116,40 +103,7 @@ describe('When getting user associated with device', () => {
 
   it('then it should return 404 if not user or invitation associated', async () => {
     getUserAssociatedToDevice.mockReturnValue(null);
-    list.mockReturnValue({
-      invitations: [{
-        firstName: 'User',
-        lastName: 'One',
-        email: 'user.one@invited.test',
-        keyToSuccessId: '12345678901',
-        tokenSerialNumber: '987654321',
-        id: 'invite-1',
-      }],
-      page: 1,
-      numberOfPages: 1,
-    });
-
-    await getDevice(req, res);
-
-    expect(res.statusCode).toBe(404);
-    expect(res._isEndCalled()).toBe(true);
-  });
-
-  it('then it should return 404 if no associated user but invitation that is completed', async () => {
-    getUserAssociatedToDevice.mockReturnValue(null);
-    list.mockReturnValue({
-      invitations: [{
-        firstName: 'User',
-        lastName: 'One',
-        email: 'user.one@invited.test',
-        keyToSuccessId: '12345678901',
-        tokenSerialNumber: '123456789',
-        id: 'invite-1',
-        isCompleted: true,
-      }],
-      page: 1,
-      numberOfPages: 1,
-    });
+    getInvitationIdAssociatedToDevice.mockReturnValue(null);
 
     await getDevice(req, res);
 

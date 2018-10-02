@@ -1,28 +1,5 @@
 const { getUserAssociatedToDevice } = require('./../data');
-const invitationStorage = require('./../../invitations/data');
-
-const getInvitationIdAssociatedToDevice = async (type, serialNumber) => {
-  if (type !== 'digipass') {
-    return null;
-  }
-
-  let hasMorePages = true;
-  let pageNumber = 1;
-  while (hasMorePages) {
-    const page = await invitationStorage.list(pageNumber, 100);
-
-    const invitation = page.invitations.find(i => i.tokenSerialNumber === serialNumber
-      || (i.oldCredentials && i.oldCredentials.tokenSerialNumber === serialNumber));
-    if (invitation && !invitation.isCompleted) {
-      return invitation.id;
-    }
-
-    pageNumber += 1;
-    hasMorePages = pageNumber <= page.numberOfPages;
-  }
-
-  return null;
-};
+const { getInvitationIdAssociatedToDevice } = require('./../../invitations/data');
 
 const getDevice = async (req, res) => {
   const userIdAssociatedToDevice = await getUserAssociatedToDevice(req.params.type, req.params.serial_number, req.id);

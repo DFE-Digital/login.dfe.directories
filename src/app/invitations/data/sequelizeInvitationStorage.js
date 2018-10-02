@@ -57,6 +57,8 @@ const mapEntityToInvitation = (entity) => {
     reason: entity.reason,
     isCompleted: entity.completed,
     userId: entity.uid,
+    createdAt: entity.createdAt,
+    updatedAt: entity.updatedAt,
   };
 };
 const mapInvitationToEntities = (model) => {

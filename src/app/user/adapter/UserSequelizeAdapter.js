@@ -311,6 +311,7 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
+
 module.exports = {
   find,
   getUsers,

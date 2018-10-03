@@ -19,6 +19,7 @@ const deactivateUser = require('./deactivateUser');
 const patchUser = require('./patchUser');
 const createUser = require('./createUser');
 const findByLegacyUsername = require('./findByLegacyUsername');
+const findLegacyUsernamesById = require('./findLegacyUsernames');
 
 const router = express.Router();
 
@@ -35,6 +36,7 @@ const routeExport = () => {
   router.get('/users/by-ids', asyncWrapper(search));
   router.get('/users/by-legacyusername/:id', asyncWrapper(findByLegacyUsername));
   router.get('/users/:id', asyncWrapper(find));
+  router.get('/users/:uid/legacy-username', asyncWrapper(findLegacyUsernamesById));
 
   router.post('/:directoryId/user/authenticate', deprecateWith('/users/authenticate'), asyncWrapper(authenticate));
   router.post('/users/authenticate', asyncWrapper(authenticate));

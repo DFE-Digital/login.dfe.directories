@@ -7,7 +7,7 @@ const sendInvitation = async (invitation) => {
     connectionString: config.notifications.connectionString,
   });
 
-  if (invitation.oldCredentials && invitation.oldCredentials.source.toUpperCase() === 'EAS') {
+  if (invitation.oldCredentials) { //} && invitation.oldCredentials.source.toUpperCase() === 'EAS') {
     await notificationClient.sendMigrationInvitation(
       invitation.email, invitation.firstName, invitation.lastName, invitation.id, invitation.code);
     return;

@@ -1,6 +1,6 @@
 'use strict';
 
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage');
+jest.mock('./../../src/app/invitations/data');
 jest.mock('./../../src/app/invitations/utils', () => {
   return {
     generateInvitationCode: jest.fn().mockReturnValue('invite-code'),
@@ -26,7 +26,7 @@ jest.mock('./../../src/infrastructure/config', () => ({
 }));
 
 jest.mock('./../../src/infrastructure/hotConfig');
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage', () => {
+jest.mock('./../../src/app/invitations/data', () => {
   return {
     createUserInvitation: jest.fn(),
     findInvitationForEmail: jest.fn(),
@@ -41,7 +41,7 @@ jest.mock('./../../src/app/user/adapter', () => {
 
 const logger = require('./../../src/infrastructure/logger');
 const notificationClient = require('login.dfe.notifications.client');
-const redisStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
+const redisStorage = require('./../../src/app/invitations/data');
 const userStorage = require('./../../src/app/user/adapter');
 const { getOidcClientById } = require('./../../src/infrastructure/hotConfig');
 const post = require('../../src/app/invitations/api/postInvitations');

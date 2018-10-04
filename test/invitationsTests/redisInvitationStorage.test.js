@@ -50,7 +50,7 @@ describe('When using the redis invitation storage', () => {
         return redisMock;
       }));
 
-      invitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
+      invitationStorage = require('./../../src/app/invitations/data');
 
       const actual = await invitationStorage.getUserInvitation('test@local.com');
 

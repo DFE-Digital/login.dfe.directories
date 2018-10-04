@@ -1,6 +1,6 @@
 'use strict';
 
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage');
+jest.mock('./../../src/app/invitations/data');
 jest.mock('./../../src/infrastructure/logger', () => {
   return {
     info: jest.fn(),
@@ -20,13 +20,13 @@ jest.mock('./../../src/infrastructure/config', () => ({
   },
 }));
 
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage', () => {
+jest.mock('./../../src/app/invitations/data', () => {
   return {
     getUserInvitation: jest.fn(),
   };
 });
 
-const redisInvitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
+const invitationStorage = require('./../../src/app/invitations/data');
 const post = require('../../src/app/invitations/api/postResendInvitation');
 
 const httpMocks = require('node-mocks-http');
@@ -66,9 +66,9 @@ describe('When resending an invitation', () => {
   });
 
   it('then if the invitation is not found a 404 is returned', async () => {
-    redisInvitationStorage.getUserInvitation.mockReset();
+    invitationStorage.getUserInvitation.mockReset();
 
-    redisInvitationStorage.getUserInvitation.mockReturnValue(null);
+    invitationStorage.getUserInvitation.mockReturnValue(null);
 
     await post(req, res);
 
@@ -76,7 +76,7 @@ describe('When resending an invitation', () => {
   });
 
   it('then it should resend invitation', async () => {
-    redisInvitationStorage.getUserInvitation.mockReturnValue({
+    invitationStorage.getUserInvitation.mockReturnValue({
       id: expectedInvitationId,
       email: expectedEmailAddress,
       firstName: expectedFirstName,
@@ -106,7 +106,7 @@ describe('When resending an invitation', () => {
   });
 
   it('then it should send status 200', async () => {
-    redisInvitationStorage.getUserInvitation.mockReturnValue({
+    invitationStorage.getUserInvitation.mockReturnValue({
       id: expectedInvitationId,
       email: expectedEmailAddress,
       firstName: expectedFirstName,
@@ -125,8 +125,8 @@ describe('When resending an invitation', () => {
   });
 
   it('then a 500 response is returned if there is an error', async () => {
-    redisInvitationStorage.getUserInvitation.mockReset();
-    redisInvitationStorage.getUserInvitation = () => { throw new Error(); };
+    invitationStorage.getUserInvitation.mockReset();
+    invitationStorage.getUserInvitation = () => { throw new Error(); };
 
     await post(req, res);
 

@@ -10,13 +10,13 @@ jest.mock('./../../src/infrastructure/config', () => ({
     url: 'http://orgs.api.test',
   },
 }));
-jest.mock('./../../src/app/invitations/data/redisInvitationStorage', () => {
+jest.mock('./../../src/app/invitations/data', () => {
   return {
     list: jest.fn(),
   };
 });
 
-const { list } = require('./../../src/app/invitations/data/redisInvitationStorage');
+const { list } = require('./../../src/app/invitations/data');
 const httpMocks = require('node-mocks-http');
 const listInvitations = require('./../../src/app/invitations/api/listInvitations');
 

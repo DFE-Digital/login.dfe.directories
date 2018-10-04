@@ -1,7 +1,7 @@
 'use strict';
 
 const logger = require('./../../../infrastructure/logger');
-const storage = require('./../data/redisInvitationStorage');
+const storage = require('./../data');
 
 const extractPageNumber = (req) => {
   if (!req.query || req.query.page === undefined) {

@@ -10,7 +10,6 @@ BEGIN
       updatedAt datetime2 NOT NULL,
 
       CONSTRAINT [PK_UserDevice] PRIMARY KEY (id),
-      CONSTRAINT [UQ_UserDevice_Device] UNIQUE (deviceType, serialNumber),
       CONSTRAINT [FK_UserDevice_User] FOREIGN KEY (uid) REFERENCES [dbo].[user](sub)
     )
 END
@@ -57,7 +56,6 @@ BEGIN
       updatedAt datetime2 NOT NULL,
 
       CONSTRAINT [PK_InvitationDevice] PRIMARY KEY (id),
-      CONSTRAINT [UQ_InvitationDevice_Device] UNIQUE (deviceType, serialNumber),
       CONSTRAINT [FK_InvitationDevice_Invitation] FOREIGN KEY (invitationId) REFERENCES [dbo].[invitation](id)
     )
 END

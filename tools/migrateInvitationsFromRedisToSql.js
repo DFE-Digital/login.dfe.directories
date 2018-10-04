@@ -8,7 +8,7 @@ const lpad = (value, length = 2, filler = '0') => {
 };
 const toSqlString = (text) => {
   if (text) {
-    return `'${text}'`;
+    return `'${text.replace(/'/g, '\'\'')}'`;
   }
   return 'NULL';
 };
@@ -35,10 +35,10 @@ const writeInvitation = (invitation, write) => {
   write('previousUsername, previousPassword, previousSalt, deactivated, reason, completed, uid, createdAt, updatedAt)\n');
   write('VALUES\n');
   write(`('${invitation.id}'`);
-  write(`, '${invitation.email}'`);
+  write(`, '${invitation.email.replace(/'/g, '\'\'')}'`);
   write(`, '${invitation.code}'`);
-  write(`, '${invitation.firstName}'`);
-  write(`, '${invitation.lastName}'`);
+  write(`, '${invitation.firstName.replace(/'/g, '\'\'')}'`);
+  write(`, '${invitation.lastName.replace(/'/g, '\'\'')}'`);
   write(`, ${toSqlString(invitation.origin ? invitation.origin.clientId : undefined)}`);
   write(`, ${toSqlString(invitation.origin ? invitation.origin.redirectUri : undefined)}`);
   write(`, ${invitation.selfStarted ? 1 : 0}`);

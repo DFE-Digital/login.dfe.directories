@@ -66,16 +66,19 @@ const writeUserMappings = (userMappings, write) => {
   for (let i = 0; i < userMappings.devices.length; i += 1) {
     const device = userMappings.devices[i];
 
-    write('INSERT INTO user_device\n');
-    write('(id, uid, deviceType, serialNumber, createdAt, updatedAt)\n');
-    write('VALUES\n');
-    write(`('${device.id}'`);
+    write(`IF EXISTS (SELECT 1 FROM [user] WHERE sub = '${userMappings.userId}')\n`);
+    write('BEGIN\n');
+    write('\tINSERT INTO user_device\n');
+    write('\t(id, uid, deviceType, serialNumber, createdAt, updatedAt)\n');
+    write('\tVALUES\n');
+    write(`\t('${device.id}'`);
     write(`, '${userMappings.userId}'`);
     write(`, '${device.type}'`);
     write(`, '${device.serialNumber}'`);
     write(', GETDATE()');
     write(', GETDATE()');
-    write(')\n\n');
+    write('\t)\n');
+    write('END\n\n');
   }
 };
 

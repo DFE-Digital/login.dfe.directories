@@ -45,8 +45,11 @@ describe('When authenticating a user request', () => {
 
   it('then it should return 200 with user sub if successful', async () => {
     userAdapter.authenticate.mockReturnValue({
-      sub: 'user1',
-      status: 1,
+      user: {
+        sub: 'user1',
+        status: 1,
+      },
+      passwordValid: true,
     });
 
     await authenticate(req, res);
@@ -56,10 +59,33 @@ describe('When authenticating a user request', () => {
     expect(res._isEndCalled()).toBe(true);
   });
 
+  it('then it should return 403 with reason if unsuccessful due to incorrect password', async () => {
+    userAdapter.authenticate.mockReturnValue({
+      user: {
+        sub: 'user1',
+        status: 1,
+      },
+      passwordValid: false,
+    });
+
+    await authenticate(req, res);
+
+    expect(res.statusCode).toBe(403);
+    expect(res._getData()).toMatchObject({
+      reason_code: 'INVALID_CREDENTIALS',
+      reason_subcode: 'PASSWORD',
+      reason_description: 'Invalid username or password',
+    });
+    expect(res._isEndCalled()).toBe(true);
+  });
+
   it('then it should return 403 with reason if successful but user not active', async () => {
     userAdapter.authenticate.mockReturnValue({
-      sub: 'user1',
-      status: 0,
+      user: {
+        sub: 'user1',
+        status: 0,
+      },
+      passwordValid: true,
     });
 
     await authenticate(req, res);

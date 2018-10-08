@@ -263,6 +263,7 @@ const invitation = db.define('invitation', {
   selfStarted: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
+    defaultValue: false
   },
   overrideSubject: {
     type: Sequelize.STRING,
@@ -287,6 +288,7 @@ const invitation = db.define('invitation', {
   deactivated: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
+    defaultValue: false
   },
   reason: {
     type: Sequelize.STRING,
@@ -295,6 +297,7 @@ const invitation = db.define('invitation', {
   completed: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
+    defaultValue: false
   },
   uid: {
     type: Sequelize.UUID,

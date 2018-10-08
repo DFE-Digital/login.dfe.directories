@@ -43,7 +43,7 @@ const mapEntityToInvitation = (entity) => {
 
   return {
     firstName: entity.firstName,
-    lastName: entity.firstName,
+    lastName: entity.lastName,
     email: entity.email,
     origin,
     selfStarted: entity.selfStarted,

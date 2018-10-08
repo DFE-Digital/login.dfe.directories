@@ -16,14 +16,22 @@ const authenticate = async (req, res) => {
       });
     }
 
-    if (result.status === 0) {
+    if (!result.passwordValid) {
+      return res.status(403).contentType('json').send({
+        reason_code: 'INVALID_CREDENTIALS',
+        reason_subcode: 'PASSWORD',
+        reason_description: 'Invalid username or password',
+      });
+    }
+
+    if (result.user.status === 0) {
       return res.status(403).contentType('json').send({
         reason_code: 'ACCOUNT_DEACTIVATED',
         reason_description: 'Account has been deactivated',
       });
     }
 
-    return res.send(result.sub);
+    return res.send(result.user.sub);
   } catch (e) {
     logger.error(e);
     return res.status(500).send(e);

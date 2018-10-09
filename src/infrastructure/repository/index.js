@@ -199,6 +199,7 @@ const invitationCallback = db.define('invitation_callback', {
   callbackUrl: {
     type: Sequelize.STRING,
     allowNull: false,
+    defaultValue: '',
   },
 }, {
   timestamps: true,
@@ -263,7 +264,7 @@ const invitation = db.define('invitation', {
   selfStarted: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: false
+    defaultValue: false,
   },
   overrideSubject: {
     type: Sequelize.STRING,
@@ -288,7 +289,7 @@ const invitation = db.define('invitation', {
   deactivated: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: false
+    defaultValue: false,
   },
   reason: {
     type: Sequelize.STRING,
@@ -297,7 +298,7 @@ const invitation = db.define('invitation', {
   completed: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: false
+    defaultValue: false,
   },
   uid: {
     type: Sequelize.UUID,

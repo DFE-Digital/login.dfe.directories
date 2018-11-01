@@ -153,10 +153,17 @@ const authenticate = async (username, password, correlationId) => {
 
     const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
     const derivedKey = await request(password, saltBuffer, 10000, 512, 'sha512');
+    const passwordValid = derivedKey.toString('base64') === userEntity.password;
+
+    if (passwordValid) {
+      await userEntity.updateAttributes({
+        last_login: new Date().toISOString(),
+      });
+    }
 
     return {
       user: userEntity,
-      passwordValid: derivedKey.toString('base64') === userEntity.password,
+      passwordValid,
     };
   } catch (e) {
     logger.error(`failed to authenticate user: ${username} for request ${correlationId} error: ${e}`, { correlationId });

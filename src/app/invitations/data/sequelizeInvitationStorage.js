@@ -21,6 +21,7 @@ const mapEntityToInvitation = (entity) => {
     callbacks = entity.callbacks.map((cbEntity) => ({
       sourceId: cbEntity.sourceId,
       callback: cbEntity.callbackUrl,
+      clientId: cbEntity.clientId,
     }));
   }
 
@@ -98,6 +99,7 @@ const mapInvitationToEntities = (model) => {
       invitationId: model.id,
       sourceId: cb.sourceId,
       callbackUrl: cb.callback,
+      clientId: cb.clientId,
     }));
   }
 

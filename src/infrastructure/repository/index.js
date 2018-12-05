@@ -204,6 +204,10 @@ const invitationCallback = db.define('invitation_callback', {
     allowNull: false,
     defaultValue: '',
   },
+  clientId: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: true,
   tableName: 'invitation_callback',

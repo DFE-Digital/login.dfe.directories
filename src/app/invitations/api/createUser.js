@@ -7,6 +7,15 @@ const userStorage = require('./../../user/adapter');
 const { safeUser } = require('./../../../utils');
 // const NotificationClient = require('login.dfe.notifications.client');
 const PublicApiClient = require('login.dfe.public-api.jobs.client');
+const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
+
+const getNotificationsUser = (user) => {
+  const notificationsUser = safeUser(user);
+  notificationsUser.status = {
+    id: user.status,
+  };
+  return notificationsUser;
+};
 
 const createUser = async (req, res) => {
   try {
@@ -30,6 +39,11 @@ const createUser = async (req, res) => {
 
     const completedInvitation = Object.assign(invitation, { isCompleted: true, userId: user.id });
     await updateInvitation(completedInvitation);
+
+    const serviceNotificationsClient = new ServiceNotificationsClient({
+      connectionString: config.notifications.connectionString,
+    });
+    await serviceNotificationsClient.notifyUserUpdated(getNotificationsUser(user));
 
     /* const notificationClient = new NotificationClient({
       connectionString: config.notifications.connectionString,

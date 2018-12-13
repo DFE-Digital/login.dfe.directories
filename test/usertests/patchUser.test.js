@@ -1,14 +1,26 @@
+jest.mock('login.dfe.service-notifications.jobs.client');
 jest.mock('./../../src/app/user/adapter', () => ({
   find: jest.fn(),
   update: jest.fn(),
 }));
 jest.mock('./../../src/utils/deprecateMiddleware', () => {
 });
+jest.mock('./../../src/infrastructure/config', () => {
+  return {
+    notifications: {
+      connectionString: 'notifications-connection-string',
+    },
+  };
+});
 
-
+const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 const { find, update } = require('./../../src/app/user/adapter');
 const patchUser = require('./../../src/app/user/api/patchUser');
 const httpMocks = require('node-mocks-http');
+
+const serviceNotificationsClient = {
+  notifyUserUpdated: jest.fn(),
+};
 
 describe('When patching a user', () => {
   let req;
@@ -40,9 +52,13 @@ describe('When patching a user', () => {
       email: 'jenny.weasley@dumbledores-army.test',
       password: 'some-hashed-data',
       salt: 'random-salt-value',
+      status: 1,
     });
 
     update.mockReset();
+
+    serviceNotificationsClient.notifyUserUpdated.mockReset();
+    ServiceNotificationsClient.mockReset().mockImplementation(() => serviceNotificationsClient);
   });
 
   it('then it should get user from storage', async () => {
@@ -107,5 +123,24 @@ describe('When patching a user', () => {
     expect(res.statusCode).toBe(400);
     expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
+  });
+
+  it('then a user updated notification is sent', async () => {
+    await patchUser(req, res);
+
+    expect(ServiceNotificationsClient).toHaveBeenCalledTimes(1);
+    expect(ServiceNotificationsClient).toHaveBeenCalledWith({ connectionString: 'notifications-connection-string' });
+    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledTimes(1);
+    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledWith({
+      id: '9b543631-884c-4b39-86d5-311ad5fc6cce',
+      sub: '9b543631-884c-4b39-86d5-311ad5fc6cce',
+      given_name: 'Jennifer',
+      family_name: 'Potter',
+      email: 'jenny.potter@dumbledores-army.test',
+      phone_number: '07700 900000',
+      status: {
+        id: 1,
+      },
+    });
   });
 });

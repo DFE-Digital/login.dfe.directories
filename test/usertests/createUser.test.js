@@ -1,17 +1,32 @@
-
+jest.mock('login.dfe.service-notifications.jobs.client');
 jest.mock('./../../src/app/user/adapter', () => ({
   findByUsername: jest.fn(),
   create: jest.fn(),
 }));
 jest.mock('./../../src/infrastructure/logger', () => {
+  return {};
+});
+jest.mock('./../../src/infrastructure/config', () => {
   return {
+    notifications: {
+      connectionString: 'notifications-connection-string',
+    },
   };
 });
 
-
+const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 const { findByUsername, create } = require('./../../src/app/user/adapter');
 const createUser = require('./../../src/app/user/api/createUser');
 const httpMocks = require('node-mocks-http');
+
+const newUser = {
+  sub: 'some-new-id',
+  password: 'somepassword',
+  status: 1,
+};
+const serviceNotificationsClient = {
+  notifyUserUpdated: jest.fn(),
+};
 
 describe('When creating a user', () => {
   let req;
@@ -41,10 +56,10 @@ describe('When creating a user', () => {
     res = httpMocks.createResponse();
 
     findByUsername.mockReset().mockReturnValue(null);
-    create.mockReset().mockReturnValue({
-      sub: 'some-new-id',
-      password:'somepassword',
-    });
+    create.mockReset().mockReturnValue(newUser);
+
+    serviceNotificationsClient.notifyUserUpdated.mockReset();
+    ServiceNotificationsClient.mockReset().mockImplementation(() => serviceNotificationsClient);
   });
   afterEach(() => {
     expect(res._isEndCalled()).toBe(true);
@@ -90,5 +105,13 @@ describe('When creating a user', () => {
 
     expect(res._getData().sub).toBe('some-new-id');
     expect(res._getData().password).toBe(undefined);
+  });
+  it('then a user updated notification is sent', async () => {
+    await createUser(req, res);
+
+    expect(ServiceNotificationsClient).toHaveBeenCalledTimes(1);
+    expect(ServiceNotificationsClient).toHaveBeenCalledWith({ connectionString: 'notifications-connection-string' });
+    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledTimes(1);
+    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledWith(Object.assign({}, newUser, { status: { id: newUser.status }, password: undefined }));
   });
 });

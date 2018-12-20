@@ -1,6 +1,16 @@
 const { findByUsername, create } = require('./../adapter');
 const logger = require('./../../../infrastructure/logger');
+const config = require('./../../../infrastructure/config');
 const { safeUser } = require('./../../../utils');
+const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
+
+const getNotificationsUser = (user) => {
+  const notificationsUser = safeUser(user);
+  notificationsUser.status = {
+    id: user.status,
+  };
+  return notificationsUser;
+};
 
 const createUser = async (req, res) => {
   try {
@@ -15,6 +25,11 @@ const createUser = async (req, res) => {
     }
 
     const user = await create(req.body.email, req.body.password, req.body.firstName, req.body.lastName, req.body.legacy_username, req.body.phone_number, req.header('x-correlation-id'));
+
+    const serviceNotificationsClient = new ServiceNotificationsClient({
+      connectionString: config.notifications.connectionString,
+    });
+    await serviceNotificationsClient.notifyUserUpdated(getNotificationsUser(user));
 
     return res.send(safeUser(user));
   } catch (e) {

@@ -9,14 +9,6 @@ const { safeUser } = require('./../../../utils');
 const PublicApiClient = require('login.dfe.public-api.jobs.client');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 
-const getNotificationsUser = (user) => {
-  const notificationsUser = safeUser(user);
-  notificationsUser.status = {
-    id: user.status,
-  };
-  return notificationsUser;
-};
-
 const createUser = async (req, res) => {
   try {
     const invId = req.params.id;
@@ -43,7 +35,7 @@ const createUser = async (req, res) => {
     const serviceNotificationsClient = new ServiceNotificationsClient({
       connectionString: config.notifications.connectionString,
     });
-    await serviceNotificationsClient.notifyUserUpdated(getNotificationsUser(user));
+    await serviceNotificationsClient.notifyUserUpdated(safeUser(user));
 
     /* const notificationClient = new NotificationClient({
       connectionString: config.notifications.connectionString,

@@ -6,14 +6,6 @@ const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs
 const allowablePatchProperties = ['given_name', 'family_name', 'email', 'phone_number', 'legacyUsernames'];
 const allowablePropertiesMessage = allowablePatchProperties.concat();
 
-const getNotificationsUser = (user) => {
-  const notificationsUser = safeUser(user);
-  notificationsUser.status = {
-    id: user.status,
-  };
-  return notificationsUser;
-};
-
 const validateRequestData = (req) => {
   const keys = Object.keys(req.body);
   if (keys.length === 0) {
@@ -52,7 +44,7 @@ const patchUser = async (req, res) => {
   const serviceNotificationsClient = new ServiceNotificationsClient({
     connectionString: config.notifications.connectionString,
   });
-  await serviceNotificationsClient.notifyUserUpdated(getNotificationsUser(updatedUser));
+  await serviceNotificationsClient.notifyUserUpdated(safeUser(updatedUser));
 
   return res.status(202).send();
 };

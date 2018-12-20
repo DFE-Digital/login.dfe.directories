@@ -112,6 +112,6 @@ describe('When creating a user', () => {
     expect(ServiceNotificationsClient).toHaveBeenCalledTimes(1);
     expect(ServiceNotificationsClient).toHaveBeenCalledWith({ connectionString: 'notifications-connection-string' });
     expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledTimes(1);
-    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledWith(Object.assign({}, newUser, { status: { id: newUser.status }, password: undefined }));
+    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledWith(Object.assign({}, newUser, { status: newUser.status, password: undefined }));
   });
 });

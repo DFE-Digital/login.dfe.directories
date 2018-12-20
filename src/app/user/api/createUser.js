@@ -4,14 +4,6 @@ const config = require('./../../../infrastructure/config');
 const { safeUser } = require('./../../../utils');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 
-const getNotificationsUser = (user) => {
-  const notificationsUser = safeUser(user);
-  notificationsUser.status = {
-    id: user.status,
-  };
-  return notificationsUser;
-};
-
 const createUser = async (req, res) => {
   try {
     if (!req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
@@ -29,7 +21,7 @@ const createUser = async (req, res) => {
     const serviceNotificationsClient = new ServiceNotificationsClient({
       connectionString: config.notifications.connectionString,
     });
-    await serviceNotificationsClient.notifyUserUpdated(getNotificationsUser(user));
+    await serviceNotificationsClient.notifyUserUpdated(safeUser(user));
 
     return res.send(safeUser(user));
   } catch (e) {

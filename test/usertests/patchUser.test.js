@@ -138,9 +138,7 @@ describe('When patching a user', () => {
       family_name: 'Potter',
       email: 'jenny.potter@dumbledores-army.test',
       phone_number: '07700 900000',
-      status: {
-        id: 1,
-      },
+      status: 1,
     });
   });
 });

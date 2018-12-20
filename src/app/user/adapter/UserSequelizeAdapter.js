@@ -188,17 +188,6 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   const id = uuid.v4();
 
   const newUser = {
-    id,
-    sub: id,
-    given_name: firstName,
-    family_name: lastName,
-    email: username,
-    salt,
-    password: encryptedPassword,
-    phone_number: phone_number,
-  };
-
-  await user.create({
     sub: id,
     given_name: firstName,
     family_name: lastName,
@@ -207,7 +196,9 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     password: encryptedPassword,
     status: 1,
     phone_number: phone_number,
-  });
+  };
+
+  await user.create(newUser);
 
   if (legacyUsername) {
     await userLegacyUsername.create({
@@ -216,6 +207,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     });
   }
 
+  newUser.id = id;
   return newUser;
 };
 

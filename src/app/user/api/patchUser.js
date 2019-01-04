@@ -41,10 +41,12 @@ const patchUser = async (req, res) => {
   await update(updatedUser.sub, updatedUser.given_name, updatedUser.family_name,
     updatedUser.email, updatedUser.phone_number, updatedUser.legacyUsernames, req.header('x-correlation-id'));
 
-  const serviceNotificationsClient = new ServiceNotificationsClient({
-    connectionString: config.notifications.connectionString,
-  });
-  await serviceNotificationsClient.notifyUserUpdated(safeUser(updatedUser));
+  if (config.toggles && config.toggles.notificationsEnabled) {
+    const serviceNotificationsClient = new ServiceNotificationsClient({
+      connectionString: config.notifications.connectionString,
+    });
+    await serviceNotificationsClient.notifyUserUpdated(safeUser(updatedUser));
+  }
 
   return res.status(202).send();
 };

@@ -105,6 +105,13 @@ const notificationsSchema = new SimpleSchema({
   connectionString: patterns.redis,
 });
 
+const togglesSchema = new SimpleSchema({
+  notificationsEnabled: {
+    type: Boolean,
+    optional: true,
+  },
+});
+
 const schema = new SimpleSchema({
   loggerSettings: schemas.loggerSettings,
   hostingEnvironment: schemas.hostingEnvironment,
@@ -115,6 +122,10 @@ const schema = new SimpleSchema({
   hotConfig: schemas.apiClient,
   auth: schemas.apiServerAuth,
   notifications: notificationsSchema,
+  toggles: {
+    type: togglesSchema,
+    optional: true,
+  },
 });
 
 module.exports.validate = () => {

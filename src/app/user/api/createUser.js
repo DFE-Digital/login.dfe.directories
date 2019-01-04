@@ -18,10 +18,12 @@ const createUser = async (req, res) => {
 
     const user = await create(req.body.email, req.body.password, req.body.firstName, req.body.lastName, req.body.legacy_username, req.body.phone_number, req.header('x-correlation-id'));
 
-    const serviceNotificationsClient = new ServiceNotificationsClient({
-      connectionString: config.notifications.connectionString,
-    });
-    await serviceNotificationsClient.notifyUserUpdated(safeUser(user));
+    if (config.toggles && config.toggles.notificationsEnabled) {
+      const serviceNotificationsClient = new ServiceNotificationsClient({
+        connectionString: config.notifications.connectionString,
+      });
+      await serviceNotificationsClient.notifyUserUpdated(safeUser(user));
+    }
 
     return res.send(safeUser(user));
   } catch (e) {

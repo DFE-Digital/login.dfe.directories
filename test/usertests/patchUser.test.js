@@ -10,6 +10,9 @@ jest.mock('./../../src/infrastructure/config', () => {
     notifications: {
       connectionString: 'notifications-connection-string',
     },
+    toggles: {
+      notificationsEnabled: true,
+    },
   };
 });
 

@@ -117,9 +117,14 @@ const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
   }
 };
 
+const listUserDeviceAssociations = async (pageNumber, pageSize, correlationId) => {
+  return Promise.reject(new Error('listUserDeviceAssociations not implemented for azure blob adapter'));
+};
+
 module.exports = {
   getUserDevices,
   createUserDevices,
   deleteUserDevice,
   getUserAssociatedToDevice,
+  listUserDeviceAssociations,
 };

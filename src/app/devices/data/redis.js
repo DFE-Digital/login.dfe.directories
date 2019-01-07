@@ -93,9 +93,14 @@ const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
   }
 };
 
+const listUserDeviceAssociations = async (pageNumber, pageSize, correlationId) => {
+  return Promise.reject(new Error('listUserDeviceAssociations not implemented for redis adapter'));
+};
+
 module.exports = {
   getUserDevices,
   createUserDevices,
   getUserAssociatedToDevice,
   deleteUserDevice,
+  listUserDeviceAssociations,
 };

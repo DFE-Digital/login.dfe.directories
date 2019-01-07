@@ -7,6 +7,7 @@ const mapEntityToDevice = (entity) => {
     id: entity.id,
     type: entity.deviceType,
     serialNumber: entity.serialNumber,
+    userId: entity.uid,
   };
 };
 const mapDeviceToEntity = (device, userId) => {
@@ -89,9 +90,30 @@ const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
   }
 };
 
+const listUserDeviceAssociations = async (pageNumber, pageSize, correlationId) => {
+  try {
+    const resultset = await userDevice.findAndCountAll({
+      order: ['deviceType', 'serialNumber', 'uid'],
+      limit: pageSize,
+      offset: pageSize * (pageNumber - 1),
+    });
+
+    const deviceAssociations = resultset.rows.map(mapEntityToDevice);
+    return {
+      deviceAssociations,
+      page: pageNumber,
+      numberOfPages: resultset.count < pageSize ? 1 : Math.ceil(resultset.count / pageSize),
+    };
+  } catch (e) {
+    logger.error(`Error listing page of user device associations (page ${pageNumber} of size ${pageSize})`, { correlationId });
+    throw e;
+  }
+};
+
 module.exports = {
   getUserDevices,
   createUserDevices,
   deleteUserDevice,
   getUserAssociatedToDevice,
+  listUserDeviceAssociations,
 };

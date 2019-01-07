@@ -7,7 +7,7 @@ const action = async (req, res) => {
     if (!devices) {
       devices = [];
     }
-    res.contentType('json').send(JSON.stringify(devices));
+    res.contentType('json').send(JSON.stringify(devices.map(ud => Object.assign({}, ud, { userId: undefined }))));
   } catch (e) {
     logger.error(e);
     res.status(500).send();

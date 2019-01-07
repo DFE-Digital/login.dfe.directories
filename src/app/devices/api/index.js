@@ -6,6 +6,7 @@ const config = require('./../../../infrastructure/config');
 const { asyncWrapper } = require('login.dfe.express-error-handling');
 
 const getDevice = require('./getDevice');
+const listDevices = require('./listDevices');
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ const routes = () => {
 
   // Map routes to functions.
   router.get('/:type/:serial_number', asyncWrapper(getDevice));
+  router.get('/', asyncWrapper(listDevices));
 
   return router;
 };

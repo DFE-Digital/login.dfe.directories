@@ -20,6 +20,7 @@ const patchUser = require('./patchUser');
 const createUser = require('./createUser');
 const findByLegacyUsername = require('./findByLegacyUsername');
 const findLegacyUsernamesById = require('./findLegacyUsernames');
+const searchV2 = require('./searchV2');
 
 const router = express.Router();
 
@@ -34,6 +35,7 @@ const routeExport = () => {
   router.get('/users', asyncWrapper(list));
   router.post('/users', asyncWrapper(createUser));
   router.get('/users/by-ids', asyncWrapper(search));
+  router.post('/users/by-ids', asyncWrapper(searchV2));
   router.get('/users/by-legacyusername/:id', asyncWrapper(findByLegacyUsername));
   router.get('/users/:id', asyncWrapper(find));
   router.get('/users/:uid/legacy-username', asyncWrapper(findLegacyUsernamesById));

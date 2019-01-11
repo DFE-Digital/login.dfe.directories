@@ -4,7 +4,9 @@ jest.mock('./../../src/app/user/adapter', () => ({
   create: jest.fn(),
 }));
 jest.mock('./../../src/infrastructure/logger', () => {
-  return {};
+  return {
+    error: jest.fn(),
+    info: jest.fn(),};
 });
 jest.mock('./../../src/infrastructure/config', () => {
   return {

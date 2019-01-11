@@ -1,4 +1,5 @@
 const { find, update } = require('./../adapter');
+const logger = require('./../../../infrastructure/logger');
 const { safeUser } = require('./../../../utils');
 const config = require('./../../../infrastructure/config');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
@@ -22,8 +23,10 @@ const validateRequestData = (req) => {
 };
 
 const patchUser = async (req, res) => {
+  const correlationId = req.header('x-correlation-id');
+
   // Get user
-  const user = await find(req.params.id, req.header('x-correlation-id'));
+  const user = await find(req.params.id, correlationId);
   if (!user) {
     return res.status(404).send();
   }
@@ -39,13 +42,14 @@ const patchUser = async (req, res) => {
   // Patch user
   const updatedUser = Object.assign(userModel, req.body);
   await update(updatedUser.sub, updatedUser.given_name, updatedUser.family_name,
-    updatedUser.email, updatedUser.phone_number, updatedUser.legacyUsernames, req.header('x-correlation-id'));
+    updatedUser.email, updatedUser.phone_number, updatedUser.legacyUsernames, correlationId);
 
   if (config.toggles && config.toggles.notificationsEnabled) {
     const serviceNotificationsClient = new ServiceNotificationsClient({
       connectionString: config.notifications.connectionString,
     });
-    await serviceNotificationsClient.notifyUserUpdated(safeUser(updatedUser));
+    const jobId = await serviceNotificationsClient.notifyUserUpdated(safeUser(updatedUser));
+    logger.info(`Send user updated notification for ${user.sub} with job id ${jobId} (reason: patch)`, { correlationId });
   }
 
   return res.status(202).send();

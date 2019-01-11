@@ -15,6 +15,12 @@ jest.mock('./../../src/infrastructure/config', () => {
     },
   };
 });
+jest.mock('./../../src/infrastructure/logger', () => {
+  return {
+    error: jest.fn(),
+    info: jest.fn(),
+  };
+});
 
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 const { find, update } = require('./../../src/app/user/adapter');

@@ -185,7 +185,7 @@ const userDevice = db.define('user_device', {
   schema: dbSchema,
 });
 user.hasMany(userDevice, { foreignKey: 'uid', sourceKey: 'sub' });
-userDevice.hasOne(user, { foreignKey: 'sub', sourceKey: 'uid' });
+userDevice.belongsTo(user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
 
 
 const invitationCallback = db.define('invitation_callback', {

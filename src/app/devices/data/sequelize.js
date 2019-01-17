@@ -1,5 +1,5 @@
 const logger = require('./../../../infrastructure/logger');
-const { userDevice } = require('./../../../infrastructure/repository');
+const { userDevice, user } = require('./../../../infrastructure/repository');
 const { Op } = require('sequelize');
 
 const mapEntityToDevice = (entity) => {
@@ -7,7 +7,7 @@ const mapEntityToDevice = (entity) => {
     id: entity.id,
     type: entity.deviceType,
     serialNumber: entity.serialNumber,
-    userId: entity.uid,
+    user: entity.user,
   };
 };
 const mapDeviceToEntity = (device, userId) => {
@@ -96,6 +96,7 @@ const listUserDeviceAssociations = async (pageNumber, pageSize, correlationId) =
       order: ['deviceType', 'serialNumber', 'uid'],
       limit: pageSize,
       offset: pageSize * (pageNumber - 1),
+      include: ['user'],
     });
 
     const deviceAssociations = resultset.rows.map(mapEntityToDevice);

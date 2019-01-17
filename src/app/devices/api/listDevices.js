@@ -1,4 +1,5 @@
 const { listUserDeviceAssociations } = require('./../data');
+const { safeUser } = require('./../../../utils');
 
 const extractPageNumber = (req) => {
   if (!req.query || req.query.page === undefined) {
@@ -23,7 +24,15 @@ const listDevices = async (req, res) => {
   const correlationId = req.get('x-correlation-id');
 
   const page = await listUserDeviceAssociations(pageNumber, pageSize, correlationId);
-  return res.json(page);
+  const safePage = {
+    page: page.page,
+    numberOfPages: page.numberOfPages,
+    deviceAssociations: page.deviceAssociations.map((association) => {
+      const safeAssociation = Object.assign({}, association, { user: safeUser(association.user) });
+      return safeAssociation;
+    }),
+  };
+  return res.json(safePage);
 };
 
 module.exports = listDevices;

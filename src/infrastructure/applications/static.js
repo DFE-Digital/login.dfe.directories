@@ -12,10 +12,10 @@ const clients = [
   },
 ];
 
-const getOidcClientById = async (id) => {
+const getServiceById = async (id) => {
   return Promise.resolve(clients.find(c => c.client_id.toLowerCase() === id.toLowerCase()));
 };
 
 module.exports = {
-  getOidcClientById,
+  getServiceById,
 };

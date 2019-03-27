@@ -119,7 +119,7 @@ const schema = new SimpleSchema({
   userCodes: userCodesSchema,
   invitations: invitationsSchema,
   devices: devicesSchema,
-  hotConfig: schemas.apiClient,
+  applications: schemas.apiClient,
   auth: schemas.apiServerAuth,
   notifications: notificationsSchema,
   toggles: {

@@ -2,7 +2,7 @@ const config = require('./../../../infrastructure/config');
 const { getUserInvitation, updateInvitation } = require('./../data');
 const { generateInvitationCode } = require('./../utils');
 const NotificationClient = require('login.dfe.notifications.client');
-const { getOidcClientById } = require('./../../../infrastructure/hotConfig');
+const { getServiceById } = require('./../../../infrastructure/applications');
 
 const patchableProperties = ['email', 'isCompleted', 'deactivated', 'reason', 'callbacks'];
 const patchablePropertiesMessage = patchableProperties.concat();
@@ -28,12 +28,12 @@ const sendInvitation = async (invitation) => {
     connectionString: config.notifications.connectionString,
   });
 
-  const client = invitation.origin ? await getOidcClientById(invitation.origin.clientId) : undefined;
+  const client = invitation.origin ? await getServiceById(invitation.origin.clientId) : undefined;
   let friendlyName;
   let digipassRequired = false;
   if (client) {
-    friendlyName = client.friendlyName;
-    digipassRequired = client.params ? client.params.digipassRequired : false;
+    friendlyName = client.name;
+    digipassRequired = client.relyingParty.params ? client.relyingParty.params.digipassRequired : false;
   }
 
   await notificationClient.sendInvitation(

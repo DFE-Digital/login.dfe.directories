@@ -6,16 +6,16 @@ const storage = require('./../data');
 const userStorage = require('./../../user/adapter');
 const { generateInvitationCode } = require('./../utils');
 const NotificationClient = require('login.dfe.notifications.client');
-const { getOidcClientById } = require('./../../../infrastructure/hotConfig');
+const { getServiceById } = require('./../../../infrastructure/applications');
 const sendInvitation = require('./../utils/sendInvitation');
 
 const checkIfExistingUserAndNotifyIfIs = async (invitation) => {
   const account = await userStorage.findByUsername(invitation.email);
   if (account) {
     let friendlyName;
-    const client = invitation.origin ? await getOidcClientById(invitation.origin.clientId) : undefined;
+    const client = invitation.origin ? await getServiceById(invitation.origin.clientId) : undefined;
     if (client) {
-      friendlyName = client.friendlyName;
+      friendlyName = client.name;
     }
 
     const notificationClient = new NotificationClient({

@@ -15,10 +15,13 @@ jest.mock('./../../src/infrastructure/config', () => ({
   notifications: {
     connectionString: '',
   },
-  hotConfig: {
+  applications: {
     type: 'static',
   },
 }));
+
+jest.mock('./../../src/infrastructure/applications');
+
 
 jest.mock('./../../src/app/invitations/data', () => {
   return {

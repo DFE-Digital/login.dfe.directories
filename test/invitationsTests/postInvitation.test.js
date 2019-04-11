@@ -20,12 +20,12 @@ jest.mock('./../../src/infrastructure/config', () => ({
   notifications: {
     connectionString: '',
   },
-  hotConfig: {
+  applications: {
     type: 'static',
   },
 }));
 
-jest.mock('./../../src/infrastructure/hotConfig');
+jest.mock('./../../src/infrastructure/applications');
 jest.mock('./../../src/app/invitations/data', () => {
   return {
     createUserInvitation: jest.fn(),
@@ -43,7 +43,7 @@ const logger = require('./../../src/infrastructure/logger');
 const notificationClient = require('login.dfe.notifications.client');
 const redisStorage = require('./../../src/app/invitations/data');
 const userStorage = require('./../../src/app/user/adapter');
-const { getOidcClientById } = require('./../../src/infrastructure/hotConfig');
+const { getServiceById } = require('./../../src/infrastructure/applications');
 const post = require('../../src/app/invitations/api/postInvitations');
 
 const httpMocks = require('node-mocks-http');
@@ -85,24 +85,26 @@ describe('When creating an invitation', () => {
       },
     };
 
-    getOidcClientById.mockReset().mockImplementation((id) => {
+    getServiceById.mockReset().mockImplementation((id) => {
       if (id !== 'client1') {
         return undefined;
       }
       return {
         client_id: 'client1',
         client_secret: 'some-secure-secret',
-        redirect_uris: [
-          'https://client.one/auth/cb',
-          'https://client.one/register/complete',
-        ],
-        post_logout_redirect_uris: [
-          'https://client.one/signout/complete',
-        ],
-        params: {
-          digipassRequired: true,
+        relyingParty: {
+          redirect_uris: [
+            'https://client.one/auth/cb',
+            'https://client.one/register/complete',
+          ],
+          post_logout_redirect_uris: [
+            'https://client.one/signout/complete',
+          ],
+          params: {
+            digipassRequired: true,
+          },
         },
-        friendlyName: 'Client One',
+        name: 'Client One',
       };
     });
 

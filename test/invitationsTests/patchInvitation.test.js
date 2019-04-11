@@ -5,7 +5,7 @@ jest.mock('./../../src/infrastructure/config', () => ({
   notifications: {
     connectionString: '',
   },
-  hotConfig: {
+  applications: {
     type: 'static',
   },
 }));
@@ -21,13 +21,13 @@ jest.mock('./../../src/app/invitations/utils', () => {
   };
 });
 jest.mock('login.dfe.notifications.client');
-jest.mock('./../../src/infrastructure/hotConfig');
+jest.mock('./../../src/infrastructure/applications');
 
 const httpMocks = require('node-mocks-http');
 const notificationClient = require('login.dfe.notifications.client');
 const { getUserInvitation, updateInvitation } = require('./../../src/app/invitations/data');
 const { generateInvitationCode } = require('./../../src/app/invitations/utils');
-const { getOidcClientById } = require('./../../src/infrastructure/hotConfig');
+const { getServiceById } = require('./../../src/infrastructure/applications');
 const patchInvitation = require('./../../src/app/invitations/api/patchInvitation');
 
 describe('When patching an invitation', () => {
@@ -64,24 +64,26 @@ describe('When patching an invitation', () => {
 
     generateInvitationCode.mockReset().mockReturnValue('new-code');
 
-    getOidcClientById.mockReset().mockImplementation((id) => {
+    getServiceById.mockReset().mockImplementation((id) => {
       if (id !== 'client1') {
         return undefined;
       }
       return {
         client_id: 'client1',
         client_secret: 'some-secure-secret',
-        redirect_uris: [
-          'https://client.one/auth/cb',
-          'https://client.one/register/complete',
-        ],
-        post_logout_redirect_uris: [
-          'https://client.one/signout/complete',
-        ],
-        params: {
-          digipassRequired: true,
+        relyingParty: {
+          redirect_uris: [
+            'https://client.one/auth/cb',
+            'https://client.one/register/complete',
+          ],
+          post_logout_redirect_uris: [
+            'https://client.one/signout/complete',
+          ],
+          params: {
+            digipassRequired: true,
+          },
         },
-        friendlyName: 'Client One',
+        name: 'Client One',
       };
     });
 

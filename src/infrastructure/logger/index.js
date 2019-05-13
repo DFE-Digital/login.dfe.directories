@@ -38,7 +38,9 @@ if (config && config.loggerSettings && config.loggerSettings.redis && config.log
 }
 
 if (config.hostingEnvironment.applicationInsights) {
-  appInsights.setup(config.hostingEnvironment.applicationInsights).setAutoCollectConsole(false, false).start();
+  appInsights.setup(config.hostingEnvironment.applicationInsights)
+    .setAutoCollectConsole(false, false)
+    .start();
   loggerConfig.transports.push(new AppInsightsTransport({
     client: appInsights.defaultClient,
     applicationName: config.loggerSettings.applicationName || 'Directories',

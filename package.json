@@ -51,9 +51,10 @@
     "eslint-config-airbnb-base": "^11.3.1",
     "eslint-plugin-import": "^2.13.0",
     "ioredis-mock": "^3.10.1",
-    "jest": "^21.2.1",
-    "jest-cli": "^21.2.1",
-    "node-mocks-http": "^1.7.0"
+    "jest": "^24.0.0",
+    "jest-cli": "^24.0.0",
+    "node-mocks-http": "^1.7.0",
+    "nodemon": "^1.11.0"
   },
   "repository": {
     "type": "git",

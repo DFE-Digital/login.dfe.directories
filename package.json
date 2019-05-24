@@ -20,7 +20,7 @@
     "express-list-endpoints": "^3.0.1",
     "fs": "0.0.1-security",
     "ioredis": "^3.2.1",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.11",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v1.0.0",
     "login.dfe.config.schema.common": "git+https://github.com/DFE-Digital/login.dfe.config.schema.common.git#v1.0.1",
     "login.dfe.express-error-handling": "git+https://github.com/DFE-Digital/login.dfe.express-error-handling.git#v1.2",
@@ -28,10 +28,10 @@
     "login.dfe.jwt-strategies": "github:DFE-Digital/login.dfe.jwt-strategies#v2.0.1",
     "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v2.8.1",
     "login.dfe.public-api.jobs.client": "git+https://github.com/DFE-Digital/login.dfe.public-api.jobs.client.git#v1.1",
+    "login.dfe.request-promise-retry": "git+https://github.com/DFE-Digital/login.dfe.request-promise-retry.git#v1.0",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
     "login.dfe.service-notifications.jobs.client": "git+https://github.com/DFE-Digital/login.dfe.service-notifications.jobs.client.git#v1.4",
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v2",
-    "login.dfe.request-promise-retry": "git+https://github.com/DFE-Digital/login.dfe.request-promise-retry.git#v1.0",
     "mongoose": "^4.13.14",
     "path": "^0.12.7",
     "pg": "^7.4.3",
@@ -71,7 +71,7 @@
     "dev": "PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js "
   },
   "engines": {
-    "node": "8.x.x"
+    "node": "10.x.x"
   },
   "homepage": "https://github.com/DFE-Digital/login.dfe.directories#readme"
 }

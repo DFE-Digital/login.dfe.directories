@@ -1,5 +1,6 @@
 'use strict';
 
+const alwaysOnFilter = require('./middleware/alwaysOnFilter');
 const config = require('./infrastructure/config');
 const logger = require('./infrastructure/logger');
 const express = require('express');
@@ -32,13 +33,13 @@ https.GlobalAgent = new KeepAliveAgent({
   keepAliveTimeout: config.hostingEnvironment.agentKeepAlive.keepAliveTimeout,
 });
 
-
 configSchema.validate();
 
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(alwaysOnFilter());
 
 app.use('/healthcheck', healthCheck({
   config,

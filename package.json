@@ -38,7 +38,7 @@
     "pg-hstore": "^2.3.2",
     "redis": "^2.8.0",
     "request-promise": "^4.2.2",
-    "sequelize": "^4.38.0",
+    "sequelize": "^4.44.3",
     "simpl-schema": "^1.5.3",
     "tedious": "^2.6.4",
     "uuid": "^3.3.2",

@@ -35,18 +35,7 @@
     "redisUrl" :"redis://localhost:6379"
   },
   "applications": {
-    "type": "api",
-    "service": {
-      "url": "https://applications.dfe.signin.docker:3000",
-      "auth": {
-        "type": "aad",
-        "tenant": "dfensadev.onmicrosoft.com",
-        "authorityHostUrl": "https://login.microsoftonline.com/27cc275f-b524-460e-b51c-c5532d1cc54f",
-        "clientId": "dca96992-26a8-4137-a763-baab75cc47c3",
-        "clientSecret": "DjeKJMIEEns1E:8YN8?dk7l:sOh_@2S_",
-        "resource": "f5f9ce9f-aef8-4993-a3d3-7c90142addb7"
-      }
-    }
+    "type": "static"
   },
   "devices" : {
     "type": "redis",

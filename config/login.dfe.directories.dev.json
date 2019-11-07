@@ -34,6 +34,9 @@
   "invitations" : {
     "redisUrl" :"redis://localhost:6379"
   },
+  "applications": {
+    "type": "static"
+  },
   "devices" : {
     "type": "redis",
     "redisUrl" :"redis://localhost:6379"

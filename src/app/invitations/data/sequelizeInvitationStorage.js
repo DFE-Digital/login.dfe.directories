@@ -60,6 +60,7 @@ const mapEntityToInvitation = (entity) => {
     userId: entity.uid,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
+    isMigrated: entity.isMigrated,
   };
 };
 const mapInvitationToEntities = (model) => {
@@ -81,6 +82,7 @@ const mapInvitationToEntities = (model) => {
     reason: model.reason,
     completed: model.isCompleted,
     uid: model.userId,
+    isMigrated: model.isMigrated,
   };
 
   const deviceEntities = [];

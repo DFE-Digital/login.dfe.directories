@@ -81,6 +81,8 @@ const mapInvitationToEntities = (model) => {
     reason: model.reason,
     completed: model.isCompleted,
     uid: model.userId,
+    approverEmail: model.approverEmail,
+    orgName: model.orgName,
   };
 
   const deviceEntities = [];

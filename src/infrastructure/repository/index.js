@@ -100,6 +100,11 @@ const user = db.define('user', {
   last_login: {
     type: Sequelize.STRING,
   },
+  isMigrated: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 }, {
   timestamps: true,
   tableName: 'user',
@@ -310,6 +315,11 @@ const invitation = db.define('invitation', {
   uid: {
     type: Sequelize.UUID,
     allowNull: true,
+  },
+  isMigrated: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
 }, {
   timestamps: true,

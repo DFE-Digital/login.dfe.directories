@@ -27,7 +27,7 @@ const createUser = async (req, res) => {
       return res.status(404).send();
     }
 
-    const user = await userStorage.create(invitation.email, password, invitation.firstName, invitation.lastName, req.header('x-correlation-id'));
+    const user = await userStorage.create(invitation.email, password, invitation.firstName, invitation.lastName, null, null, req.header('x-correlation-id'), invitation.isMigrated);
 
     const completedInvitation = Object.assign(invitation, { isCompleted: true, userId: user.id });
     await updateInvitation(completedInvitation);

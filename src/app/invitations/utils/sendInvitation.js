@@ -23,7 +23,7 @@ const sendInvitation = async (invitation) => {
 
   await notificationClient.sendInvitation(
     invitation.email, invitation.firstName, invitation.lastName, invitation.id, invitation.code,
-    friendlyName, digipassRequired, invitation.selfStarted, invitation.overrides, invitation.isMigrated);
+    friendlyName, digipassRequired, invitation.selfStarted, invitation.overrides, invitation.isMigrated, invitation.approverEmail, invitation.orgName);
 };
 
 module.exports = sendInvitation;

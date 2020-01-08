@@ -85,6 +85,7 @@ const mapInvitationToEntities = (model) => {
     isMigrated: model.isMigrated,
     approverEmail: model.approverEmail,
     orgName: model.orgName,
+    isApprover: model.isApprover,
   };
 
   const deviceEntities = [];

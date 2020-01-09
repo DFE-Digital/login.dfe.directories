@@ -38,7 +38,6 @@ BEGIN
       uid uniqueidentifier NULL,
       createdAt datetime2 NOT NULL,
       updatedAt datetime2 NOT NULL,
-
       CONSTRAINT [PK_Invitation] PRIMARY KEY (id)
     )
 END

@@ -32,7 +32,7 @@ const writeInvitation = (invitation, write) => {
 
   write('INSERT INTO invitation\n');
   write('(id, email, code, firstName, lastName, originClientId, originRedirectUri, selfStarted, overrideSubject, overrideBody, ');
-  write('previousUsername, previousPassword, previousSalt, deactivated, reason, completed, uid, createdAt, updatedAt)\n');
+  write('previousUsername, previousPassword, previousSalt, deactivated, reason, completed, uid, createdAt, updatedAt, isApprover)\n');
   write('VALUES\n');
   write(`('${invitation.id}'`);
   write(`, '${invitation.email.replace(/'/g, '\'\'')}'`);
@@ -53,6 +53,7 @@ const writeInvitation = (invitation, write) => {
   write(`, ${toSqlString(invitation.userId)}`);
   write(`, ${toSqlDate(invitation.createdAt)}`);
   write(`, ${toSqlDate(invitation.updatedAt)}`);
+  write(`, ${invitation.isApprover ? 1 : 0}`);
   write(')\n\n');
 };
 const writeInvitationCallbacks = (invitation, write) => {

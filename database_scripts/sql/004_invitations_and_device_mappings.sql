@@ -38,7 +38,7 @@ BEGIN
       uid uniqueidentifier NULL,
       createdAt datetime2 NOT NULL,
       updatedAt datetime2 NOT NULL,
-
+      isApprover bit NOT NULL CONSTRAINT [DF_Invitation_isApprover] DEFAULT 0,
       CONSTRAINT [PK_Invitation] PRIMARY KEY (id)
     )
 END

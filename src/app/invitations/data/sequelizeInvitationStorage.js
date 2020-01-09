@@ -61,6 +61,9 @@ const mapEntityToInvitation = (entity) => {
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
     isMigrated: entity.isMigrated,
+    approverEmail: entity.approverEmail,
+    orgName: entity.orgName,
+    isApprover: entity.isApprover,
   };
 };
 const mapInvitationToEntities = (model) => {

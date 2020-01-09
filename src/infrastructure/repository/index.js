@@ -321,6 +321,19 @@ const invitation = db.define('invitation', {
     allowNull: false,
     defaultValue: false,
   },
+  approverEmail: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  orgName: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  isApprover: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 }, {
   timestamps: true,
   tableName: 'invitation',

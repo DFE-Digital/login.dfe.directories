@@ -1,14 +1,6 @@
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
-const KeepAliveAgent = require('agentkeepalive').HttpsAgent;
-const rp = require('request-promise').defaults({
-  agent: new KeepAliveAgent({
-    maxSockets: config.hostingEnvironment.agentKeepAlive.maxSockets,
-    maxFreeSockets: config.hostingEnvironment.agentKeepAlive.maxFreeSockets,
-    timeout: config.hostingEnvironment.agentKeepAlive.timeout,
-    keepAliveTimeout: config.hostingEnvironment.agentKeepAlive.keepAliveTimeout,
-  }),
-});
+const rp = require('request-promise');
 const { URL } = require('url');
 const { DOMParser } = require('xmldom');
 const xpath = require('xpath');
@@ -77,7 +69,7 @@ const deleteUserDevice = async (userId, device, correlationId) => {
 
     const indexOfSerialNumber = devices.findIndex(c => c.serialNumber === device.serialNumber);
 
-    if(indexOfSerialNumber !== -1) {
+    if (indexOfSerialNumber !== -1) {
       devices.splice(indexOfSerialNumber, 1);
     }
 

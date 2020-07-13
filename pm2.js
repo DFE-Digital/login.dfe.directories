@@ -11,7 +11,6 @@ pm2.connect(function (err) {
         pm2.scale('dfe-dir', 2, (err, procs) => {
             if (err) {
                 let msg = 'Error SCALING Directory Instances to 2 instances, will try again';
-                console.log(msg);
                 SlackService.postMessage(msg);
 
                 setTimeout(() => {
@@ -19,7 +18,6 @@ pm2.connect(function (err) {
                 }, COOLING_PERIOD);
             } else {
                 let msg = 'SCALED Directory Instances to 2 instances';
-                console.log(msg);
                 SlackService.postMessage(msg);
             }
         });
@@ -29,7 +27,6 @@ pm2.connect(function (err) {
         pm2.scale('dfe-dir', '+2', (err, procs) => {
             if (err) {
                 let msg = 'Error SCALING Directory Instances to 4 instances. Will try again';
-                console.log(msg);
                 SlackService.postMessage(msg);
 
                 setTimeout(() => {
@@ -37,7 +34,6 @@ pm2.connect(function (err) {
                 }, COOLING_PERIOD);
             } else {
                 let msg = 'SCALED Directory Instances to 4 instances';
-                console.log(msg);
                 SlackService.postMessage(msg);
 
                 setTimeout(() => {
@@ -60,16 +56,12 @@ pm2.connect(function (err) {
     }
 
     function monitorCluster() {
-        console.log(" ---- Staring PM2 Monitoring ---- ");
-
         cron.schedule("0 2 * * 1,5", () => {
-            console.log(" --- executing directory instance reload  --- ");
             reloadCluster();
         });
     }
 
     if (err) {
-        console.error(err);
         process.exit(2);
     }
 

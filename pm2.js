@@ -65,12 +65,6 @@ pm2.connect(function (err) {
         process.exit(2);
     }
 
-    pm2.stop('dfe-dir', (err, proc) => {
-    })
-
-    pm2.restart('dfe-dir', (err, proc) => {
-    })
-
     pm2.start({
         script: 'src/index.js',   // Script to be run DFE Directory 
         name: 'dfe-dir',

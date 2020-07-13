@@ -1,13 +1,16 @@
-var axios = require('axios');
+const { IncomingWebhook } = require('@slack/webhook');
 
 class SlackService {
 
-    async static postMessage(message) {
+    static async postMessage(message) {
         let url = process.env.slackWebHookUrl;
-        let reqBody = {
-            text: message
-        };
-        await axios.post(url, reqBody);
+        const webhook = new IncomingWebhook(url);
+
+        await (async () => {
+            await webhook.send({
+                text: message
+            });
+        })();
     }
 }
 

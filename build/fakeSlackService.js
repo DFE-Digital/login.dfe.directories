@@ -2,7 +2,7 @@ var axios = require('axios');
 
 class SlackService {
 
-    async postMessage(message) {
+    async static postMessage(message) {
         console.log(message);
     }
 }

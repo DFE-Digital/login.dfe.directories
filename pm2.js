@@ -4,7 +4,6 @@ const cron = require("node-cron");
 var SlackService = require('./build/slackService');
 
 const COOLING_PERIOD = 2 * 60 * 1000;
-let slackService = new SlackService();
 
 pm2.connect(function (err) {
 
@@ -13,7 +12,7 @@ pm2.connect(function (err) {
             if (err) {
                 let msg = 'Error SCALING Directory Instances to 2 instances, will try again';
                 console.log(msg);
-                slackService.postMessage(msg);
+                SlackService.postMessage(msg);
 
                 setTimeout(() => {
                     scaleDown();
@@ -21,7 +20,7 @@ pm2.connect(function (err) {
             } else {
                 let msg = 'SCALED Directory Instances to 2 instances';
                 console.log(msg);
-                slackService.postMessage(msg);
+                SlackService.postMessage(msg);
             }
         });
     }
@@ -31,7 +30,7 @@ pm2.connect(function (err) {
             if (err) {
                 let msg = 'Error SCALING Directory Instances to 4 instances. Will try again';
                 console.log(msg);
-                slackService.postMessage(msg);
+                SlackService.postMessage(msg);
 
                 setTimeout(() => {
                     scaleUp();
@@ -39,7 +38,7 @@ pm2.connect(function (err) {
             } else {
                 let msg = 'SCALED Directory Instances to 4 instances';
                 console.log(msg);
-                slackService.postMessage(msg);
+                SlackService.postMessage(msg);
 
                 setTimeout(() => {
                     scaleDown();

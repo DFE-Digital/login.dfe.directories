@@ -2,7 +2,7 @@ const { IncomingWebhook } = require('@slack/webhook');
 
 class SlackService {
 
-    static async postMessage(message) {
+    async postMessage(message) {
         let url = process.env.slackWebHookUrl;
         const webhook = new IncomingWebhook(url);
 
@@ -14,4 +14,4 @@ class SlackService {
     }
 }
 
-module.exports = SlackService;
+module.exports = new SlackService();

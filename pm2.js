@@ -56,7 +56,7 @@ pm2.connect(function (err) {
     }
 
     function monitorCluster() {
-        cron.schedule("0 2 * * 1,5", () => {
+        cron.schedule("0 2 * * 1-5", () => {
             reloadCluster();
         });
     }

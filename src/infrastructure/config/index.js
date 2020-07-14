@@ -24,9 +24,19 @@ const getSettingsFromFile = (settingsPath) => {
 };
 
 const fetchConfig = () => {
+  let settingsObject;
+
+  const settingsPath = Path.resolve('./config/login.dfe.directories.local.json');
+  if (fs.existsSync(settingsPath)) {
+    settingsObject = getSettingsFromFile(settingsPath);
+    if (settingsObject !== null) {
+      return settingsObject;
+    }
+  }
+
   if (process.env.settings) {
     const settings = process.env.settings;
-    let settingsObject = getSettingsObject(settings);
+    settingsObject = getSettingsObject(settings);
     if (settingsObject !== null) {
       return settingsObject;
     }

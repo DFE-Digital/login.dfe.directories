@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Directories",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/index.js",
+            "env": {
+                "settings": "config/login.dfe.directories.local.json"
+            },
+            "outputCapture": "std"      
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "PM2",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/pm2.js",
+            "outputCapture": "std"      
+        },
+       
+    ]
+}

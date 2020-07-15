@@ -75,7 +75,7 @@
     "start": "settings=./config/login.dfe.directories.local.json node src/index.js "
   },
   "engines": {
-    "node": "10.x.x"
+    "node": "14.x.x"
   },
   "homepage": "https://github.com/DFE-Digital/login.dfe.directories#readme"
 }

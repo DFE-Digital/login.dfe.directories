@@ -1,7 +1,7 @@
 var pm2 = require('pm2');
 var _ = require('lodash');
 const cron = require("node-cron");
-var SlackService = require('./src/services/slackService');
+var SlackService = require('./services/slackService');
 
 const COOLING_PERIOD = 2 * 60 * 1000;
 

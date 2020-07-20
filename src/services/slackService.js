@@ -1,9 +1,10 @@
 const { IncomingWebhook } = require('@slack/webhook');
+const config = require('../infrastructure/config');
 
 class SlackService {
 
     async postMessage(message) {
-        let url = process.env.slackWebHookUrl;
+        let url = config.notifications.slackWebHookUrl;
         const webhook = new IncomingWebhook(url);
 
         await (async () => {

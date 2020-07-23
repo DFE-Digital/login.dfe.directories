@@ -75,7 +75,7 @@
     "start_live": "node src/index.js "
   },
   "engines": {
-    "node": "14.x.x"
+    "node": "12.x.x"
   },
   "homepage": "https://github.com/DFE-Digital/login.dfe.directories#readme"
 }

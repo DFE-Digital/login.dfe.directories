@@ -22,5 +22,5 @@
 //         }
 //     }
 // }
-
-module.exports = new SlackService();
+// 
+// module.exports = new SlackService();

@@ -103,6 +103,7 @@ const devicesSchema = new SimpleSchema({
 
 const notificationsSchema = new SimpleSchema({
   connectionString: patterns.redis,
+  slackWebHookUrl: String
 });
 
 const togglesSchema = new SimpleSchema({

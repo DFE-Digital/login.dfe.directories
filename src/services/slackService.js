@@ -1,5 +1,6 @@
 const { IncomingWebhook } = require('@slack/webhook');
 const config = require('../infrastructure/config');
+const logger = require('../infrastructure/logger');
 
 class SlackService {
 
@@ -15,7 +16,8 @@ class SlackService {
                 });
             })();
         } catch (ex) {
-            console.log("Exception in sending slack message", ex);
+            logger.error(`Exception in sending slack message`);
+            logger.error(ex);
         }
     }
 }

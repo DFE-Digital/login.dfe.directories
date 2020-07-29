@@ -33,7 +33,7 @@
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
     "login.dfe.service-notifications.jobs.client": "git+https://github.com/DFE-Digital/login.dfe.service-notifications.jobs.client.git#v1.4",
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v2",
-    "mongoose": "^4.13.14",
+    "mongoose": "^5.7.5",
     "node-cron": "^2.0.3",
     "path": "^0.12.7",
     "pg": "^7.4.3",

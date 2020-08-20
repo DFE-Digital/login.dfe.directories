@@ -17,6 +17,8 @@ const getIntValueOrDefault = (value, defaultValue = 0) => {
 const databaseName = config.adapter.params.name || 'postgres';
 const encryptDb = config.adapter.params.encrypt || false;
 const dbSchema = config.adapter.params.schema || 'directories';
+const packetSize = config.adapter.params.packetSize || 32768;
+
 
 let db;
 
@@ -50,6 +52,7 @@ if (config.adapter.params && config.adapter.params.postgresUrl) {
     dialect: config.adapter.params.dialect,
     dialectOptions: {
       encrypt: encryptDb,
+      packetSize,
     },
   };
   if (config.adapter.params.pool) {

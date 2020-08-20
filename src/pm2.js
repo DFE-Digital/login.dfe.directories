@@ -2,22 +2,24 @@ var pm2 = require('pm2');
 var _ = require('lodash');
 const cron = require("node-cron");
 var SlackService = require('./services/slackService');
+const config = require('./infrastructure/config');
 
 const COOLING_PERIOD = 2 * 60 * 1000;
+const envName = config.hostingEnvironment.envName;
 
 pm2.connect(function (err) {
 
     function scaleDown() {
         pm2.scale('dfe-dir', 2, (err, procs) => {
             if (err) {
-                let msg = 'Error SCALING Directory Instances to 2 instances, will try again';
+                let msg = `${envName} - Error SCALING Directory Instances to 2 instances, will try again`;
                 SlackService.postMessage(msg);
 
                 setTimeout(() => {
                     scaleDown();
                 }, COOLING_PERIOD);
             } else {
-                let msg = 'SCALED Directory Instances to 2 instances';
+                let msg = `${envName} - SCALED Directory Instances to 2 instances`;
                 SlackService.postMessage(msg);
             }
         });
@@ -26,14 +28,14 @@ pm2.connect(function (err) {
     function scaleUp() {
         pm2.scale('dfe-dir', '+2', (err, procs) => {
             if (err) {
-                let msg = 'Error SCALING Directory Instances to 4 instances. Will try again';
+                let msg = `${envName} - Error SCALING Directory Instances to 4 instances. Will try again`;
                 SlackService.postMessage(msg);
 
                 setTimeout(() => {
                     scaleUp();
                 }, COOLING_PERIOD);
             } else {
-                let msg = 'SCALED Directory Instances to 4 instances';
+                let msg = `${envName} - SCALED Directory Instances to 4 instances`;
                 SlackService.postMessage(msg);
 
                 setTimeout(() => {

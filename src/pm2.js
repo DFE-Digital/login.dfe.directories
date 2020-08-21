@@ -5,7 +5,7 @@ var SlackService = require('./services/slackService');
 const config = require('./infrastructure/config');
 
 const COOLING_PERIOD = 2 * 60 * 1000;
-const envName = config.hostingEnvironment.envName;
+const envName = config.notifications.envName;
 
 pm2.connect(function (err) {
 

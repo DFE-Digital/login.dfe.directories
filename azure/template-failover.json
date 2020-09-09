@@ -92,6 +92,12 @@
             }
         }
     },
+    "environmentId": {
+        "type": "string",
+        "metadata": {
+            "description": "Environment Identifier"
+        }
+    },
     "variables": {
         "resourceNames": {
             "certName": "[concat(parameters('appServicePlanName'), '-shared-crt')]",

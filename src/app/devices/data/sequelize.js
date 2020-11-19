@@ -73,7 +73,7 @@ const deleteUserDevice = async (userId, device, correlationId) => {
 
 const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
   try {
-    const entity = await userDevice.findOne({
+    const entity = await userDevice.find({
       where: {
         deviceType: {
           [Op.eq]: type,

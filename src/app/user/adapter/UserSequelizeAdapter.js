@@ -13,7 +13,7 @@ const crypto = require('crypto');
 const find = async (id, correlationId) => {
   try {
     logger.info(`Get user for request ${correlationId}`, { correlationId });
-    const userEntity = await user.findOne({
+    const userEntity = await user.find({
       where: {
         sub: {
           [Op.eq]: id,
@@ -34,7 +34,7 @@ const find = async (id, correlationId) => {
 const findByUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user for request ${username}`, { correlationId });
-    const userEntity = await user.findOne({
+    const userEntity = await user.find({
       where: {
         email: {
           [Op.eq]: username,
@@ -56,7 +56,7 @@ const findByLegacyUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user by legacy username for request ${username}`, { correlationId });
 
-    const userEntity = await user.findOne({
+    const userEntity = await user.find({
       include: [{
         model: userLegacyUsername,
         where: {

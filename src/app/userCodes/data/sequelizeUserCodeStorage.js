@@ -35,7 +35,7 @@ const getUserCode = async (uid, codeType, correlationId) => {
   try {
     logger.info(`Find User Code for request: ${correlationId}`, { correlationId });
 
-    const code = await userCode.findOne({
+    const code = await userCode.find({
       where: {
         uid: {
           [Op.eq]: uid,
@@ -58,7 +58,7 @@ const getUserCode = async (uid, codeType, correlationId) => {
 const getUserCodeByEmail = async (email, codeType, correlationId) => {
   try {
     logger.info(`Find User Code by email for request: ${correlationId}`, { correlationId });
-    const code = await userCode.findOne({
+    const code = await userCode.find({
       where: {
         email: {
           [Op.eq]: email,

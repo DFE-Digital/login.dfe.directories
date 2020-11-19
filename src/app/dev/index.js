@@ -60,7 +60,7 @@ const routes = () => {
   }));
 
   router.get('/user/:userid', asyncWrapper(async (req, res) => {
-    const user = await usersAdapter.findByPk(req.params.userid);
+    const user = await usersAdapter.find(req.params.userid);
     if (!user) {
       res.status(404).send();
       return;

@@ -158,7 +158,7 @@ const list = async (pageNumber, pageSize, changedAfter, correlationId) => {
 
 const getUserInvitation = async (id, correlationId) => {
   try {
-    const entity = await invitation.find({
+    const entity = await invitation.findOne({
       where: {
         id: {
           [Op.eq]: id,
@@ -276,7 +276,7 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
         [Op.eq]: false,
       };
     }
-    const entity = await invitation.find({
+    const entity = await invitation.findOne({
       where,
       include: ['callbacks', 'devices'],
     });
@@ -290,7 +290,7 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
 
 const getInvitationIdAssociatedToDevice = async (type, serialNumber, correlationId) => {
   try {
-    const deviceEntity = await invitationDevice.find({
+    const deviceEntity = await invitationDevice.findOne({
       where: {
         deviceType: {
           [Op.eq]: type,

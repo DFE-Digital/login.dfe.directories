@@ -33,7 +33,7 @@ const routes = () => {
         res.status(404).send();
       }
       const users = await Promise.all(pageOfUsers.users.map(async (user) => {
-        const codes = await getUsersCodes(user.sub);
+        const codes = []; //await getUsersCodes(user.sub);
 
         return {
           id: user.sub,
@@ -66,7 +66,7 @@ const routes = () => {
       return;
     }
 
-    const codes = await getUsersCodes(user.sub);
+    const codes = []; //await getUsersCodes(user.sub);
 
     res.render('dev/views/user', {
       user,

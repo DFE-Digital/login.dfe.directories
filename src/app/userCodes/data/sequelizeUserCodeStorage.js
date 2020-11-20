@@ -35,7 +35,7 @@ const getUserCode = async (uid, codeType, correlationId) => {
   try {
     logger.info(`Find User Code for request: ${correlationId}`, { correlationId });
 
-    const code = await userCode.find({
+    const code = await userCode.findOne({
       where: {
         uid: {
           [Op.eq]: uid,
@@ -58,7 +58,7 @@ const getUserCode = async (uid, codeType, correlationId) => {
 const getUserCodeByEmail = async (email, codeType, correlationId) => {
   try {
     logger.info(`Find User Code by email for request: ${correlationId}`, { correlationId });
-    const code = await userCode.find({
+    const code = await userCode.findOne({
       where: {
         email: {
           [Op.eq]: email,
@@ -113,7 +113,7 @@ const deleteUserCode = async (uid, correlationId) => {
       return;
     }
 
-    const code = await userCode.findById(uid);
+    const code = await userCode.findByPk(uid);
     if (code) {
       await code.destroy();
     }
@@ -126,7 +126,7 @@ const deleteUserCode = async (uid, correlationId) => {
 const updateUserCode = async (uid, email, contextData, redirectUri, clientId, correlationId) => {
   try {
     logger.info(`Update User Code for request: ${correlationId}`, { correlationId });
-    const codeFromFind = await userCode.findById(uid);
+    const codeFromFind = await userCode.findByPk(uid);
 
     if (!codeFromFind) {
       return null;
@@ -137,14 +137,14 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
       code = generateResetCode();
     }
 
-    await codeFromFind.updateAttributes({
+    await codeFromFind.update({
       contextData: JSON.stringify(contextData),
       email,
       redirectUri,
       clientId,
       code,
     });
-    return await userCode.findById(uid);
+    return await userCode.findByPk(uid);
   } catch (e) {
     logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

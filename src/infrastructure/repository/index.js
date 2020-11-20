@@ -51,8 +51,10 @@ if (config.adapter.params && config.adapter.params.postgresUrl) {
     operatorsAliases: Op,
     dialect: config.adapter.params.dialect,
     dialectOptions: {
-      encrypt: encryptDb,
-      packetSize,
+      options: {
+        encrypt: encryptDb,
+        packetSize,
+      },
     },
   };
   if (config.adapter.params.pool) {

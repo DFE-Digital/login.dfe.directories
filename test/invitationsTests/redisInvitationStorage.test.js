@@ -5,9 +5,6 @@ jest.mock('./../../src/infrastructure/config', () => ({
   },
 }));
 
-jest.mock('ioredis', () => jest.fn().mockImplementation(() => {
-
-}));
 jest.mock('./../../src/infrastructure/logger', () => {
   return {
     info: jest.fn(),
@@ -30,11 +27,22 @@ describe('When using the redis invitation storage', () => {
   });
   describe('and getting the invitation by email', () => {
     it('then null is returned if the invitation does not exist', async () => {
-      jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock');
-        const redisMock = new RedisMock();
-        return redisMock;
-      }));
+      const mocks = { redis: null }
+      jest.mock('ioredis', () => {
+        const Redis = require('ioredis-mock')
+        if (typeof Redis === 'object') {
+          return {
+            Command: { _transformer: { argument: {}, reply: {} } }
+          }
+        }
+        // second mock for our code
+        return function(...args) {
+          const instance = new Redis(args);
+          mocks.redis = instance
+          return instance
+        }
+      })
+
 
       invitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
 
@@ -43,12 +51,24 @@ describe('When using the redis invitation storage', () => {
       expect(actual).toBeNull();
     });
     it('then the invitation is returned if it exists', async () => {
-      jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock');
-        const redisMock = new RedisMock();
-        redisMock.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
-        return redisMock;
-      }));
+
+      const mocks = { redis: null }
+      jest.mock('ioredis', () => {
+        const Redis = require('ioredis-mock')
+        if (typeof Redis === 'object') {
+          return {
+            Command: { _transformer: { argument: {}, reply: {} } }
+          }
+        }
+        // second mock for our code
+        return function(...args) {
+          const instance = new Redis(args);
+          instance.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
+          mocks.redis = instance
+          return instance
+        }
+      })
+
 
       invitationStorage = require('./../../src/app/invitations/data');
 
@@ -59,11 +79,21 @@ describe('When using the redis invitation storage', () => {
   });
   describe('and creating the invitation', () => {
     it('then the uuid is used to create the record', async () => {
-      jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock');
-        const redisMock = new RedisMock();
-        return redisMock;
-      }));
+      const mocks = { redis: null }
+      jest.mock('ioredis', () => {
+        const Redis = require('ioredis-mock')
+        if (typeof Redis === 'object') {
+          return {
+            Command: { _transformer: { argument: {}, reply: {} } }
+          }
+        }
+        // second mock for our code
+        return function(...args) {
+          const instance = new Redis(args);
+          mocks.redis = instance
+          return instance
+        }
+      })
 
       invitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
       await invitationStorage.createUserInvitation({ firstName: 'Tester', email: 'test@local.com' });
@@ -83,12 +113,25 @@ describe('When using the redis invitation storage', () => {
   });
   describe('and deleting the invitation', () => {
     it('then if the uid is not supplied the record is not deleted', async () => {
-      jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock');
-        const redisMock = new RedisMock();
-        redisMock.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
-        return redisMock;
-      }));
+
+
+      const mocks = { redis: null }
+      jest.mock('ioredis', () => {
+        const Redis = require('ioredis-mock')
+        if (typeof Redis === 'object') {
+          return {
+            Command: { _transformer: { argument: {}, reply: {} } }
+          }
+        }
+        // second mock for our code
+        return function(...args) {
+          const instance = new Redis(args);
+          instance.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
+
+          mocks.redis = instance
+          return instance
+        }
+      })
 
       invitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
       await invitationStorage.deleteInvitation();
@@ -97,12 +140,25 @@ describe('When using the redis invitation storage', () => {
       expect(record).not.toBeNull();
     });
     it('then the uid is used to find the record and delete it', async () => {
-      jest.doMock('ioredis', () => jest.fn().mockImplementation(() => {
-        const RedisMock = require('ioredis-mock');
-        const redisMock = new RedisMock();
-        redisMock.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
-        return redisMock;
-      }));
+
+
+      const mocks = { redis: null }
+      jest.mock('ioredis', () => {
+        const Redis = require('ioredis-mock')
+        if (typeof Redis === 'object') {
+          return {
+            Command: { _transformer: { argument: {}, reply: {} } }
+          }
+        }
+        // second mock for our code
+        return function(...args) {
+          const instance = new Redis(args);
+          instance.set('UserInvitation_test@local.com', '{"email":"test@local.com","firstName":"tester"}');
+
+          mocks.redis = instance
+          return instance
+        }
+      })
 
       invitationStorage = require('./../../src/app/invitations/data/redisInvitationStorage');
       await invitationStorage.deleteInvitation('test@local.com');

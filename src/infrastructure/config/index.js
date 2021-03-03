@@ -3,6 +3,8 @@
 const fs = require('fs');
 const Path = require('path');
 
+const SERVICE_NAME = 'login.dfe.directories';
+
 const getSettingsObject = (settings) => {
   try {
     return JSON.parse(settings);
@@ -38,8 +40,9 @@ const fetchConfig = () => {
       }
     }
   }
-
-  return null;
+  const settings = require('login.dfe.config')[SERVICE_NAME];
+  process.env.settings = JSON.stringify(settings);
+  return settings;
 };
 
 module.exports = fetchConfig();

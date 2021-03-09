@@ -277,6 +277,7 @@ describe('When using redis user code storage', () => {
     });
 
     it('then if the record is found the the values are updated', async () => {
+
       const mocks = { redis: null }
       jest.mock('ioredis', () => {
         const Redis = require('ioredis-mock')

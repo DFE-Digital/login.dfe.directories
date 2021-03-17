@@ -13,7 +13,7 @@ const crypto = require('crypto');
 const find = async (id, correlationId) => {
   try {
     logger.info(`Get user for request ${correlationId}`, { correlationId });
-    const userEntity = await user.find({
+    const userEntity = await user.findOne({
       where: {
         sub: {
           [Op.eq]: id,
@@ -34,7 +34,7 @@ const find = async (id, correlationId) => {
 const findByUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user for request ${username}`, { correlationId });
-    const userEntity = await user.find({
+    const userEntity = await user.findOne({
       where: {
         email: {
           [Op.eq]: username,
@@ -56,7 +56,7 @@ const findByLegacyUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user by legacy username for request ${username}`, { correlationId });
 
-    const userEntity = await user.find({
+    const userEntity = await user.findOne({
       include: [{
         model: userLegacyUsername,
         where: {
@@ -110,7 +110,7 @@ const changePassword = async (uid, newPassword, correlationId) => {
     const salt = generateSalt();
     const password = crypto.pbkdf2Sync(newPassword, salt, 10000, 512, 'sha512');
 
-    await userEntity.updateAttributes({
+    await userEntity.update({
       salt,
       password: password.toString('base64'),
     });
@@ -131,7 +131,7 @@ const changeStatus = async (uid, userStatus, correlationId) => {
       return null;
     }
 
-    await userEntity.updateAttributes({
+    await userEntity.update({
       status: userStatus,
     });
 
@@ -156,7 +156,7 @@ const authenticate = async (username, password, correlationId) => {
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
 
     if (passwordValid) {
-      await userEntity.updateAttributes({
+      await userEntity.update({
         last_login: new Date().toISOString(),
       });
     }
@@ -261,7 +261,7 @@ const update = async (uid, given_name, family_name, email, phone_number, legacyU
       return null;
     }
 
-    await userEntity.updateAttributes({
+    await userEntity.update({
       given_name,
       family_name,
       email,

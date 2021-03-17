@@ -63,3 +63,4 @@ ssl
 #config
 /config/
 !/config/login.dfe.directories.dev.json
+.vscode/launch.json

@@ -11,14 +11,12 @@ const codesAdapter = require('./../userCodes/data');
 const router = express.Router();
 
 const getUsersCodes = async (userId) => {
-  const codes = [];
-
-  const code = await codesAdapter.getUserPasswordResetCode(userId);
-  if (code) {
-    codes.push(code.code);
+  const codes = await codesAdapter.listUsersCodes(userId);
+  if (codes) {
+    return codes.map(code => code.code);
   }
 
-  return codes;
+  return [];
 };
 
 const routes = () => {

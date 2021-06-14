@@ -12,6 +12,10 @@ const sendNotification = async (user, code, req, uid) => {
     connectionString: config.notifications.connectionString,
   });
 
+  if(!code || !user ){
+    return Promise.reject('user code or user object is null');
+  }
+
   if (code.codeType.toLowerCase() === 'passwordreset') {
     return client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
   }

@@ -95,26 +95,28 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
     logger.info(`Update User Code for request: ${correlationId}`, { correlationId });
     const code = await getUserCode(uid, codeType);
 
-    if (code) {
-      let userCode = code.code;
-      if (code.email.toLowerCase() !== email.toLowerCase()) {
-        userCode = resetCode();
-      }
-
-      code.email = email;
-      code.code = userCode;
-      code.contextData = JSON.stringify(contextData);
-      code.redirectUri = redirectUri;
-      code.clientId = clientId;
-
-      const content = JSON.stringify(code);
-
-      await client.set(`UserResetCode_${uid.toLowerCase()}_${code.codeType.toLowerCase()}`, content);
-
-      return code;
-
+    if (!code) {
+      logger.error('updateUserCode>No user code found');  
+      return null;
     }
-    return null;
+
+    let userCode = code.code;
+    if (code.email.toLowerCase() !== email.toLowerCase()) {
+      userCode = resetCode();
+    }
+
+    code.email = email;
+    code.code = userCode;
+    code.contextData = JSON.stringify(contextData);
+    code.redirectUri = redirectUri;
+    code.clientId = clientId;
+
+    const content = JSON.stringify(code);
+
+    await client.set(`UserResetCode_${uid.toLowerCase()}_${code.codeType.toLowerCase()}`, content);
+
+    return code;
+    
   } catch (e) {
     logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

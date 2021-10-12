@@ -90,7 +90,7 @@ const deleteUserCode = async (uid, codeType, correlationId) => {
   }
 };
 
-const updateUserCode = async (uid, email, contextData, redirectUri, clientId, correlationId, codeType) => {
+const updateUserCode = async (uid, email, contextData, redirectUri, clientId, codeType, correlationId) => {
   try {
     logger.info(`Update User Code for request: ${correlationId}`, { correlationId });
     const code = await getUserCode(uid, codeType);

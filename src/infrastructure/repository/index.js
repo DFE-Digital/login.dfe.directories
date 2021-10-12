@@ -82,6 +82,10 @@ const user = db.define('user', {
     type: Sequelize.STRING,
     allowNull: false,
   },
+  job_title: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   family_name: {
     type: Sequelize.STRING,
     allowNull: false,

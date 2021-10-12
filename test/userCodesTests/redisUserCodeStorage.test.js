@@ -297,7 +297,7 @@ describe('When using redis user code storage', () => {
 
       userCodeStorage = require('./../../src/app/userCodes/data');
 
-      const record = await userCodeStorage.updateUserCode('123', 'test@local', { something: 'test' }, '', '', '', 'PasswordReset');
+      const record = await userCodeStorage.updateUserCode('123', 'test@local', { something: 'test' }, '', '', 'PasswordReset', '');
       expect(record).not.toBeNull();
       expect(record.code).toBe('ZXY123');
       expect(record.contextData).toBe('{\"something\":\"test\"}');
@@ -323,7 +323,7 @@ describe('When using redis user code storage', () => {
 
       userCodeStorage = require('./../../src/app/userCodes/data');
 
-      const record = await userCodeStorage.updateUserCode('123', 'test@local2', '', '', '', '', 'PasswordReset');
+      const record = await userCodeStorage.updateUserCode('123', 'test@local2', '', '', '', 'PasswordReset', '');
       expect(record).not.toBeNull();
       expect(record.code).toBe('ABC123');
     });

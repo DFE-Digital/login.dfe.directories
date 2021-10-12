@@ -105,6 +105,7 @@ Then a corresponding User_[Sub] record should be created as shown
 	"email": "foo@example.com",
 	"given_name": "Roger",
 	"family_name": "Johnson",
+  "job_title": "Administrative Assistant",
 	"password": "xxxx",
 	"salt": "zzzzzzz"
 }

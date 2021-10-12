@@ -123,10 +123,10 @@ const deleteUserCode = async (uid, correlationId) => {
   }
 };
 
-const updateUserCode = async (uid, email, contextData, redirectUri, clientId, correlationId) => {
+const updateUserCode = async (uid, email, contextData, redirectUri, clientId, codeType, correlationId) => {
   try {
     logger.info(`Update User Code for request: ${correlationId}`, { correlationId });
-    const codeFromFind = await userCode.findByPk(uid);
+    const codeFromFind = await getUserCode(uid, codeType, correlationId);
 
     if (!codeFromFind) {
       return null;
@@ -144,7 +144,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
       clientId,
       code,
     });
-    return await userCode.findByPk(uid);
+    return await await getUserCode(uid, codeType, correlationId);
   } catch (e) {
     logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

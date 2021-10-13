@@ -26,6 +26,14 @@ class UserModel {
   set email(value) {
     this._email = value;
   }
+
+  get job_title() {
+    return this._job_title;
+  }
+  set job_title(value) {
+    this._job_title = value;
+  }
+  
   get legacyUsername() {
     return this._legacyUsername;
   }

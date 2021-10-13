@@ -253,7 +253,7 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
 };
 
 
-const update = async (uid, given_name, family_name, email, phone_number, legacyUsernames, correlationId) => {
+const update = async (uid, given_name, family_name, email, job_title, phone_number, legacyUsernames, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
 
@@ -266,6 +266,7 @@ const update = async (uid, given_name, family_name, email, phone_number, legacyU
       family_name,
       email,
       phone_number,
+      job_title
     });
 
     if (legacyUsernames) {

@@ -77,17 +77,39 @@ const findByLegacyUsername = async (username, correlationId) => {
   }
 };
 
-const getUsers = async (uids, correlationId) => {
+const getUsers = async (uids, status, from, to, correlationId) => {
   try {
     logger.info(`Get Users for request: ${correlationId}`, { correlationId });
 
-    const users = await user.findAll({
+    const query = {
       where: {
         sub: {
-          [Op.or]: uids,
+          [Op.in]: uids,
         },
       },
-    });
+    }
+
+    if (!isNaN(status)) {
+      query.where.status = {
+        [Op.eq]: parseInt(status)
+      }
+    }
+    if (from && to) {
+      query.where.updatedAt = {
+        [Op.between]: [from, to]
+      }
+    }
+    else if (to) {
+      query.where.updatedAt = {
+        [Op.lte]: to
+      }
+    } else if (from) {
+      query.where.updatedAt = {
+        [Op.gte]: from
+      }
+    }
+
+    const users = await user.findAll(query);
 
     if (!users || users.length === 0) {
       return null;

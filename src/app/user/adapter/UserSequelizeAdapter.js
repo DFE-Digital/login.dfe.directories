@@ -311,10 +311,10 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
-const getUserPasswordPolicy = async (uid, correlationId) => {
+const findUserPasswordPolicies = async (uid, correlationId) => {
   try {
-    logger.info(`Get user pasword policy by user uid for request ${uid}`, { correlationId });
-    const passwordPolicy = await userPasswordPolicy.findOne({
+    logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
+    const passwordPolicy = await userPasswordPolicy.findAll({
       where: {
         uid: {
           [Op.eq]: uid,
@@ -326,9 +326,26 @@ const getUserPasswordPolicy = async (uid, correlationId) => {
     }
     return passwordPolicy;
   } catch (e) {
-    logger.error(`error getting user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(`error getting user pasword policies for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
+};
+
+const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
+  logger.info(`Create a user password policy entry for user ${uid}`, { correlationId });
+  const id = uuid.v4();
+
+  const newPasswordPolicy = {
+    id: id,
+    uid: uid,
+    policyCode: policyCode,
+    createdAt: Sequelize.fn('GETDATE'),
+    updatedAt: Sequelize.fn('GETDATE'),
+  };
+
+  await userPasswordPolicy.create(newPasswordPolicy);
+
+  return newPasswordPolicy;
 };
 
 module.exports = {
@@ -343,5 +360,6 @@ module.exports = {
   update,
   findByLegacyUsername,
   getLegacyUsernames,
-  getUserPasswordPolicy,
+  findUserPasswordPolicies,
+  addUserPasswordPolicy,
 };

@@ -372,7 +372,7 @@ const userPasswordPolicy = db.define('user_password_policy', {
   tableName: 'user_password_policy',
   schema: dbSchema,
 });
-user.hasOne(userPasswordPolicy, { foreignKey: 'uid', sourceKey: 'sub', as: 'userPasswordPolicy' });
+user.hasMany(userPasswordPolicy, { foreignKey: 'uid', sourceKey: 'sub', as: 'userPasswordPolicy' });
 userPasswordPolicy.belongsTo(user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
 
 module.exports = {

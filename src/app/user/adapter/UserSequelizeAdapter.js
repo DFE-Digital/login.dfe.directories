@@ -4,7 +4,7 @@ const Sequelize = require('sequelize');
 
 const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
-const { user, userLegacyUsername } = require('./../../../infrastructure/repository');
+const { user, userLegacyUsername, userPasswordPolicy } = require('./../../../infrastructure/repository');
 const generateSalt = require('./../utils/generateSalt');
 const uuid = require('uuid');
 const { promisify } = require('util');
@@ -311,6 +311,25 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
+const getUserPasswordPolicy = async (uid, correlationId) => {
+  try {
+    logger.info(`Get user pasword policy by user uid for request ${uid}`, { correlationId });
+    const passwordPolicy = await userPasswordPolicy.findOne({
+      where: {
+        uid: {
+          [Op.eq]: uid,
+        },
+      },
+    });
+    if (!passwordPolicy) {
+      return null;
+    }
+    return passwordPolicy;
+  } catch (e) {
+    logger.error(`error getting user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
 
 module.exports = {
   find,
@@ -324,4 +343,5 @@ module.exports = {
   update,
   findByLegacyUsername,
   getLegacyUsernames,
+  getUserPasswordPolicy,
 };

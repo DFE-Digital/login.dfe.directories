@@ -21,6 +21,7 @@ const createUser = require('./createUser');
 const findByLegacyUsername = require('./findByLegacyUsername');
 const findLegacyUsernamesById = require('./findLegacyUsernames');
 const searchV2 = require('./searchV2');
+const getUserPasswordPolicy = require('./getUserPasswordPolicy');
 
 const router = express.Router();
 
@@ -39,6 +40,7 @@ const routeExport = () => {
   router.get('/users/by-legacyusername/:id', asyncWrapper(findByLegacyUsername));
   router.get('/users/:id', asyncWrapper(find));
   router.get('/users/:uid/legacy-username', asyncWrapper(findLegacyUsernamesById));
+  router.get('/users/:uid/check-password-policy', asyncWrapper(getUserPasswordPolicy));
 
   router.post('/:directoryId/user/authenticate', deprecateWith('/users/authenticate'), asyncWrapper(authenticate));
   router.post('/users/authenticate', asyncWrapper(authenticate));

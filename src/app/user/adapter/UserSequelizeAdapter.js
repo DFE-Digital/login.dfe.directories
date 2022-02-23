@@ -332,20 +332,25 @@ const findUserPasswordPolicies = async (uid, correlationId) => {
 };
 
 const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
-  logger.info(`Create a user password policy entry for user ${uid}`, { correlationId });
-  const id = uuid.v4();
+  try {
+    logger.info(`Add a user password policy for user ${uid}`, { correlationId });
+    const id = uuid.v4();
 
-  const newPasswordPolicy = {
-    id: id,
-    uid: uid,
-    policyCode: policyCode,
-    createdAt: Sequelize.fn('GETDATE'),
-    updatedAt: Sequelize.fn('GETDATE'),
-  };
+    const newPasswordPolicy = {
+      id: id,
+      uid: uid,
+      policyCode: policyCode,
+      createdAt: Sequelize.fn('GETDATE'),
+      updatedAt: Sequelize.fn('GETDATE'),
+    };
 
-  await userPasswordPolicy.create(newPasswordPolicy);
+    await userPasswordPolicy.create(newPasswordPolicy);
 
-  return newPasswordPolicy;
+    return newPasswordPolicy;
+  } catch (e) {
+    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
 };
 
 module.exports = {

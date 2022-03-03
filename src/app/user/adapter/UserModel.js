@@ -40,6 +40,12 @@ class UserModel {
   set legacyUsername(value) {
     this._legacyUsername = value;
   }
+  get password_reset_required() {
+    return this._password_reset_required;
+  }
+  set password_reset_required(value) {
+    this._password_reset_required = value;
+  }
 }
 
 module.exports = UserModel;

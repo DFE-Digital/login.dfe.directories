@@ -113,6 +113,7 @@ const changePassword = async (uid, newPassword, correlationId) => {
     await userEntity.update({
       salt,
       password: password.toString('base64'),
+      password_reset_required: false,
     });
 
     return userEntity;
@@ -197,6 +198,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     status: 1,
     phone_number: phone_number,
     isMigrated,
+    password_reset_required: false,
   };
 
   await user.create(newUser);
@@ -253,7 +255,7 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
 };
 
 
-const update = async (uid, given_name, family_name, email, job_title, phone_number, legacyUsernames, correlationId) => {
+const update = async (uid, given_name, family_name, email, job_title, phone_number, legacyUsernames, correlationId, password_reset_required) => {
   try {
     const userEntity = await find(uid, correlationId);
 
@@ -266,7 +268,9 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
       family_name,
       email,
       phone_number,
-      job_title
+      job_title,
+      password_reset_required,
+
     });
 
     if (legacyUsernames) {

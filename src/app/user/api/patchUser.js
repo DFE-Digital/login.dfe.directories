@@ -4,7 +4,7 @@ const { safeUser } = require('./../../../utils');
 const config = require('./../../../infrastructure/config');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 
-const allowablePatchProperties = ['given_name', 'family_name', 'email', 'job_title', 'phone_number', 'legacyUsernames'];
+const allowablePatchProperties = ['given_name', 'family_name', 'email', 'job_title', 'phone_number', 'legacyUsernames', 'password_reset_required'];
 const allowablePropertiesMessage = allowablePatchProperties.concat();
 
 const validateRequestData = (req) => {
@@ -42,7 +42,7 @@ const patchUser = async (req, res) => {
   // Patch user
   const updatedUser = Object.assign(userModel, req.body);
   await update(updatedUser.sub, updatedUser.given_name, updatedUser.family_name,
-    updatedUser.email, updatedUser.job_title, updatedUser.phone_number, updatedUser.legacyUsernames, correlationId);
+    updatedUser.email, updatedUser.job_title, updatedUser.phone_number, updatedUser.legacyUsernames, correlationId, updatedUser.password_reset_required);
 
   if (config.toggles && config.toggles.notificationsEnabled) {
     const serviceNotificationsClient = new ServiceNotificationsClient({

@@ -352,6 +352,29 @@ invitation.hasMany(invitationDevice, { foreignKey: 'invitationId', sourceKey: 'i
 invitation.hasMany(invitationCallback, { foreignKey: 'invitationId', sourceKey: 'id', as: 'callbacks' });
 invitationDevice.belongsTo(invitation, { as: 'invitation' });
 
+const userPasswordPolicy = db.define('user_password_policy', {
+  id: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  uid: {
+    type: Sequelize.UUID,
+    allowNull: false,
+  },
+  policyCode: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+
+}, {
+  timestamps: true,
+  tableName: 'user_password_policy',
+  schema: dbSchema,
+});
+user.hasMany(userPasswordPolicy, { foreignKey: 'uid', sourceKey: 'sub', as: 'userPasswordPolicy' });
+userPasswordPolicy.belongsTo(user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
+
 module.exports = {
   user,
   userCode,
@@ -360,4 +383,5 @@ module.exports = {
   invitation,
   invitationDevice,
   invitationCallback,
+  userPasswordPolicy,
 };

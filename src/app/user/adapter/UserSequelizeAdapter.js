@@ -4,7 +4,7 @@ const Sequelize = require('sequelize');
 
 const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
-const { user, userLegacyUsername } = require('./../../../infrastructure/repository');
+const { user, userLegacyUsername, userPasswordPolicy } = require('./../../../infrastructure/repository');
 const generateSalt = require('./../utils/generateSalt');
 const uuid = require('uuid');
 const { promisify } = require('util');
@@ -311,6 +311,47 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
+const findUserPasswordPolicies = async (uid, correlationId) => {
+  try {
+    logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
+    const passwordPolicy = await userPasswordPolicy.findAll({
+      where: {
+        uid: {
+          [Op.eq]: uid,
+        },
+      },
+    });
+    if (!passwordPolicy) {
+      return null;
+    }
+    return passwordPolicy;
+  } catch (e) {
+    logger.error(`error getting user pasword policies for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
+const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
+  try {
+    logger.info(`Add a user password policy for user ${uid}`, { correlationId });
+    const id = uuid.v4();
+
+    const newPasswordPolicy = {
+      id: id,
+      uid: uid,
+      policyCode: policyCode,
+      createdAt: Sequelize.fn('GETDATE'),
+      updatedAt: Sequelize.fn('GETDATE'),
+    };
+
+    await userPasswordPolicy.create(newPasswordPolicy);
+
+    return newPasswordPolicy;
+  } catch (e) {
+    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
 
 module.exports = {
   find,
@@ -324,4 +365,6 @@ module.exports = {
   update,
   findByLegacyUsername,
   getLegacyUsernames,
+  findUserPasswordPolicies,
+  addUserPasswordPolicy,
 };

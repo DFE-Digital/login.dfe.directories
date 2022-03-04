@@ -238,7 +238,7 @@ const authenticate = async (username, password, correlationId) => {
   return null;
 };
 
-const update = async (uid, given_name, family_name, email, job_title, phone_number, correlationId, password_reset_required) => {
+const update = async (uid, given_name, family_name, email, job_title, phone_number, correlationId) => {
   try {
     logger.info(`Updating user for request: ${correlationId}`, { correlationId });
 
@@ -253,7 +253,6 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
     user.email = email;
     user.phone_number = phone_number;
     user.job_title = job_title;
-    user.password_reset_required = password_reset_required;
 
     await client.set(`User_${uid}`, JSON.stringify(user));
   } catch (e) {

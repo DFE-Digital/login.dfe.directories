@@ -107,7 +107,8 @@ Then a corresponding User_[Sub] record should be created as shown
 	"family_name": "Johnson",
   "job_title": "Administrative Assistant",
 	"password": "xxxx",
-	"salt": "zzzzzzz"
+	"salt": "zzzzzzz",
+  "password_reset_required": false
 }
 ```
 

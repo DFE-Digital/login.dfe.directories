@@ -114,6 +114,11 @@ const user = db.define('user', {
     allowNull: false,
     defaultValue: false,
   },
+  password_reset_required: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 }, {
   timestamps: true,
   tableName: 'user',

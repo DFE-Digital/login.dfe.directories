@@ -4,7 +4,7 @@ const Sequelize = require('sequelize');
 
 const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
-const { user, userLegacyUsername } = require('./../../../infrastructure/repository');
+const { user, userLegacyUsername, userPasswordPolicy } = require('./../../../infrastructure/repository');
 const generateSalt = require('./../utils/generateSalt');
 const uuid = require('uuid');
 const { promisify } = require('util');
@@ -113,6 +113,7 @@ const changePassword = async (uid, newPassword, correlationId) => {
     await userEntity.update({
       salt,
       password: password.toString('base64'),
+      password_reset_required: false,
     });
 
     return userEntity;
@@ -197,6 +198,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     status: 1,
     phone_number: phone_number,
     isMigrated,
+    password_reset_required: false,
   };
 
   await user.create(newUser);
@@ -253,7 +255,7 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
 };
 
 
-const update = async (uid, given_name, family_name, email, phone_number, legacyUsernames, correlationId) => {
+const update = async (uid, given_name, family_name, email, job_title, phone_number, legacyUsernames, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
 
@@ -266,6 +268,7 @@ const update = async (uid, given_name, family_name, email, phone_number, legacyU
       family_name,
       email,
       phone_number,
+      job_title,
     });
 
     if (legacyUsernames) {
@@ -310,6 +313,47 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
+const findUserPasswordPolicies = async (uid, correlationId) => {
+  try {
+    logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
+    const passwordPolicy = await userPasswordPolicy.findAll({
+      where: {
+        uid: {
+          [Op.eq]: uid,
+        },
+      },
+    });
+    if (!passwordPolicy) {
+      return null;
+    }
+    return passwordPolicy;
+  } catch (e) {
+    logger.error(`error getting user pasword policies for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
+const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
+  try {
+    logger.info(`Add a user password policy for user ${uid}`, { correlationId });
+    const id = uuid.v4();
+
+    const newPasswordPolicy = {
+      id: id,
+      uid: uid,
+      policyCode: policyCode,
+      createdAt: Sequelize.fn('GETDATE'),
+      updatedAt: Sequelize.fn('GETDATE'),
+    };
+
+    await userPasswordPolicy.create(newPasswordPolicy);
+
+    return newPasswordPolicy;
+  } catch (e) {
+    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
 
 module.exports = {
   find,
@@ -323,4 +367,6 @@ module.exports = {
   update,
   findByLegacyUsername,
   getLegacyUsernames,
+  findUserPasswordPolicies,
+  addUserPasswordPolicy,
 };

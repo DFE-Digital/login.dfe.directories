@@ -5,9 +5,8 @@ const config = require('./../config');
 const appInsights = require('applicationinsights');
 const AppInsightsTransport = require('login.dfe.winston-appinsights');
 
-const logLevel = (config && config.loggerSettings && config.loggerSettings.logLevel) ? config.loggerSettings.logLevel : 'info';
 
-const loggerConfig = {
+const customLevels = {
   levels: {
     audit: 0,
     error: 1,
@@ -23,10 +22,13 @@ const loggerConfig = {
     error: 'red',
     audit: 'magenta',
   },
+};
+
+const loggerConfig = {
+  levels: customLevels.levels,
   transports: [],
 };
 
-loggerConfig.transports.push(new (winston.transports.Console)({ level: logLevel, colorize: true }));
 if (config && config.loggerSettings && config.loggerSettings.redis && config.loggerSettings.redis.enabled) {
   loggerConfig.transports.push(new (winston.transports.Redis)({
     level: 'audit',
@@ -50,7 +52,7 @@ if (config.hostingEnvironment.applicationInsights) {
   }));
 }
 
-const logger = new (winston.Logger)(loggerConfig);
+const logger = winston.createLogger(loggerConfig);
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: ', p, 'reason: ', reason);

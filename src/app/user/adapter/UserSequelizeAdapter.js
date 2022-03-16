@@ -6,7 +6,7 @@ const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
 const { user, userLegacyUsername, userPasswordPolicy } = require('./../../../infrastructure/repository');
 const generateSalt = require('./../utils/generateSalt');
-const uuid = require('uuid');
+const { v4: uuid } = require('uuid');
 const { promisify } = require('util');
 const crypto = require('crypto');
 

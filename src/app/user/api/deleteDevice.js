@@ -1,6 +1,6 @@
 const { deleteUserDevice } = require('./../devices');
 const logger = require('./../../../infrastructure/logger');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const validateRequest = (req) => {
   if (!req.body.type) {

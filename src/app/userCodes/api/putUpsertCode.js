@@ -5,7 +5,7 @@ const storage = require('./../data');
 const NotificatonClient = require('login.dfe.notifications.client');
 const userAdapter = require('./../../user/adapter');
 const config = require('./../../../infrastructure/config');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const sendNotification = async (user, code, req, uid) => {
   const client = new NotificatonClient({

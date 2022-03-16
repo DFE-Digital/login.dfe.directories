@@ -5,7 +5,6 @@ const config = require('./../config');
 const appInsights = require('applicationinsights');
 const AppInsightsTransport = require('login.dfe.winston-appinsights');
 
-const logLevel = (config && config.loggerSettings && config.loggerSettings.logLevel) ? config.loggerSettings.logLevel : 'info';
 
 const customLevels = {
   levels: {
@@ -27,11 +26,9 @@ const customLevels = {
 
 const loggerConfig = {
   levels: customLevels.levels,
-  colors: customLevels.colors,
   transports: [],
 };
 
-loggerConfig.transports.push(new (winston.transports.Console)({ level: logLevel, colorize: true }));
 if (config && config.loggerSettings && config.loggerSettings.redis && config.loggerSettings.redis.enabled) {
   loggerConfig.transports.push(new (winston.transports.Redis)({
     level: 'audit',

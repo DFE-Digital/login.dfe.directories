@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const { promisify } = require('util');
 const generateSalt = require('./../utils/generateSalt');
 const { chunk } = require('lodash');
-const uuid = require('uuid');
+const { v4: uuid } = require('uuid');
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
 

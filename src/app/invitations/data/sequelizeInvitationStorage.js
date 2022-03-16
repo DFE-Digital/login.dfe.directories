@@ -1,7 +1,7 @@
 const { invitation, invitationDevice, invitationCallback } = require('./../../../infrastructure/repository');
 const logger = require('./../../../infrastructure/logger');
 const { Op } = require('sequelize');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 
 const mapEntityToInvitation = (entity) => {
   const overrides = entity.overrideSubject || entity.overrideBody ? {

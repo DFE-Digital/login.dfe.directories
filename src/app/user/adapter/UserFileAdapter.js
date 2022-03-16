@@ -5,7 +5,7 @@
 const file = require('fs');
 const path = require('path');
 const {promisify} = require('util');
-const uuid = require('uuid');
+const { v4: uuid } = require('uuid');
 const generateSalt = require('./../utils/generateSalt');
 const crypto = require('crypto');
 const {chunk} = require('lodash');

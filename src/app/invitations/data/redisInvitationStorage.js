@@ -1,7 +1,7 @@
 const Redis = require('ioredis');
 const config = require('./../../../infrastructure/config');
 const logger = require('./../../../infrastructure/logger');
-const uuid = require('uuid/v4');
+const { v4: uuid } = require('uuid');
 const { chunk } = require('lodash');
 
 const tls = config.invitations.redisUrl.includes('6380');

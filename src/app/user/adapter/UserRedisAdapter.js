@@ -60,7 +60,7 @@ const createUser = async (username, password, firstName, lastName, legacyUsernam
 
   const salt = generateSalt();
   const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
-  const id = uuid.v4();
+  const id = uuid();
 
   const newUser = {
     id,

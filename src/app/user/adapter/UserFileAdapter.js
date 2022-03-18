@@ -68,7 +68,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
 
   const salt = generateSalt();
   const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
-  const newUser = {sub: uuid.v4(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword, legacy_username: legacyUsername, phone_number: phone_number };
+  const newUser = {sub: uuid(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword, legacy_username: legacyUsername, phone_number: phone_number };
   users.push(newUser);
   return writeAllUsers(users);
 };

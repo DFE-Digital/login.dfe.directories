@@ -186,7 +186,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
 
   const salt = generateSalt();
   const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
-  const id = uuid.v4();
+  const id = uuid();
 
   const newUser = {
     sub: id,
@@ -336,7 +336,7 @@ const findUserPasswordPolicies = async (uid, correlationId) => {
 const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
   try {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
-    const id = uuid.v4();
+    const id = uuid();
 
     const newPasswordPolicy = {
       id: id,

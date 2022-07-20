@@ -69,7 +69,7 @@
     "url": "https://github.com/DFE-Digital/login.dfe.directories/issues"
   },
   "scripts": {
-    "test": "jest",
+    "test": "./node_modules/.bin/jest",
     "setup": "./generate-certs.sh",
     "dev": "PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
     "start_live": "node src/index.js "

@@ -103,6 +103,9 @@
             "metadata": {
                 "description": "Enable Route All to send all traffic through the virtual network"
             }
+        },
+        "http20Enabled": {
+            "value": true
         }
     },
     "variables": {

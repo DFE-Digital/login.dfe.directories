@@ -53,14 +53,15 @@ const patchInvitation = async (req, res) => {
   }
 
   const patchedInvitation = Object.assign(Object.assign({}, invitation), req.body);
-  const emailHasChanged = patchedInvitation.email.toLowerCase() !== invitation.email.toLowerCase();
-  if (emailHasChanged) {
-    patchedInvitation.code = generateInvitationCode();
-  }
+
+  patchedInvitation.code = generateInvitationCode();
+  patchedInvitation.codeMetaData = JSON.stringify({
+    codeExpiry: new Date().toISOString(),
+  });
+
   await updateInvitation(patchedInvitation);
-  if (emailHasChanged) {
-    await sendInvitation(patchedInvitation);
-  }
+
+  await sendInvitation(patchedInvitation);
 
   return res.status(202).send();
 };

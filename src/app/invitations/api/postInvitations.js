@@ -1,13 +1,13 @@
 'use strict';
 
-const config = require('./../../../infrastructure/config');
-const logger = require('./../../../infrastructure/logger');
-const storage = require('./../data');
-const userStorage = require('./../../user/adapter');
-const { generateInvitationCode } = require('./../utils');
 const NotificationClient = require('login.dfe.notifications.client');
-const { getServiceById } = require('./../../../infrastructure/applications');
-const sendInvitation = require('./../utils/sendInvitation');
+const config = require('../../../infrastructure/config');
+const logger = require('../../../infrastructure/logger');
+const storage = require('../data');
+const userStorage = require('../../user/adapter');
+const { generateInvitationCode } = require('../utils');
+const { getServiceById } = require('../../../infrastructure/applications');
+const sendInvitation = require('../utils/sendInvitation');
 
 const checkIfExistingUserAndNotifyIfIs = async (invitation) => {
   const account = await userStorage.findByUsername(invitation.email);
@@ -36,7 +36,7 @@ const post = async (req, res) => {
       return;
     }
 
-    const requestedInvite = Object.assign({}, req.body);
+    const requestedInvite = { ...req.body };
 
     if (await checkIfExistingUserAndNotifyIfIs(requestedInvite)) {
       res.status(202).send();
@@ -47,7 +47,19 @@ const post = async (req, res) => {
     let statusCode = 202;
     if (!invitation) {
       requestedInvite.code = generateInvitationCode();
+      requestedInvite.codeMetaData = JSON.stringify({
+        codeExpiry: new Date().toISOString(),
+      });
+
       invitation = await storage.createUserInvitation(requestedInvite, req.header('x-correlation-id'));
+      statusCode = 201;
+    } else if (invitation) {
+      invitation.code = generateInvitationCode();
+      invitation.codeMetaData = JSON.stringify({
+        codeExpiry: new Date().toISOString(),
+      });
+
+      invitation = await storage.updateInvitation(invitation, req.header('x-correlation-id'));
       statusCode = 201;
     }
 

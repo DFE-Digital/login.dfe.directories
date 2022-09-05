@@ -343,6 +343,10 @@ const invitation = db.define('invitation', {
     type: Sequelize.STRING,
     allowNull: true,
   },
+  codeMetaData: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
   isApprover: {
     type: Sequelize.BOOLEAN,
     allowNull: false,

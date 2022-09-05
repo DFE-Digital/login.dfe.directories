@@ -1,8 +1,9 @@
 'use strict';
 
-const logger = require('./../../../infrastructure/logger');
-const sendInvitation = require('./../utils/sendInvitation');
-const storage = require('./../data');
+const logger = require('../../../infrastructure/logger');
+const sendInvitation = require('../utils/sendInvitation');
+const { generateInvitationCode } = require('../utils');
+const storage = require('../data');
 
 const post = async (req, res) => {
   try {
@@ -10,11 +11,19 @@ const post = async (req, res) => {
       res.status(400).send();
       return;
     }
-    const invitation = await storage.getUserInvitation(req.params.id, req.header('x-correlation-id'));
+    let invitation = await storage.getUserInvitation(req.params.id, req.header('x-correlation-id'));
     if (!invitation) {
       res.status(404).send();
       return;
     }
+
+    invitation.code = generateInvitationCode();
+    invitation.codeMetaData = JSON.stringify({
+      codeExpiry: new Date().toISOString(),
+    });
+
+    invitation = await storage.updateInvitation(invitation, req.header('x-correlation-id'));
+
     await sendInvitation(invitation);
     res.status(200).send(invitation);
   } catch (e) {

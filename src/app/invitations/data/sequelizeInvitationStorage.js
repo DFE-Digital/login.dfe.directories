@@ -64,6 +64,7 @@ const mapEntityToInvitation = (entity) => {
     approverEmail: entity.approverEmail,
     orgName: entity.orgName,
     isApprover: entity.isApprover,
+    codeMetaData: entity.codeMetaData,
   };
 };
 const mapInvitationToEntities = (model) => {
@@ -89,6 +90,7 @@ const mapInvitationToEntities = (model) => {
     approverEmail: model.approverEmail,
     orgName: model.orgName,
     isApprover: model.isApprover,
+    codeMetaData: model.codeMetaData,
   };
 
   const deviceEntities = [];

@@ -22,6 +22,12 @@ const post = async (req, res) => {
       codeExpiry: new Date().toISOString(),
     });
 
+    logger.audit({
+      type: 'invitation-code',
+      subType: 'post-resend-invitation',
+      message: `Resend verify code ${invitation.code} for invitation id ${invitation.id}`,
+    });
+
     invitation = await storage.updateInvitation(invitation, req.header('x-correlation-id'));
 
     await sendInvitation(invitation);

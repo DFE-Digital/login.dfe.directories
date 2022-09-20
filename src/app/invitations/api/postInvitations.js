@@ -63,6 +63,12 @@ const post = async (req, res) => {
       statusCode = 201;
     }
 
+    logger.audit({
+      type: 'invitation-code',
+      subType: 'post-invitation',
+      message: `Post verify code ${invitation.code} for invitation id ${invitation.id}`,
+    });
+
     await sendInvitation(invitation);
 
     res.status(statusCode).send(invitation);

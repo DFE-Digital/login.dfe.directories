@@ -31,9 +31,8 @@ const loggerConfig = {
 };
 
 const sequelizeTransport = WinstonSequelizeTransport(config);
-console.log(sequelizeTransport);
+
 if (sequelizeTransport) {
-  console.log('here');
   loggerConfig.transports.push(sequelizeTransport);
 }
 

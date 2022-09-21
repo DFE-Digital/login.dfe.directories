@@ -4,6 +4,7 @@ const winston = require('winston');
 const config = require('./../config');
 const appInsights = require('applicationinsights');
 const AppInsightsTransport = require('login.dfe.winston-appinsights');
+const WinstonSequelizeTransport = require('login.dfe.audit.winston-sequelize-transport');
 
 
 const customLevels = {
@@ -28,6 +29,12 @@ const loggerConfig = {
   levels: customLevels.levels,
   transports: [],
 };
+
+const sequelizeTransport = WinstonSequelizeTransport(config);
+
+if (sequelizeTransport) {
+  loggerConfig.transports.push(sequelizeTransport);
+}
 
 if (config && config.loggerSettings && config.loggerSettings.redis && config.loggerSettings.redis.enabled) {
   loggerConfig.transports.push(new (winston.transports.Redis)({

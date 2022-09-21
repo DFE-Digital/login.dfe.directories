@@ -3,6 +3,7 @@ const { getUserInvitation, updateInvitation } = require('./../data');
 const { generateInvitationCode } = require('./../utils');
 const NotificationClient = require('login.dfe.notifications.client');
 const { getServiceById } = require('./../../../infrastructure/applications');
+const logger = require('../../../infrastructure/logger');
 
 const patchableProperties = ['email', 'isCompleted', 'deactivated', 'reason', 'callbacks'];
 const patchablePropertiesMessage = patchableProperties.concat();
@@ -57,6 +58,12 @@ const patchInvitation = async (req, res) => {
   patchedInvitation.code = generateInvitationCode();
   patchedInvitation.codeMetaData = JSON.stringify({
     codeExpiry: new Date().toISOString(),
+  });
+
+  logger.audit({
+    type: 'invitation-code',
+    subType: 'patch-invitation',
+    message: `Update verify code ${patchedInvitation.code} for invitation id ${patchedInvitation.id}`,
   });
 
   await updateInvitation(patchedInvitation);

@@ -98,7 +98,8 @@ const createUserCode = async (uid, clientId, redirectUri, email, contextData, co
     };
 
     await userCode.create(userResetCode);
-
+    const result = await getUserCode(uid, codeType, correlationId);
+    userResetCode.createdAt = result.createdAt;
     return userResetCode;
   } catch (e) {
     logger.error(`Create User Password Reset Code for request ${correlationId} error: ${e}`, { correlationId });
@@ -144,7 +145,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
       clientId,
       code,
     });
-    return await await getUserCode(uid, codeType, correlationId);
+    return await getUserCode(uid, codeType, correlationId);
   } catch (e) {
     logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

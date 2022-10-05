@@ -73,6 +73,12 @@ const put = async (req, res) => {
 
     const user = await userAdapter.find(uid, req.header('x-correlation-id'));
 
+    logger.audit({
+      type: 'change-email',
+      subType: 'verification-code',
+      userId: uid,
+      message: `Change email verification code ${code.code} sent to email ${code.email}. code expiry=${code.createdAt}, code type=${code.codeType.toLowerCase()}`,
+    });
 
     await sendNotification(user, code, req, uid);
 

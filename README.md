@@ -253,3 +253,15 @@ This will return true or false depending on whether the code is valid or not
 ``` DELETE: /:uid  ```
 
 This will delete a code associated to the uid
+
+## Prerequisite
+---
+1. Add audit sql host name to keyvault with name `auditSqlHostName` - added
+2. Add audit sql db name to keyvault with name `auditSqlDbName` - added
+3. Add Applications host name to keyvault with name `standaloneApplicationsHostName` - added
+4. Add app insights instrumentation Key to keyvault with name `appInsightsInstrumentationKey` - added
+5.  Add tenant Url to keyvault with name `tenantUrl` - added
+6.  Add aad shd app id to keyvault with name `aadshdappid` - added
+7.  Add platform Global Slack Feed in the keyvault with name `platformGlobalSlackFeed` 
+8.  Add aad shd client id to keyvault with name `aadshdclientid` - added
+9.  Add aad shd client secret to keyvault with name `aadshdclientsecret` - added

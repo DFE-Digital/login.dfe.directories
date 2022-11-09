@@ -258,7 +258,7 @@ This will delete a code associated to the uid
 ---
 1. Add audit sql host name to keyvault with name `auditSqlHostName` - added
 2. Add audit sql db name to keyvault with name `auditSqlDbName` - added
-3. Add Applications host name to keyvault with name `standaloneApplicationsHostName` - added
+3. Add Directories host name to keyvault with name `standaloneDirectoriesHostName` - added
 4. Add app insights instrumentation Key to keyvault with name `appInsightsInstrumentationKey` - added
 5.  Add tenant Url to keyvault with name `tenantUrl` - added
 6.  Add aad shd app id to keyvault with name `aadshdappid` - added

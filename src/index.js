@@ -47,10 +47,10 @@ if (config.hostingEnvironment.useDevViews) {
 }
 
 // TODO Once the deprecated APIs are gone, this mount can be /users...
-app.use('/', users);
-app.use('/devices', devices);
-app.use('/userCodes', userCodes);
-app.use('/invitations', invitations);
+app.use('/dir/', users);
+app.use('/dir/devices', devices);
+app.use('/dir/userCodes', userCodes);
+app.use('/dir/invitations', invitations);
 
 // Error handing
 app.use(getErrorHandler({

@@ -225,11 +225,15 @@ const getUsers = async (uids, correlationId) => {
 const authenticate = async (username, password, correlationId) => {
   logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
   const user = await findByUsername(username);
-  const latestPasswordPolicy = process.env.POLICY_CODE || 'v2';
+  const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
 
   if (!user) return null;
+  
+  const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+  const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u=>u.policyCode === 'v3').length>0 ? 'v3' : 'v2';
+
   const request = promisify(crypto.pbkdf2);
-  const iterations = userEntity.userPasswordPolicy.policyCode === latestPasswordPolicy ? 120000 : 10000;
+  const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
 
   const saltBuffer = Buffer.from(user.salt, 'utf8');
   const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');

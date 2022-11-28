@@ -182,7 +182,7 @@ describe('When using redis storage service', () => {
       
       const request = promisify(crypto.pbkdf2);
       const saltBuffer = Buffer.from(findResult.salt, 'utf8');
-      const derivedKey = await request('my-new-password', saltBuffer, 10000, 512, 'sha512');
+      const derivedKey = await request('my-new-password', saltBuffer, 120000, 512, 'sha512');
       expect(findResult.password).toBe(derivedKey.toString('base64'));
     });
   });

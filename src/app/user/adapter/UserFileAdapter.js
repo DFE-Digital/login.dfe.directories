@@ -67,7 +67,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   }
 
   const salt = generateSalt();
-  const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
+  const encryptedPassword = crypto.pbkdf2Sync(password, salt, 120000, 512, 'sha512').toString('base64');
   const newUser = {sub: uuid(), given_name: firstName, family_name: lastName, email: username, salt, encryptedPassword, legacy_username: legacyUsername, phone_number: phone_number };
   users.push(newUser);
   return writeAllUsers(users);
@@ -98,12 +98,17 @@ const list = async (page = 1, pageSize = 10) => {
 
 const authenticate = async (username, password) => {
   const user = await this.findByUsername(username);
+  const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
 
   if (!user) return null;
+
+  const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+  const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u=>u.policyCode === 'v3').length>0 ? 'v3' : 'v2';
   const request = promisify(crypto.pbkdf2);
+  const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
 
   const saltBuffer = Buffer.from(user.salt, 'utf8');
-  const derivedKey = await request(password, saltBuffer, 10000, 512, 'sha512');
+  const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
 
   if (derivedKey.toString('base64') === user.password) {
     return user;

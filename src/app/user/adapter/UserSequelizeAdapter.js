@@ -174,7 +174,13 @@ const authenticate = async (username, password, correlationId) => {
 
 const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
-
+  logger.audit({
+    type: 'user-auth',
+    subType: 'authenticate',
+    application: config.loggerSettings.applicationName,
+    env: config.hostingEnvironment.env,
+    message: `Test audit logging for authenticate function.`,
+  });
   if (!username || !password) {
     return null;
   }

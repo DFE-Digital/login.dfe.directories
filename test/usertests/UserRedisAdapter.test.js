@@ -179,10 +179,9 @@ describe('When using redis storage service', () => {
       expect(actual).toBe(true);
       const findResult = await userStorage.find('test3@localuser.com');
       expect(findResult).not.toBeNull();
-      
       const request = promisify(crypto.pbkdf2);
       const saltBuffer = Buffer.from(findResult.salt, 'utf8');
-      const derivedKey = await request('my-new-password', saltBuffer, 120000, 512, 'sha512');
+      const derivedKey = await request('my-new-password', saltBuffer, 10000, 512, 'sha512');
       expect(findResult.password).toBe(derivedKey.toString('base64'));
     });
   });

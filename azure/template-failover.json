@@ -1,0 +1,413 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "templatesBaseUri": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/DFE-Digital/login.dfe.infrastructure/master/"
+        },
+        "appServiceName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the App Service"
+            }
+        },
+        "appServicePlanName": {
+            "type": "string",
+            "metadata": {
+                "description": "The sku of the App Service"
+            }
+        },
+        "appServicePlanSku": {
+            "type": "object",
+            "metadata": {
+                "description": "The sku of the App Service Plan"
+            }
+        },
+        "appServicePlanRG": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource Group where the ASP lives"
+            }
+        },
+        "nodeVersion": {
+            "type": "string",
+            "defaultValue": "NODE|14-lts",
+            "metadata": {
+                "description": "The default NodeJS version that the App Service will run"
+            }
+        },
+        "minTlsVersion": {
+            "type": "string",
+            "defaultValue": "1.0",
+            "metadata": {
+                "description": "The minimum tls version for the service"
+            }
+        },
+        "numberOfWorkers": {
+            "type": "int",
+            "defaultValue": 1,
+            "metadata": {
+                "description": "The number of workers to assign to the app service within the app service plan"
+            }
+        },
+        "appServiceConfigPath": {
+            "type": "string",
+            "metadata": {
+                "description": "JSON string containing app config"
+            }
+        },
+        "customHostName": {
+            "type": "string",
+            "defaultValue": ""
+        },
+        "certificateName": {
+            "type": "string"
+        },
+        "keyVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Key Vault that stores application certificates"
+            }
+        },
+        "keyVaultResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Resource Group that contains the Key Vault"
+            }
+        },
+        "auditServiceBusConnectionString": {
+            "type": "string",
+            "metadata": {
+                "description": "ASB Connection String"
+            }
+        },
+        "auditServiceBusTopicName": {
+            "type": "string",
+            "metadata": {
+                "description": "ASB Topic Name"
+            }
+        },
+        "auditServiceBusSubscriptionName": {
+            "type": "string",
+            "metadata": {
+                "description": "ASB Subscription Name"
+            }
+        },
+        "environmentId": {
+            "type": "string",
+            "metadata": {
+                "description": "Environment Identifier"
+            }
+        },
+        "virtualNetworkResourceGroupName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Resource group of the virtual network"
+            }
+        },
+        "virtualNetworkName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the virtual network"
+            }
+        },
+        "subnetPrefix": {
+            "type": "string",
+            "defaultValue": "int-sn",
+            "metadata": {
+                "description": "Prefix of the subnet to integrate the app service with"
+            }
+        },
+        "enablePrivateEndpoint": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Add app settings to support virtual network private endpoints"
+            }
+        },
+        "loginAttemptsPeriod": {
+            "type": "int",
+            "defaultValue": 86400,
+            "metadata": {
+                "description": "Login attempts period"
+            }
+        },
+        "freeAttemptsPeriod": {
+            "type": "int",
+            "defaultValue": 10,
+            "metadata": {
+                "description": "Free attempts period"
+            }
+        },
+        "unAttackThreshold": {
+            "type": "int",
+            "defaultValue": 50,
+            "metadata": {
+                "description": "Un-attack threshold"
+            }
+        },
+        "freeAttemptsPeriodIP": {
+            "type": "int",
+            "defaultValue": 500,
+            "metadata": {
+                "description": "Free attempts period"
+            }
+        },
+        "unAttackThresholdIP": {
+            "type": "int",
+            "defaultValue": 1000,
+            "metadata": {
+                "description": "Un-attack threshold"
+            }
+        },
+        "initialDelay": {
+            "type": "int",
+            "defaultValue": 250,
+            "metadata": {
+                "description": "Initial delay in millseconds"
+            }
+        },
+        "giasclientId": {
+            "type": "string",
+            "defaultValue": "GIAS",
+            "metadata": {
+                "description": "ClientIId for GIAS"
+            }
+        }
+    },
+    "variables": {
+        "enableVirtualNetworkIntegration": "[if(and(not(empty(parameters('virtualNetworkResourceGroupName'))), not(empty(parameters('virtualNetworkName')))), true(), false())]",
+        "serviceSubnetResourceId1": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'), '-1')), '')]",
+        "serviceSubnetResourceId2": "[if(variables('enableVirtualNetworkIntegration'), resourceId(parameters('virtualNetworkResourceGroupName'),'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), concat(parameters('subnetPrefix'), '-2')), '')]",
+        "resourceNames": {
+            "certName": "[concat(parameters('appServicePlanName'), '-shared-crt')]",
+            "asp1": "[concat(parameters('appServicePlanName'), '-1')]",
+            "asp2": "[concat(parameters('appServicePlanName'), '-2')]",
+            "service1": "[concat(parameters('appServiceName'), '-1')]",
+            "service2": "[concat(parameters('appServiceName'), '-2')]"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('resourceNames').asp1]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templatesBaseUri'),'Shared/app-service-plan.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServicePlanName": {
+                        "value": "[variables('resourceNames').asp1]"
+                    },
+                    "appServicePlanSku": {
+                        "value": "[parameters('appServicePlanSku')]"
+                    },
+                    "appServicePlanOS": {
+                        "value": "Linux"
+                    },
+                    "appServicePlanIsLinux": {
+                        "value": true
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('resourceNames').asp2]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templatesBaseUri'),'Shared/app-service-plan.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServicePlanName": {
+                        "value": "[variables('resourceNames').asp2]"
+                    },
+                    "appServicePlanSku": {
+                        "value": "[parameters('appServicePlanSku')]"
+                    },
+                    "appServicePlanOS": {
+                        "value": "Linux"
+                    },
+                    "appServicePlanIsLinux": {
+                        "value": true
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('resourceNames').certName]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templatesBaseUri'),'Shared/app-service-certificate.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "keyVaultCertificateName": {
+                        "value": "[parameters('certificateName')]"
+                    },
+                    "keyVaultName": {
+                        "value": "[parameters('keyVaultName')]"
+                    },
+                    "keyVaultResourceGroup": {
+                        "value": "[parameters('keyVaultResourceGroup')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('resourceNames').service1]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templatesBaseUri'),'Shared/app-service-azure-config.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServiceName": {
+                        "value": "[variables('resourceNames').service1]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[variables('resourceNames').asp1]"
+                    },
+                    "appServicePlanRG": {
+                        "value": "[parameters('appServicePlanRG')]"
+                    },
+                    "nodeVersion": {
+                        "value": "[parameters('nodeVersion')]"
+                    },
+                    "numberOfWorkers": {
+                        "value": "[parameters('numberOfWorkers')]"
+                    },
+                    "appServiceConfigPath": {
+                        "value": "[parameters('appServiceConfigPath')]"
+                    },
+                    "minTlsVersion": {
+                        "value": "[parameters('minTlsVersion')]"
+                    },
+                    "customHostName": {
+                        "value": "[parameters('customHostName')]"
+                    },
+                    "certificateThumbprint": {
+                        "value": "[reference(variables('resourceNames').certName).outputs.certificateThumbprint.value]"
+                    },
+                    "additionalAppSettings": {
+                        "value": {
+                            "ENVIRONMENT_ID": "[parameters('environmentId')]",
+                            "QUEUE_CONNECTION_STRING": "[parameters('auditServiceBusConnectionString')]",
+                            "TOPIC_NAME": "[parameters('auditServiceBusTopicName')]",
+                            "BRUTEFORCE_TOPIC_NAME": "securealert",
+                            "SUBSCRIPTION_NAME": "[parameters('auditServiceBusSubscriptionName')]",
+                            "WEBSITE_HEALTHCHECK_MAXPINGFAILURES": "4",
+                            "LOGIN_ATTEMPTS_PERIOD": "[parameters('loginAttemptsPeriod')]",
+                            "FREE_ATTEMPTS_PERIOD": "[parameters('freeAttemptsPeriod')]",
+                            "UN_ATTACK_THRESHOLD": "[parameters('unAttackThreshold')]",
+                            "FREE_ATTEMPTS_PERIOD_IP": "[parameters('freeAttemptsPeriodIP')]",
+                            "UN_ATTACK_THRESHOLD_IP": "[parameters('unAttackThresholdIP')]",
+                            "INITIAL_DELAY": "[parameters('initialDelay')]",
+                            "GIAS_CLIENT_ID": "[parameters('giasclientId')]"
+                        }
+                    },
+                    "healthCheckPath": {
+                        "value": "/healthCheck"
+                    },
+                    "subnetResourceId": {
+                        "value": "[variables('serviceSubnetResourceId1')]"
+                    },
+                    "enablePrivateEndpointSupport": {
+                        "value": "[parameters('enablePrivateEndpoint')]"
+                    },
+                    "http20Enabled": {
+                        "value": true
+                    }
+                }
+            },
+            "dependsOn": [
+                "[variables('resourceNames').asp1]"
+            ]
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "[variables('resourceNames').service2]",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templatesBaseUri'),'Shared/app-service-azure-config.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServiceName": {
+                        "value": "[variables('resourceNames').service2]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[variables('resourceNames').asp2]"
+                    },
+                    "appServicePlanRG": {
+                        "value": "[parameters('appServicePlanRG')]"
+                    },
+                    "nodeVersion": {
+                        "value": "[parameters('nodeVersion')]"
+                    },
+                    "numberOfWorkers": {
+                        "value": "[parameters('numberOfWorkers')]"
+                    },
+                    "appServiceConfigPath": {
+                        "value": "[parameters('appServiceConfigPath')]"
+                    },
+                    "minTlsVersion": {
+                        "value": "[parameters('minTlsVersion')]"
+                    },
+                    "customHostName": {
+                        "value": "[parameters('customHostName')]"
+                    },
+                    "certificateThumbprint": {
+                        "value": "[reference(variables('resourceNames').certName).outputs.certificateThumbprint.value]"
+                    },
+                    "additionalAppSettings": {
+                        "value": {
+                            "ENVIRONMENT_ID": "[parameters('environmentId')]",
+                            "QUEUE_CONNECTION_STRING": "[parameters('auditServiceBusConnectionString')]",
+                            "TOPIC_NAME": "[parameters('auditServiceBusTopicName')]",
+                            "BRUTEFORCE_TOPIC_NAME": "securealert",
+                            "SUBSCRIPTION_NAME": "[parameters('auditServiceBusSubscriptionName')]",
+                            "WEBSITE_HEALTHCHECK_MAXPINGFAILURES": "4",
+                            "LOGIN_ATTEMPTS_PERIOD": "[parameters('loginattemptsperiod')]",
+                            "FREE_ATTEMPTS_PERIOD": "[parameters('freeattemptsperiod')]",
+                            "UN_ATTACK_THRESHOLD": "[parameters('unattackthreshold')]",
+                            "GIAS_CLIENT_ID": "[parameters('giasclientId')]"
+                        }
+                    },
+                    "healthCheckPath": {
+                        "value": "/healthCheck"
+                    },
+                    "subnetResourceId": {
+                        "value": "[variables('serviceSubnetResourceId2')]"
+                    },
+                    "enablePrivateEndpointSupport": {
+                        "value": "[parameters('enablePrivateEndpoint')]"
+                    },
+                    "http20Enabled": {
+                        "value": true
+                    }
+                }
+            },
+            "dependsOn": [
+                "[variables('resourceNames').asp2]"
+            ]
+        }
+    ]
+}

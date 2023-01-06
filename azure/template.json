@@ -208,6 +208,23 @@
                     },
                     "http20Enabled": {
                         "value": true
+                    },
+                    "additionalAppSettings": {
+                        "value": {
+                            "ENVIRONMENT_ID": "[parameters('environmentId')]",
+                            "QUEUE_CONNECTION_STRING": "[parameters('auditServiceBusConnectionString')]",
+                            "TOPIC_NAME": "[parameters('auditServiceBusTopicName')]",
+                            "BRUTEFORCE_TOPIC_NAME": "securealert",
+                            "SUBSCRIPTION_NAME": "[parameters('auditServiceBusSubscriptionName')]",
+                            "WEBSITE_HEALTHCHECK_MAXPINGFAILURES": "4",
+                            "LOGIN_ATTEMPTS_PERIOD": "[parameters('loginAttemptsPeriod')]",
+                            "FREE_ATTEMPTS_PERIOD": "[parameters('freeAttemptsPeriod')]",
+                            "UN_ATTACK_THRESHOLD": "[parameters('unAttackThreshold')]",
+                            "FREE_ATTEMPTS_PERIOD_IP": "[parameters('freeAttemptsPeriodIP')]",
+                            "UN_ATTACK_THRESHOLD_IP": "[parameters('unAttackThresholdIP')]",
+                            "INITIAL_DELAY": "[parameters('initialDelay')]",
+                            "GIAS_CLIENT_ID": "[parameters('giasclientId')]"
+                        }
                     }
                 }
             },

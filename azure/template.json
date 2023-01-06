@@ -211,12 +211,10 @@
                     },
                     "additionalAppSettings": {
                         "value": {
-                            "ENVIRONMENT_ID": "[parameters('environmentId')]",
                             "QUEUE_CONNECTION_STRING": "[parameters('auditServiceBusConnectionString')]",
                             "TOPIC_NAME": "[parameters('auditServiceBusTopicName')]",
-                            "BRUTEFORCE_TOPIC_NAME": "securealert",
                             "SUBSCRIPTION_NAME": "[parameters('auditServiceBusSubscriptionName')]"
-                        }
+                        }   
                     }
                 }
             },

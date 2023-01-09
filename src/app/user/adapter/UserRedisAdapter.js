@@ -59,7 +59,7 @@ const createUser = async (username, password, firstName, lastName, legacyUsernam
   }
 
   const salt = generateSalt();
-  const encryptedPassword = crypto.pbkdf2Sync(password, salt, 10000, 512, 'sha512').toString('base64');
+  const encryptedPassword = crypto.pbkdf2Sync(password, salt, 120000, 512, 'sha512').toString('base64');
   const id = uuid();
 
   const newUser = {
@@ -107,7 +107,7 @@ const changePasswordForUser = async (uid, newPassword) => {
   }
 
   const salt = generateSalt();
-  const password = crypto.pbkdf2Sync(newPassword, salt, 10000, 512, 'sha512');
+  const password = crypto.pbkdf2Sync(newPassword, salt, 120000, 512, 'sha512');
 
   user.salt = salt;
   user.password = password.toString('base64');
@@ -225,12 +225,16 @@ const getUsers = async (uids, correlationId) => {
 const authenticate = async (username, password, correlationId) => {
   logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
   const user = await findByUsername(username);
+  const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
 
   if (!user) return null;
   const request = promisify(crypto.pbkdf2);
+  const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+  const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u=>u.policyCode === 'v3').length>0 ? 'v3' : 'v2';
+  const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
 
   const saltBuffer = Buffer.from(user.salt, 'utf8');
-  const derivedKey = await request(password, saltBuffer, 10000, 512, 'sha512');
+  const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
 
   if (derivedKey.toString('base64') === user.password) {
     return user;

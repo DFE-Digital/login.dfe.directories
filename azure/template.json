@@ -208,13 +208,6 @@
                     },
                     "http20Enabled": {
                         "value": true
-                    },
-                    "additionalAppSettings": {
-                        "value": {
-                            "QUEUE_CONNECTION_STRING": "[parameters('auditServiceBusConnectionString')]",
-                            "TOPIC_NAME": "[parameters('auditServiceBusTopicName')]",
-                            "SUBSCRIPTION_NAME": "[parameters('auditServiceBusSubscriptionName')]"
-                        }   
                     }
                 }
             },

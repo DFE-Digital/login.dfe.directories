@@ -152,7 +152,7 @@ const authenticate = async (username, password, correlationId) => {
       subType: 'authenticate',
       application: config.loggerSettings.applicationName,
       env: config.hostingEnvironment.env,
-      message: `Test audit logging for authenticate function.`,
+      message: `Attempted login for ${username} with correlation id: ${correlationId}`,
     });
     const userEntity = await findByUsername(username);
 

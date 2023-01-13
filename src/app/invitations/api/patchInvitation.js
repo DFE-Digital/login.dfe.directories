@@ -63,8 +63,10 @@ const patchInvitation = async (req, res) => {
   logger.audit({
     type: 'invitation-code',
     subType: 'patch-invitation',
+    application: config.loggerSettings.applicationName,
     message: `Update verify code ${patchedInvitation.code} for invitation id ${patchedInvitation.id}`,
   });
+
 
   await updateInvitation(patchedInvitation);
 

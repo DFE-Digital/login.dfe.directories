@@ -147,13 +147,7 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 const authenticate = async (username, password, correlationId) => {
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
-    logger.audit({
-      type: 'user-auth',
-      subType: 'authenticate',
-      application: config.loggerSettings.applicationName,
-      env: config.hostingEnvironment.env,
-      message: `Attempted login for ${username} with correlation id: ${correlationId}`,
-    });
+  
     const userEntity = await findByUsername(username);
 
     if (!userEntity) return null;

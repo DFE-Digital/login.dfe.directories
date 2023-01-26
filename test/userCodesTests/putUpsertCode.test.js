@@ -1,8 +1,16 @@
 jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
-  const getUserCodeStub = jest.fn().mockImplementation((uid, codeType) => ({ uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test', codeType }));
-  const getUserCodeByEmailStub = jest.fn().mockImplementation((email, codeType) => ({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType }));
-  const createUserCodeStub = jest.fn().mockImplementation((uid, cid, ruri, email, data, codeType) => ({ uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test', email: 'test@unit.local', codeType }));
-  const updateUserCodeStub = jest.fn().mockImplementation((uid, email, data, ruri, cid) => ({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local' }));
+  const getUserCodeStub = jest.fn().mockImplementation((uid, codeType) => ({
+    uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test', codeType,
+  }));
+  const getUserCodeByEmailStub = jest.fn().mockImplementation((email, codeType) => ({
+    uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType,
+  }));
+  const createUserCodeStub = jest.fn().mockImplementation((uid, cid, ruri, email, data, codeType) => ({
+    uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test', email: 'test@unit.local', codeType,
+  }));
+  const updateUserCodeStub = jest.fn().mockImplementation((uid, email, data, ruri, cid) => ({
+    uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local',
+  }));
   return {
     createUserCode: jest.fn().mockImplementation(createUserCodeStub),
     getUserCode: jest.fn().mockImplementation(getUserCodeStub),
@@ -30,17 +38,18 @@ jest.mock('./../../src/infrastructure/config', () => ({
 }));
 jest.mock('./../../src/infrastructure/logger', () => ({
   error: console.error,
+  audit: jest.fn(),
 }));
 jest.mock('./../../src/app/user/adapter', () => {
-  const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local', phone_number:'07700900000' });
+  const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local', phone_number: '07700900000' });
   return {
     find: jest.fn().mockImplementation(findStub),
   };
 });
-jest.mock('uuid/v4');
+jest.mock('uuid');
 
-const redisStorage = require('./../../src/app/userCodes/data/redisUserCodeStorage');
 const httpMocks = require('node-mocks-http');
+const redisStorage = require('../../src/app/userCodes/data/redisUserCodeStorage');
 
 describe('When getting a user code', () => {
   const expectedEmailAddress = 'test@unit.local';
@@ -56,7 +65,6 @@ describe('When getting a user code', () => {
   let sendConfirmMigrationEmailStub;
   let sendSecondFactorLoginCodeStub;
   let put;
-  let uuid;
   let uuidStub;
 
   beforeEach(() => {
@@ -77,12 +85,11 @@ describe('When getting a user code', () => {
     };
 
     uuidStub = jest.fn().mockReturnValue('1dcf73dd-1613-470e-a35e-378a3375a6fe');
-
-    uuid = require('uuid/v4');
+    const { v4: uuid } = require('uuid');
     uuid.mockImplementation(uuidStub);
 
-    sendPasswordResetStub = jest.fn().mockImplementation((email, code, clientId, uid) => emailObject = {
-      email, code, clientId, uid, type: 'passwordreset',
+    sendPasswordResetStub = jest.fn().mockImplementation((email, given_name, family_name, code, clientId, uid) => emailObject = {
+      email, given_name, family_name, code, clientId, uid, type: 'passwordreset',
     });
     sendConfirmMigrationEmailStub = jest.fn().mockImplementation((email, code, clientId, uid) => emailObject = {
       email, code, clientId, uid, type: 'migrateemail',
@@ -96,7 +103,7 @@ describe('When getting a user code', () => {
       sendSecondFactorLoginCode: sendSecondFactorLoginCodeStub,
     }));
 
-    put = require('./../../src/app/userCodes/api/putUpsertCode');
+    put = require('../../src/app/userCodes/api/putUpsertCode');
   });
   it('then a bad request is returned if the uid and email is not passed and the status code set to bad request', async () => {
     req.body.uid = '';
@@ -170,7 +177,9 @@ describe('When getting a user code', () => {
   });
   it('then if the code type is migration email then the correct email is shown', async () => {
     redisStorage.getUserCode.mockReturnValue(null);
-    redisStorage.updateUserCode.mockReturnValue({ uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType: 'confirmmigratedemail' });
+    redisStorage.updateUserCode.mockReturnValue({
+      uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType: 'confirmmigratedemail',
+    });
     req.body.uid = '';
     req.body.codeType = 'confirmmigratedemail';
 

@@ -17,7 +17,7 @@ const sendNotification = async (user, code, req, uid) => {
   }
 
   if (code.codeType.toLowerCase() === 'passwordreset') {
-    return client.sendPasswordReset(user.email, code.code, req.body.clientId, uid);
+    return client.sendPasswordReset(user.email, user.given_name, user.family_name, code.code, req.body.clientId, uid);
   }
 
   if (code.codeType.toLowerCase() === 'confirmmigratedemail') {

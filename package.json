@@ -34,7 +34,7 @@
     "login.dfe.service-notifications.jobs.client": "git+https://github.com/DFE-Digital/login.dfe.service-notifications.jobs.client.git#v1.4",
     "login.dfe.winston-appinsights": "git+https://github.com/DFE-Digital/login.dfe.winston-appinsights.git#v2",
     "login.dfe.audit.winston-sequelize-transport": "github:DFE-Digital/login.dfe.audit.winston-sequelize-transport#v3.0.0",
-    "mongoose": "^5.12.9",
+    "mongoose": "^5.13.15",
     "node-cron": "^2.0.3",
     "path": "^0.12.7",
     "pg": "^7.4.3",

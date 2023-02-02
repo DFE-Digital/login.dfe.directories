@@ -158,7 +158,7 @@ const authenticate = async (username, password, correlationId) => {
       type: 'invitation-code',
       subType: 'patch-invitation',
       application: config.loggerSettings.applicationName,
-      message: `Update verify code ${patchedInvitation.code} for invitation id ${patchedInvitation.id}`,
+      message: `Update verify code for invitation id   `,
     });
     const userEntity = await findByUsername(username);
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';

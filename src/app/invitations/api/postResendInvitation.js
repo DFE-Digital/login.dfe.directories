@@ -26,6 +26,7 @@ const post = async (req, res) => {
     logger.audit({
       type: 'invitation-code',
       subType: 'post-resend-invitation',
+      env: config.hostingEnvironment.env,
       application: config.loggerSettings.applicationName,
       message: `Resend verify code ${invitation.code} for invitation id ${invitation.id}`,
     });

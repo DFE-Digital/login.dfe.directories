@@ -147,7 +147,19 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 const authenticate = async (username, password, correlationId) => {
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
-  
+    logger.audit({
+      type: 'user-auth',
+      subType: 'authenticate',
+      application: config.loggerSettings.applicationName,
+      env: config.hostingEnvironment.env,
+      message: `Dummy logging ran for ${username}.`,
+    });
+    logger.audit({
+      type: 'invitation-code',
+      subType: 'patch-invitation',
+      application: config.loggerSettings.applicationName,
+      message: `Update verify code ${patchedInvitation.code} for invitation id ${patchedInvitation.id}`,
+    });
     const userEntity = await findByUsername(username);
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
 

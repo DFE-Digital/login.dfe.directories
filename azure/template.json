@@ -76,6 +76,30 @@
                 "description": "The name of the Resource Group that contains the Key Vault"
             }
         },
+        "auditServiceBusConnectionString": {
+            "type": "string",
+            "metadata": {
+                "description": "ASB Connection String"
+            }
+        },
+        "auditServiceBusTopicName": {
+            "type": "string",
+            "metadata": {
+                "description": "ASB Topic Name"
+            }
+        },
+        "auditServiceBusSubscriptionName": {
+            "type": "string",
+            "metadata": {
+                "description": "ASB Subscription Name"
+            }
+        },
+        "environmentId": {
+            "type": "string",
+            "metadata": {
+                "description": "Environment Identifier"
+            }
+        },
         "virtualNetworkResourceGroupName": {
             "type": "string",
             "defaultValue": "",
@@ -169,7 +193,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templatesBaseUri'),'Shared/app-service.json')]",
+                    "uri": "[concat(parameters('templatesBaseUri'),'Shared/app-service-azure-config.json')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -208,6 +232,16 @@
                     },
                     "http20Enabled": {
                         "value": true
+                    },
+                    "additionalAppSettings": {
+                        "value": {
+                            "ENVIRONMENT_ID": "[parameters('environmentId')]",
+                            "QUEUE_CONNECTION_STRING": "[parameters('auditServiceBusConnectionString')]",
+                            "TOPIC_NAME": "[parameters('auditServiceBusTopicName')]",
+                            "BRUTEFORCE_TOPIC_NAME": "securealert",
+                            "SUBSCRIPTION_NAME": "[parameters('auditServiceBusSubscriptionName')]",
+                            "WEBSITE_HEALTHCHECK_MAXPINGFAILURES": "4"
+                        }
                     }
                 }
             },

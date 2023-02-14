@@ -76,6 +76,8 @@ const put = async (req, res) => {
     logger.audit({
       type: 'change-email',
       subType: 'verification-code',
+      application: config.loggerSettings.applicationName,
+      env: config.hostingEnvironment.env,
       userId: uid,
       message: `Change email verification code ${code.code} sent to email ${code.email}. code expiry=${code.createdAt}, code type=${code.codeType.toLowerCase()}`,
     });

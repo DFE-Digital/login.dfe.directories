@@ -22,6 +22,7 @@
     "fs": "0.0.1-security",
     "ioredis": "^3.2.2",
     "lodash": "^4.17.21",
+    "login.dfe.audit.transporter": "^2.0.2",
     "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v2.0.2",
     "login.dfe.config.schema.common": "git+https://github.com/DFE-Digital/login.dfe.config.schema.common.git#v1.8.1",
     "login.dfe.express-error-handling": "git+https://github.com/DFE-Digital/login.dfe.express-error-handling.git#v1.7.0",
@@ -72,7 +73,7 @@
   "scripts": {
     "test": "./node_modules/.bin/jest",
     "setup": "./generate-certs.sh",
-    "dev": "PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
+    "dev": "settings='./config/login.dfe.directories.dev.json' PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
     "start_live": "node src/index.js"
   },
   "engines": {

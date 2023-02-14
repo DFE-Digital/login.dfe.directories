@@ -1,6 +1,7 @@
 'use strict';
 
 const logger = require('../../../infrastructure/logger');
+const config = require('../../../infrastructure/config');
 const sendInvitation = require('../utils/sendInvitation');
 const { generateInvitationCode } = require('../utils');
 const storage = require('../data');
@@ -25,6 +26,8 @@ const post = async (req, res) => {
     logger.audit({
       type: 'invitation-code',
       subType: 'post-resend-invitation',
+      env: config.hostingEnvironment.env,
+      application: config.loggerSettings.applicationName,
       message: `Resend verify code ${invitation.code} for invitation id ${invitation.id}`,
     });
 

@@ -9,7 +9,6 @@ const generateSalt = require('./../utils/generateSalt');
 const { v4: uuid } = require('uuid');
 const { promisify } = require('util');
 const crypto = require('crypto');
-const config = require('./../../../infrastructure/config');
 
 const find = async (id, correlationId) => {
   try {

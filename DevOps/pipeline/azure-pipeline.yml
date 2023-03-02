@@ -72,7 +72,7 @@ variables:
 - name: numberOfWorkers
   value: 1
 - name: idm
-  ${{ if eq(parameters.tran, 'true') }}:
+  ${{ if eq(parameters.idm, 'true') }}:
     value: true
   ${{ else }}:
     value: false

@@ -8,6 +8,11 @@ const { userCode } = require('./../../../infrastructure/repository');
 const generateResetCode = require('./../utils/generateResetCode');
 const generateSmsCode = require('./../utils/generateSmsCode');
 
+const codeExpiry = (updatedAt) => {
+  const date = new Date(updatedAt);
+  const diff = Date.now() - (1000 * 60 * 60);
+  return date > diff;
+}
 
 const listUsersCodes = async (uid, correlationId) => {
   try {
@@ -134,7 +139,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
     }
 
     let code = codeFromFind.code;
-    if ((codeFromFind.codeType || '').toLowerCase() !== 'smslogin' && (!codeFromFind.email || codeFromFind.email.toLowerCase() !== email.toLowerCase())) {
+    if ((codeFromFind.codeType || '').toLowerCase() !== 'smslogin' && codeExpiry(codeFromFind.updatedAt)) {
       code = generateResetCode();
     }
 

@@ -139,7 +139,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
     }
 
     let code = codeFromFind.code;
-    if ((codeFromFind.codeType || '').toLowerCase() !== 'smslogin' && codeExpiry(codeFromFind.updatedAt)) {
+    if ((codeFromFind.codeType || '').toLowerCase() !== 'smslogin' && !codeExpiry(codeFromFind.updatedAt)) {
       code = generateResetCode();
     }
 

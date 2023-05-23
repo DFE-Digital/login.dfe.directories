@@ -66,8 +66,11 @@ const post = async (req, res) => {
     logger.audit({
       type: 'invitation-code',
       subType: 'post-invitation',
+      env: config.hostingEnvironment.env,
+      application: config.loggerSettings.applicationName,
       message: `Post verify code ${invitation.code} for invitation id ${invitation.id}`,
     });
+
 
     await sendInvitation(invitation);
 

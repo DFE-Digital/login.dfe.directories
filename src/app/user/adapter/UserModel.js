@@ -33,7 +33,12 @@ class UserModel {
   set job_title(value) {
     this._job_title = value;
   }
-  
+  get prev_login() {
+    return this.prev_login;
+  }
+  set prev_login(value) {
+    this.prev_login = value;
+  }
   get legacyUsername() {
     return this._legacyUsername;
   }

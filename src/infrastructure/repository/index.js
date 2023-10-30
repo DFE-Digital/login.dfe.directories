@@ -109,6 +109,9 @@ const user = db.define('user', {
   last_login: {
     type: Sequelize.STRING,
   },
+  prev_login: {
+    type: Sequelize.STRING,
+  },
   isMigrated: {
     type: Sequelize.BOOLEAN,
     allowNull: false,

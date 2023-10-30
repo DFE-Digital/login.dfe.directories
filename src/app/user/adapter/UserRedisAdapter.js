@@ -235,7 +235,7 @@ const authenticate = async (username, password, correlationId) => {
 
   const saltBuffer = Buffer.from(user.salt, 'utf8');
   const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
-
+  
   if (derivedKey.toString('base64') === user.password) {
     return user;
   }

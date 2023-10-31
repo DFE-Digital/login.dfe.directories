@@ -102,10 +102,10 @@ const authenticate = async (username, password) => {
 
   if (!user) return null;
   const request = promisify(crypto.pbkdf2);
-  const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+  const userPasswordPolicyEntity = await user.getUserPasswordPolicy();
   const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u=>u.policyCode === 'v3').length>0 ? 'v3' : 'v2';
   const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-
+  user.prev_login = user.last_login;
   const saltBuffer = Buffer.from(user.salt, 'utf8');
   const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
 
@@ -115,7 +115,7 @@ const authenticate = async (username, password) => {
   return null;
 };
 
-const update = async (uid, given_name, family_name, email, phone_number, correlationId) => {
+const update = async (uid, given_name, family_name, email, phone_number, prev_login, correlationId) => {
   throw new Error('Update method is not implemented for File');
   error.type = 'E_NOTIMPLEMENTED';
   throw error;

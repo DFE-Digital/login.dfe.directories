@@ -1,11 +1,10 @@
 const ActiveDirectory = require('activedirectory');
 const UserModel = require('./UserModel');
-const config = require('./../../../infrastructure/config');
+const config = require('../../../infrastructure/config');
 
 const activeDirectory = new ActiveDirectory(config.adapter.params);
 
-
-const find = async id => new Promise((resolve, reject) => {
+const find = async (id) => new Promise((resolve, reject) => {
   activeDirectory.findUser(undefined, id, (err, user) => {
     if (err) {
       return reject(err);
@@ -16,10 +15,11 @@ const find = async id => new Promise((resolve, reject) => {
     userModel.given_name = user.givenName;
     userModel.family_name = user.sn;
     userModel.email = user.userPrincipalName;
+    userModel.prev_login = user.last_login;
     return resolve(userModel);
   });
 });
-const findByUsername = async username => new Promise((resolve, reject) => {
+const findByUsername = async (username) => new Promise((resolve, reject) => {
   activeDirectory.findUser(undefined, username, (err, user) => {
     if (err) {
       return reject(err);
@@ -30,6 +30,7 @@ const findByUsername = async username => new Promise((resolve, reject) => {
     userModel.given_name = user.givenName;
     userModel.family_name = user.sn;
     userModel.email = user.userPrincipalName;
+    userModel.prev_login = user.last_login;
     return resolve(userModel);
   });
 });
@@ -58,7 +59,7 @@ const authenticate = (username, password) => new Promise((resolve, reject) => {
   });
 });
 
-const update = async (uid, given_name, family_name, email, phone_number, correlationId) => {
+const update = async (uid, given_name, family_name, email, phone_number, prev_login, correlationId) => {
   throw new Error('Update method is not implemented for AAD');
   error.type = 'E_NOTIMPLEMENTED';
   throw error;
@@ -75,7 +76,6 @@ const getLegacyUsernames = async (username, correlationId) => {
   error.type = 'E_NOTIMPLEMENTED';
   throw error;
 };
-
 
 module.exports = {
   authenticate,

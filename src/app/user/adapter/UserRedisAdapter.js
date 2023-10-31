@@ -229,10 +229,10 @@ const authenticate = async (username, password, correlationId) => {
 
   if (!user) return null;
   const request = promisify(crypto.pbkdf2);
-  const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+  const userPasswordPolicyEntity = await user.getUserPasswordPolicy();
   const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u=>u.policyCode === 'v3').length>0 ? 'v3' : 'v2';
   const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-
+  user.prev_login = user.last_login;
   const saltBuffer = Buffer.from(user.salt, 'utf8');
   const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
   
@@ -242,7 +242,7 @@ const authenticate = async (username, password, correlationId) => {
   return null;
 };
 
-const update = async (uid, given_name, family_name, email, job_title, phone_number, correlationId) => {
+const update = async (uid, given_name, family_name, email, job_title, phone_number, prev_login, correlationId) => {
   try {
     logger.info(`Updating user for request: ${correlationId}`, { correlationId });
 

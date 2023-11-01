@@ -158,16 +158,19 @@ const authenticate = async (username, password, correlationId) => {
     const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
     const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
-
+    const prevLoggin = userEntity.last_login;
+    userEntity.prev_login = prevLoggin.toISOString();
     if (passwordValid) {
       await userEntity.update({
         last_login: new Date().toISOString(),
+        prev_login: prevLoggin.toISOString(),
       });
     }
 
     return {
       user: userEntity,
       passwordValid,
+      prevLoggin,
     };
   } catch (e) {
     logger.error(`failed to authenticate user: ${username} for request ${correlationId} error: ${e}`, { correlationId });
@@ -257,7 +260,7 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
 };
 
 
-const update = async (uid, given_name, family_name, email, job_title, phone_number, legacyUsernames, correlationId) => {
+const update = async (uid, given_name, family_name, email, job_title, phone_number, legacyUsernames, prev_login, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
 
@@ -271,6 +274,7 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
       email,
       phone_number,
       job_title,
+      prev_login,
     });
 
     if (legacyUsernames) {

@@ -1,0 +1,48 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "docker-build",
+			"label": "docker-build",
+			"platform": "node",
+			"dockerBuild": {
+				"dockerfile": "${workspaceFolder}/Docker/Dockerfile",
+				"context": "${workspaceFolder}",
+				"args":{ "p": "4438:4438"},
+				"pull": true
+			}
+		},
+		{
+			"type": "docker-run",
+			"label": "docker-run: release",
+			"dependsOn": [
+				"docker-build"
+			],
+			
+			"platform": "node"
+		},
+		{
+			"type": "docker-run",
+			"label": "docker-run: debug",
+			"dependsOn": [
+				"docker-build"
+			],
+			"dockerRun": {
+				"ports":[{"containerPort":4438, "hostPort": 4438}] ,
+				"env": {
+					"DEBUG": "*",
+					"NODE_ENV": "dev",
+					"settings": "config/login.dfe.directories.local.json",
+					"localRoot": "${workspaceFolder}/src/index.js",
+					"remoteRoot": "."
+				}
+			},
+			"node": {
+				"enableDebugging": true,
+				"inspectPort": 9229,
+				"localRoot": "${workspaceFolder}/src/index.js",
+				"remoteRoot": "."
+			}
+		}
+	]
+}

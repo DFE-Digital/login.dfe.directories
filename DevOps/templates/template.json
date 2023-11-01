@@ -179,13 +179,6 @@
                 "priority": 90
             },
             {
-                "vnetSubnetResourceId": "[variables('backendG2Id')]",
-                "action": "Allow",
-                "tag": "Default",
-                "name": "backend-g2",
-                "priority": 100
-            },
-            {
                 "vnetSubnetResourceId": "[variables('backendG3Id')]",
                 "action": "Allow",
                 "tag": "Default",

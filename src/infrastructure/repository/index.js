@@ -111,7 +111,7 @@ const user = db.define('user', {
   },
   prev_login: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
     defaultValue: false,
   },
   isMigrated: {

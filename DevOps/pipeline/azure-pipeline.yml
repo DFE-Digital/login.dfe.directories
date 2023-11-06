@@ -45,10 +45,6 @@ parameters:
   type: boolean
   displayName: 'Test Deployment'
   default: false
-- name: int
-  type: boolean
-  displayName: 'INT Deployment'
-  default: false
 - name: pp
   type: boolean
   displayName: 'Pre-Prod Deployment'

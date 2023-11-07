@@ -159,7 +159,7 @@ const authenticate = async (username, password, correlationId) => {
     const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
     let prevLoggin = null;
-    if (userEntity.last_login !== null || userEntity.last_login !== undefined) {
+    if (userEntity.last_login !== null) {
       prevLoggin = userEntity.last_login.toISOString();
     }
     if (passwordValid) {

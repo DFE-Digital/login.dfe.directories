@@ -2,13 +2,13 @@
 
 const Sequelize = require('sequelize');
 
-const Op = Sequelize.Op;
-const logger = require('./../../../infrastructure/logger');
-const { user, userLegacyUsername, userPasswordPolicy } = require('./../../../infrastructure/repository');
-const generateSalt = require('./../utils/generateSalt');
+const { Op } = Sequelize;
 const { v4: uuid } = require('uuid');
 const { promisify } = require('util');
 const crypto = require('crypto');
+const logger = require('../../../infrastructure/logger');
+const { user, userLegacyUsername, userPasswordPolicy } = require('../../../infrastructure/repository');
+const generateSalt = require('../utils/generateSalt');
 
 const find = async (id, correlationId) => {
   try {
@@ -151,26 +151,27 @@ const authenticate = async (username, password, correlationId) => {
 
     if (!userEntity) return null;
     const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
-    const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u=>u.policyCode === 'v3').length>0 ? 'v3' : 'v2';
+    const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
     const request = promisify(crypto.pbkdf2);
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
 
     const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
     const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
-    const prevLoggin = userEntity.last_login;
-    userEntity.prev_login = prevLoggin.toISOString();
+    let prevLoggin = null;
+    if (userEntity.last_login !== null) {
+      prevLoggin = userEntity.last_login.toISOString();
+    }
     if (passwordValid) {
       await userEntity.update({
         last_login: new Date().toISOString(),
-        prev_login: prevLoggin.toISOString(),
+        prev_login: prevLoggin,
       });
     }
 
     return {
       user: userEntity,
       passwordValid,
-      prevLoggin,
     };
   } catch (e) {
     logger.error(`failed to authenticate user: ${username} for request ${correlationId} error: ${e}`, { correlationId });
@@ -201,7 +202,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     salt,
     password: encryptedPassword,
     status: 1,
-    phone_number: phone_number,
+    phone_number,
     isMigrated,
     password_reset_required: false,
   };
@@ -259,7 +260,6 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
   };
 };
 
-
 const update = async (uid, given_name, family_name, email, job_title, phone_number, legacyUsernames, prev_login, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
@@ -285,7 +285,7 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
       });
       for (let i = 0; i < legacyUsernames.length; i += 1) {
         await userLegacyUsername.create({
-          uid: uid,
+          uid,
           legacy_username: legacyUsernames[i],
         });
       }
@@ -300,7 +300,7 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
 
 const getLegacyUsernames = async (uids, correlationId) => {
   try {
-    logger.info(`Get legacy user names`, { correlationId });
+    logger.info('Get legacy user names', { correlationId });
     const legacyUsernameEntities = await userLegacyUsername.findAll({
       where: {
         uid: {
@@ -345,9 +345,9 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
     const id = uuid();
 
     const newPasswordPolicy = {
-      id: id,
-      uid: uid,
-      policyCode: policyCode,
+      id,
+      uid,
+      policyCode,
       createdAt: Sequelize.fn('GETDATE'),
       updatedAt: Sequelize.fn('GETDATE'),
     };

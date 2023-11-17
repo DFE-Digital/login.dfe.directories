@@ -7,8 +7,11 @@ const { v4: uuid } = require('uuid');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const logger = require('../../../infrastructure/logger');
-const { user, userLegacyUsername, userPasswordPolicy } = require('../../../infrastructure/repository');
+const {
+  user, userLegacyUsername, userPasswordPolicy, passwordHistory, userPasswordHistory,
+} = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
+const passwordHisory = require('../api/getPasswordHistory');
 
 const find = async (id, correlationId) => {
   try {
@@ -51,7 +54,117 @@ const findByUsername = async (username, correlationId) => {
     throw e;
   }
 };
+const removePasswordHistory = async (recid, uid, correlationId) => {
+  try {
+    logger.info(`remove a password history item for user ${recid}`, { correlationId });
 
+    await passwordHistory.destroy({ where: { id: recid } });
+    await userPasswordHistory.destroy({ where: { passwordHistoryId: recid } });
+  } catch (e) {
+    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
+const findUserPasswordPolicies = async (uid, correlationId) => {
+  try {
+    logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
+    const passwordPolicy = await userPasswordPolicy.findAll({
+      where: {
+        uid: {
+          [Op.eq]: uid,
+        },
+      },
+    });
+    if (!passwordPolicy) {
+      return null;
+    }
+    return passwordPolicy;
+  } catch (e) {
+    logger.error(`error getting user pasword policies for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+const addPasswordHistory = async (uid, correlationId, password, salt) => {
+  try {
+    logger.info(`Add a password history for user ${uid}`, { correlationId });
+    const id = uuid();
+    const newPasswordHistory = {
+      id,
+      salt,
+      password,
+      createdAt: Sequelize.fn('GETDATE'),
+      updatedAt: Sequelize.fn('GETDATE'),
+    };
+    const newUserPasswordHistory = {
+      passwordHistoryId: id,
+      userSub: uid,
+      createdAt: Sequelize.fn('GETDATE'),
+      updatedAt: Sequelize.fn('GETDATE'),
+    };
+    await passwordHistory.create(newPasswordHistory);
+    await userPasswordHistory.create(newUserPasswordHistory);
+
+    return newPasswordHistory;
+  } catch (e) {
+    logger.error(`failed to add  pasword history for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+const fetchPasswordHistory = async (uid, correlationId) => {
+  try {
+    let returnArray = [];
+    const ids = [];
+    const resultArray = await userPasswordHistory.findAll({
+      where: {
+        userSub: {
+          [Op.eq]: uid,
+        },
+      },
+      order: [
+        ['createdAt', 'ASC'],
+      ],
+    });
+
+    if (resultArray.length > 0) {
+      resultArray.forEach((element) => {
+        ids.push(element.passwordHistoryId);
+      });
+
+      returnArray = await passwordHistory.findAll({
+        where: {
+          id: {
+            [Op.in]: ids,
+          },
+        },
+      });
+    }
+
+    return returnArray;
+  } catch (e) {
+    logger.error(`error saving pasword history for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+const fetchUserPasswordHistory = async (uid, correlationId) => {
+  try {
+    const resultArray = await userPasswordHistory.findAll({
+      where: {
+        userSub: {
+          [Op.eq]: uid,
+        },
+      },
+      order: [
+        ['createdAt', 'ASC'],
+      ],
+    });
+
+    return resultArray;
+  } catch (e) {
+    logger.error(`error saving pasword history for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
 const findByLegacyUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user by legacy username for request ${username}`, { correlationId });
@@ -98,7 +211,24 @@ const getUsers = async (uids, correlationId) => {
     throw (e);
   }
 };
-
+const handlePasswordHistory = async (uid, oldSalt, oldPassword, limit, correlationId) => {
+  try {
+    const passwordHistorylist = await fetchUserPasswordHistory(uid, correlationId);
+    if (passwordHistorylist.length > 0) {
+      // check to see if we need to shuffle records
+      if (passwordHistorylist.length >= limit) {
+        await removePasswordHistory(passwordHistorylist[0].passwordHistoryId, uid, correlationId);
+        await addPasswordHistory(uid, correlationId, oldPassword, oldSalt);
+      } else {
+        await addPasswordHistory(uid, correlationId, oldPassword, oldSalt);
+      }
+    }
+    return true;
+  } catch (e) {
+    logger.error(`handle password history failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw (e);
+  }
+};
 const changePassword = async (uid, newPassword, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
@@ -106,7 +236,12 @@ const changePassword = async (uid, newPassword, correlationId) => {
     if (!userEntity) {
       return null;
     }
+    const userPasswordPolicies = await findUserPasswordPolicies(uid, correlationId);
+    const limit = userPasswordPolicies[0].password_history_limit;
 
+    if (limit !== 0) {
+      await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
+    }
     const salt = generateSalt();
     const password = crypto.pbkdf2Sync(newPassword, salt, 120000, 512, 'sha512');
 
@@ -318,42 +453,24 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
-const findUserPasswordPolicies = async (uid, correlationId) => {
-  try {
-    logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
-    const passwordPolicy = await userPasswordPolicy.findAll({
-      where: {
-        uid: {
-          [Op.eq]: uid,
-        },
-      },
-    });
-    if (!passwordPolicy) {
-      return null;
-    }
-    return passwordPolicy;
-  } catch (e) {
-    logger.error(`error getting user pasword policies for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
-
 const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
   try {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
     const id = uuid();
+    const found = findUserPasswordPolicies(uid, correlationId);
+    if (!found) {
+      const newPasswordPolicy = {
+        id,
+        uid,
+        policyCode,
+        createdAt: Sequelize.fn('GETDATE'),
+        updatedAt: Sequelize.fn('GETDATE'),
+      };
 
-    const newPasswordPolicy = {
-      id,
-      uid,
-      policyCode,
-      createdAt: Sequelize.fn('GETDATE'),
-      updatedAt: Sequelize.fn('GETDATE'),
-    };
+      await userPasswordPolicy.create(newPasswordPolicy);
 
-    await userPasswordPolicy.create(newPasswordPolicy);
-
-    return newPasswordPolicy;
+      return newPasswordPolicy;
+    }
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
@@ -363,6 +480,9 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
 module.exports = {
   find,
   getUsers,
+  findUserPasswordPolicies,
+  fetchPasswordHistory,
+  addPasswordHistory,
   changePassword,
   list,
   findByUsername,
@@ -372,6 +492,5 @@ module.exports = {
   update,
   findByLegacyUsername,
   getLegacyUsernames,
-  findUserPasswordPolicies,
   addUserPasswordPolicy,
 };

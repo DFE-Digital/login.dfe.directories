@@ -11,7 +11,6 @@ const {
   user, userLegacyUsername, userPasswordPolicy, passwordHistory, userPasswordHistory,
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
-const passwordHisory = require('../api/getPasswordHistory');
 
 const find = async (id, correlationId) => {
   try {
@@ -114,7 +113,7 @@ const addPasswordHistory = async (uid, correlationId, password, salt) => {
 const fetchPasswordHistory = async (uid, correlationId) => {
   try {
     let returnArray = [];
-    const ids = [];
+    let ids = [];
     const resultArray = await userPasswordHistory.findAll({
       where: {
         userSub: {
@@ -127,9 +126,7 @@ const fetchPasswordHistory = async (uid, correlationId) => {
     });
 
     if (resultArray.length > 0) {
-      resultArray.forEach((element) => {
-        ids.push(element.passwordHistoryId);
-      });
+      ids = resultArray.map((i) => i.passwordHistoryId);
 
       returnArray = await passwordHistory.findAll({
         where: {
@@ -222,6 +219,8 @@ const handlePasswordHistory = async (uid, oldSalt, oldPassword, limit, correlati
       } else {
         await addPasswordHistory(uid, correlationId, oldPassword, oldSalt);
       }
+    } else {
+      await addPasswordHistory(uid, correlationId, oldPassword, oldSalt);
     }
     return true;
   } catch (e) {
@@ -239,7 +238,7 @@ const changePassword = async (uid, newPassword, correlationId) => {
     const userPasswordPolicies = await findUserPasswordPolicies(uid, correlationId);
     const limit = userPasswordPolicies[0].password_history_limit;
 
-    if (limit !== 0) {
+    if (limit > 0) {
       await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
     }
     const salt = generateSalt();
@@ -457,12 +456,21 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
   try {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
     const id = uuid();
+    let historyLimit = 0;
     const found = findUserPasswordPolicies(uid, correlationId);
     if (!found) {
+      switch (policyCode) {
+        case 'v0': historyLimit = 0;
+        case 'v1': historyLimit = 0;
+        case 'v2': historyLimit = 3;
+        case 'v3': historyLimit = 3;
+          break;
+      }
       const newPasswordPolicy = {
         id,
         uid,
         policyCode,
+        password_history_limit: historyLimit,
         createdAt: Sequelize.fn('GETDATE'),
         updatedAt: Sequelize.fn('GETDATE'),
       };

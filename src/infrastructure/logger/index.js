@@ -1,6 +1,6 @@
 'use strict';
 
-const winston = require('winston');
+const { createLogger, transports, format} = require('winston');
 const config = require('./../config');
 const appInsights = require('applicationinsights');
 const AppInsightsTransport = require('login.dfe.winston-appinsights');
@@ -27,6 +27,10 @@ const customLevels = {
 
 const loggerConfig = {
   levels: customLevels.levels,
+  colorize: true,
+  format: format.combine(
+    format.simple(),
+  ),
   transports: [],
 };
 
@@ -35,7 +39,7 @@ const loggerConfig = {
 // if (sequelizeTransport) {
 //   loggerConfig.transports.push(sequelizeTransport);
 // }
-loggerConfig.transports.push(new (winston.transports.Console)({ level: logLevel, colorize: true }));
+loggerConfig.transports.push(new transports.Console({ level: logLevel, colorize: true }));
 
 const opts = { application: config.loggerSettings.applicationName, level: 'audit' };
 const auditTransport = AuditTransporter(opts);
@@ -44,7 +48,7 @@ if (auditTransport) {
   loggerConfig.transports.push(auditTransport);
 }
 if (config && config.loggerSettings && config.loggerSettings.redis && config.loggerSettings.redis.enabled) {
-  loggerConfig.transports.push(new (winston.transports.Redis)({
+  loggerConfig.transports.push(new transports.Redis({
     level: 'audit',
     length: 4294967295,
     host: config.loggerSettings.redis.host,
@@ -66,7 +70,7 @@ if (config.hostingEnvironment.applicationInsights) {
   }));
 }
 
-const logger = winston.createLogger(loggerConfig);
+const logger = createLogger(loggerConfig);
 
 process.on('unhandledRejection', (reason, p) => {
   logger.error('Unhandled Rejection at: ', p, 'reason: ', reason);

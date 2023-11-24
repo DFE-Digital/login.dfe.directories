@@ -459,13 +459,13 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
     let historyLimit = 0;
     const found = findUserPasswordPolicies(uid, correlationId);
     if (!found) {
-      switch (policyCode) {
-        case 'v0': historyLimit = 0;
-        case 'v1': historyLimit = 0;
-        case 'v2': historyLimit = 3;
-        case 'v3': historyLimit = 3;
-          break;
+      
+      if (policyCode === 'v3' || policyCode === 'v2') {
+        historyLimit = 3;
+      } else if (policyCode === 'v0' || policyCode === 'v1') {
+        historyLimit = 0;
       }
+
       const newPasswordPolicy = {
         id,
         uid,

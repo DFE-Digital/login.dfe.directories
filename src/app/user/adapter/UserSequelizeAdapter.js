@@ -459,10 +459,11 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
     let historyLimit = 0;
     const found = findUserPasswordPolicies(uid, correlationId);
     if (!found) {
-      
       if (policyCode === 'v3' || policyCode === 'v2') {
         historyLimit = 3;
       } else if (policyCode === 'v0' || policyCode === 'v1') {
+        historyLimit = 0;
+      } else {
         historyLimit = 0;
       }
 

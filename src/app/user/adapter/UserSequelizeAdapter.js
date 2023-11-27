@@ -457,8 +457,8 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
     const id = uuid();
     let historyLimit = 0;
-    const found = findUserPasswordPolicies(uid, correlationId);
-    if (!found) {
+    const found = await findUserPasswordPolicies(uid, correlationId);
+    if (!found || found.length === 0) {
       if (policyCode === 'v3' || policyCode === 'v2') {
         historyLimit = 3;
       } else if (policyCode === 'v0' || policyCode === 'v1') {

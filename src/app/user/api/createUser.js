@@ -20,7 +20,6 @@ const createUser = async (req, res) => {
     }
 
     const user = await create(req.body.email, req.body.password, req.body.firstName, req.body.lastName, req.body.legacy_username, req.body.phone_number, req.header('x-correlation-id'));
-    await addUserPasswordPolicy(user.id, PolicyCode, correlationId);
     if (config.toggles && config.toggles.notificationsEnabled) {
       const serviceNotificationsClient = new ServiceNotificationsClient({
         connectionString: config.notifications.connectionString,

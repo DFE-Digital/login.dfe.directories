@@ -236,11 +236,13 @@ const changePassword = async (uid, newPassword, correlationId) => {
     if (!userEntity) {
       return null;
     }
-    
+    let limit = 0;
     const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
     const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
     const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    const limit = userPasswordPolicyEntity[0].password_history_limit;
+    if (userPasswordPolicyEntity[0].password_history_limit !== undefined) {
+     limit = userPasswordPolicyEntity[0].password_history_limit;
+    } 
 
     if (limit > 0) {
       await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
@@ -471,7 +473,7 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
     const id = uuid();
     const historyLimit = 3;
     const found = await findUserPasswordPolicies(uid, correlationId);
-    if (!found) {
+    if (!found || found.length !== 0) {
       const newPasswordPolicy = {
         id,
         uid,
@@ -482,13 +484,15 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
       };
       await userPasswordPolicy.create(newPasswordPolicy);
       return newPasswordPolicy;
-    }
-    else{
+    } else {
       const userPasswordPolicy = found[0];
-      userPasswordPolicy.update({
-        policyCode,
-        password_history_limit: historyLimit,
-      });
+      if (userPasswordPolicy.id !== undefined) {
+        userPasswordPolicy.update({
+          policyCode,
+          password_history_limit: historyLimit,
+        });
+        return userPasswordPolicy;
+      }
     }
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });

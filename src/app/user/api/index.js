@@ -2,9 +2,9 @@
 
 const express = require('express');
 const apiAuth = require('login.dfe.api.auth');
-const config = require('./../../../infrastructure/config');
-const { deprecateWith } = require('./../../../utils');
 const { asyncWrapper } = require('login.dfe.express-error-handling');
+const config = require('../../../infrastructure/config');
+const { deprecateWith } = require('../../../utils');
 
 const list = require('./list');
 const authenticate = require('./authenticate');
@@ -24,6 +24,8 @@ const searchV2 = require('./searchV2');
 const getUserPasswordPolicies = require('./getUserPasswordPolicies');
 const addUserPasswordPolicy = require('./addUserPasswordPolicy');
 const passwordHistory = require('./getPasswordHistory');
+const userPasswordPolicy = require('./removeUserPolicy');
+
 
 const router = express.Router();
 
@@ -45,6 +47,7 @@ const routeExport = () => {
   router.get('/users/:uid/password-policies', asyncWrapper(getUserPasswordPolicies));
   router.get('/users/:uid/password-history', asyncWrapper(passwordHistory));
   router.post('/users/:uid/password-policies', asyncWrapper(addUserPasswordPolicy));
+  router.post('/users/:uid/password-policies/:pid', asyncWrapper(userPasswordPolicy));
   router.post('/:directoryId/user/authenticate', deprecateWith('/users/authenticate'), asyncWrapper(authenticate));
   router.post('/users/authenticate', asyncWrapper(authenticate));
 

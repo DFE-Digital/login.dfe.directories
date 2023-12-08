@@ -241,8 +241,8 @@ const changePassword = async (uid, newPassword, correlationId) => {
     const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
     const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
     if (userPasswordPolicyEntity[0].password_history_limit !== undefined) {
-     limit = userPasswordPolicyEntity[0].password_history_limit;
-    } 
+      limit = userPasswordPolicyEntity[0].password_history_limit;
+    }
 
     if (limit > 0) {
       await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
@@ -348,6 +348,18 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   };
 
   await user.create(newUser);
+  const pId = uuid();
+  const historyLimit = 3;
+
+  const newPasswordPolicy = {
+    id: pId,
+    uid: id,
+    policyCode,
+    password_history_limit: historyLimit,
+    createdAt: Sequelize.fn('GETDATE'),
+    updatedAt: Sequelize.fn('GETDATE'),
+  };
+  await userPasswordPolicy.create(newPasswordPolicy);
 
   if (legacyUsername) {
     await userLegacyUsername.create({
@@ -472,18 +484,17 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
     const id = uuid();
     const historyLimit = 3;
-   
-      const newPasswordPolicy = {
-        id,
-        uid,
-        policyCode,
-        password_history_limit: historyLimit,
-        createdAt: Sequelize.fn('GETDATE'),
-        updatedAt: Sequelize.fn('GETDATE'),
-      };
-      await userPasswordPolicy.create(newPasswordPolicy);
-      return newPasswordPolicy;
-    
+
+    const newPasswordPolicy = {
+      id,
+      uid,
+      policyCode,
+      password_history_limit: historyLimit,
+      createdAt: Sequelize.fn('GETDATE'),
+      updatedAt: Sequelize.fn('GETDATE'),
+    };
+    await userPasswordPolicy.create(newPasswordPolicy);
+    return newPasswordPolicy;
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

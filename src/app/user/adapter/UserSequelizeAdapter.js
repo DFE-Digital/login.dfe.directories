@@ -354,7 +354,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   const newPasswordPolicy = {
     id: pId,
     uid: id,
-    policyCode,
+    policyCode: 'v3',
     password_history_limit: historyLimit,
     createdAt: Sequelize.fn('GETDATE'),
     updatedAt: Sequelize.fn('GETDATE'),

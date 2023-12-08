@@ -472,8 +472,7 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
     const id = uuid();
     const historyLimit = 3;
-    const found = await findUserPasswordPolicies(uid, correlationId);
-    if (!found || found.length !== 0) {
+   
       const newPasswordPolicy = {
         id,
         uid,
@@ -484,16 +483,7 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
       };
       await userPasswordPolicy.create(newPasswordPolicy);
       return newPasswordPolicy;
-    } else {
-      const userPasswordPolicy = found[0];
-      if (userPasswordPolicy.id !== undefined) {
-        userPasswordPolicy.update({
-          policyCode,
-          password_history_limit: historyLimit,
-        });
-        return userPasswordPolicy;
-      }
-    }
+    
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;

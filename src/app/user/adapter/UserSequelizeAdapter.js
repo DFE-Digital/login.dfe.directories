@@ -231,18 +231,22 @@ const handlePasswordHistory = async (uid, oldSalt, oldPassword, limit, correlati
 const changePassword = async (uid, newPassword, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
+    const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
 
     if (!userEntity) {
       return null;
     }
-    const userPasswordPolicies = await findUserPasswordPolicies(uid, correlationId);
-    const limit = userPasswordPolicies[0].password_history_limit;
+    
+    const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+    const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
+    const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
+    const limit = userPasswordPolicyEntity[0].password_history_limit;
 
     if (limit > 0) {
       await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
     }
     const salt = generateSalt();
-    const password = crypto.pbkdf2Sync(newPassword, salt, 120000, 512, 'sha512');
+    const password = crypto.pbkdf2Sync(newPassword, salt, iterations, 512, 'sha512');
 
     await userEntity.update({
       salt,
@@ -452,21 +456,22 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
+const removeUserPasswordPolicy = async (id, correlationId) => {
+  try {
+    await userPasswordPolicy.destroy({ where: { id } });
+  } catch (e) {
+    logger.error(`Error removing user password policy - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
+
 const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
   try {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
     const id = uuid();
-    let historyLimit = 0;
+    const historyLimit = 3;
     const found = await findUserPasswordPolicies(uid, correlationId);
-    if (!found || found.length === 0) {
-      if (policyCode === 'v3' || policyCode === 'v2') {
-        historyLimit = 3;
-      } else if (policyCode === 'v0' || policyCode === 'v1') {
-        historyLimit = 0;
-      } else {
-        historyLimit = 0;
-      }
-
+    if (!found) {
       const newPasswordPolicy = {
         id,
         uid,
@@ -475,10 +480,15 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
         createdAt: Sequelize.fn('GETDATE'),
         updatedAt: Sequelize.fn('GETDATE'),
       };
-
       await userPasswordPolicy.create(newPasswordPolicy);
-
       return newPasswordPolicy;
+    }
+    else{
+      const userPasswordPolicy = found[0];
+      userPasswordPolicy.update({
+        policyCode,
+        password_history_limit: historyLimit,
+      });
     }
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
@@ -498,6 +508,7 @@ module.exports = {
   create,
   authenticate,
   changeStatus,
+  removeUserPasswordPolicy,
   update,
   findByLegacyUsername,
   getLegacyUsernames,

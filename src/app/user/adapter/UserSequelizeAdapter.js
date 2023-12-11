@@ -479,6 +479,26 @@ const removeUserPasswordPolicy = async (id, correlationId) => {
   }
 };
 
+const updateUserPasswordPolicy = async (uid, policyCode, correlationId) => {
+  try {
+    logger.info(`Add a user password policy for user ${uid}`, { correlationId });
+    const passwordPolicy = await userPasswordPolicy.findOne({
+      where: {
+        uid: {
+          [Op.eq]: uid,
+        },
+      },
+    });
+    if (!passwordPolicy) {
+      return null;
+    }
+    await passwordPolicy.update({policyCode});
+    return passwordPolicy;
+  } catch (e) {
+    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
 const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
   try {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
@@ -518,4 +538,5 @@ module.exports = {
   findByLegacyUsername,
   getLegacyUsernames,
   addUserPasswordPolicy,
+  updateUserPasswordPolicy,
 };

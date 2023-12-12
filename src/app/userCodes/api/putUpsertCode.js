@@ -1,36 +1,40 @@
 'use strict';
 
-const logger = require('./../../../infrastructure/logger');
-const storage = require('./../data');
 const NotificatonClient = require('login.dfe.notifications.client');
-const userAdapter = require('./../../user/adapter');
-const config = require('./../../../infrastructure/config');
 const { v4: uuid } = require('uuid');
+const logger = require('../../../infrastructure/logger');
+const storage = require('../data');
+const userAdapter = require('../../user/adapter');
+const config = require('../../../infrastructure/config');
 
 const sendNotification = async (user, code, req, uid) => {
   const client = new NotificatonClient({
     connectionString: config.notifications.connectionString,
   });
 
-  if(!code || !user ){
+  if (!code || !user) {
     return Promise.reject('user code or user object is null');
   }
 
   if (code.codeType.toLowerCase() === 'passwordreset') {
+    console.log('password reset');
     return client.sendPasswordReset(user.email, user.given_name, user.family_name, code.code, req.body.clientId, uid);
   }
 
   if (code.codeType.toLowerCase() === 'confirmmigratedemail') {
+    console.log('confirm migration email');
     return client.sendConfirmMigratedEmail(code.email, code.code, req.body.clientId, code.uid);
   }
 
   if (code.codeType.toLowerCase() === 'changeemail') {
+    console.log('change email');
     const emailUid = req.body.selfInvoked ? undefined : uid;
     await client.sendVerifyChangeEmail(code.email, user.given_name, user.family_name, code.code, emailUid);
     return client.sendNotifyMigratedEmail(user.email, user.given_name, user.family_name, code.email);
   }
 
   if (code.codeType.toLowerCase() === 'smslogin') {
+    console.log('smslogin');
     return client.sendSecondFactorLoginCode(user.phone_number, code.code);
   }
 
@@ -48,7 +52,7 @@ const put = async (req, res) => {
       }));
       return;
     }
-    let uid = req.body.uid;
+    let { uid } = req.body;
 
     let codeType = 'PasswordReset';
     if (req.body.codeType) {

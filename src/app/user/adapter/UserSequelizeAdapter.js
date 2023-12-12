@@ -110,6 +110,25 @@ const addPasswordHistory = async (uid, correlationId, password, salt) => {
     throw e;
   }
 };
+const isMatched = async (uid, newPass, correlationId) => {
+  try {
+    const userEntity = await find(uid, correlationId);
+    const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
+    if (!userEntity) {
+      return null;
+    }
+
+    const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+    const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
+    const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
+    const resultkey = crypto.pbkdf2Sync(newPass, userEntity.salt, iterations, 512, 'sha512');
+    const passwordValid = resultkey.toString('base64') === userEntity.password;
+    return passwordValid;
+  } catch (e) {
+    logger.error(`error saving pasword history for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    throw e;
+  }
+};
 const fetchPasswordHistory = async (uid, correlationId) => {
   try {
     let returnArray = [];
@@ -492,7 +511,7 @@ const updateUserPasswordPolicy = async (uid, policyCode, correlationId) => {
     if (!passwordPolicy) {
       return null;
     }
-    await passwordPolicy.update({policyCode});
+    await passwordPolicy.update({ policyCode });
     return passwordPolicy;
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
@@ -529,6 +548,7 @@ module.exports = {
   addPasswordHistory,
   changePassword,
   list,
+  isMatched,
   findByUsername,
   create,
   authenticate,

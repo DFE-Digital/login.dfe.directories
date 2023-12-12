@@ -26,7 +26,7 @@ const addUserPasswordPolicy = require('./addUserPasswordPolicy');
 const updateUserPasswordPolicy = require('./updatePasswordPolicy');
 const passwordHistory = require('./getPasswordHistory');
 const userPasswordPolicy = require('./removeUserPolicy');
-
+const matchedPassphrase = require('./matchedPassphrase');
 
 const router = express.Router();
 
@@ -45,6 +45,7 @@ const routeExport = () => {
   router.get('/users/by-legacyusername/:id', asyncWrapper(findByLegacyUsername));
   router.get('/users/:id', asyncWrapper(find));
   router.get('/users/:uid/legacy-username', asyncWrapper(findLegacyUsernamesById));
+  router.get('/users/:uid/isMatched', asyncWrapper(matchedPassphrase));
   router.get('/users/:uid/password-policies', asyncWrapper(getUserPasswordPolicies));
   router.get('/users/:uid/password-history', asyncWrapper(passwordHistory));
   router.post('/users/:uid/password-policies', asyncWrapper(addUserPasswordPolicy));

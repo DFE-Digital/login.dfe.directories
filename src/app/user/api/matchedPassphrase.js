@@ -7,8 +7,9 @@ const matchedPassphrase = async (req, res) => {
     {
         return res.status(404).send();
     }
+    const correlationId = req.header('x-correlation-id');
     const results = await userAdapter.isMatched(req.params.uid, req.body.newPass, req.header('x-correlation-id'));
-   
+    logger.info(`perfomed a passord match  ${req.params.uid} with (reason: removed)`, { correlationId });
     return res.send(results);
   } catch (e) {
     logger.error(e);

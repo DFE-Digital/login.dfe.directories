@@ -93,7 +93,9 @@ const getManyUsers = async (userIds) => {
 
   const userIdSearch = userIds.map(userId => `User_${userId}`);
 
-  return client.mget(...userIdSearch).filter(user => !user === false).map(user => JSON.parse(user));
+  const rawRes = await client.mget(...userIdSearch);
+
+  return rawRes.filter(user => !user === false).map(user => JSON.parse(user));
 };
 
 const changePasswordForUser = async (uid, newPassword) => {

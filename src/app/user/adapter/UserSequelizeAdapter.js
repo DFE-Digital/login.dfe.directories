@@ -259,7 +259,7 @@ const changePassword = async (uid, newPassword, correlationId) => {
     const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
     const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
     const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    if (userPasswordPolicyEntity[0].password_history_limit !== undefined) {
+    if (userPasswordPolicyEntity.length !== 0 && userPasswordPolicyEntity[0].password_history_limit !== undefined) {
       limit = userPasswordPolicyEntity[0].password_history_limit;
     }
 
@@ -277,7 +277,7 @@ const changePassword = async (uid, newPassword, correlationId) => {
 
     return userEntity;
   } catch (e) {
-    logger.error(`GetUsers failed for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(`change password failed for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);
   }
 };

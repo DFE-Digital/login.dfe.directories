@@ -90,14 +90,15 @@ describe('When patching a user', () => {
   it('then it should update user in storage with new details', async () => {
     await patchUser(req, res);
 
+    console.log('update mock', update.mock.calls)
     expect(update.mock.calls).toHaveLength(1);
     expect(update.mock.calls[0][0]).toBe('9b543631-884c-4b39-86d5-311ad5fc6cce');
     expect(update.mock.calls[0][1]).toBe('Jennifer');
     expect(update.mock.calls[0][2]).toBe('Potter');
     expect(update.mock.calls[0][3]).toBe('jenny.potter@dumbledores-army.test');
-    expect(update.mock.calls[0][4]).toBe('07700 900000');
-    expect(update.mock.calls[0][5]).toEqual(['luser1', 'luser2']);
-    expect(update.mock.calls[0][6]).toBe('correlation-id');
+    expect(update.mock.calls[0][5]).toBe('07700 900000');
+    expect(update.mock.calls[0][6]).toEqual(['luser1', 'luser2']);
+    expect(update.mock.calls[0][7]).toBe('correlation-id');
   });
 
   it('then it should update users legacy usernames in storage', async () => {
@@ -110,7 +111,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
+    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email,job_title,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -120,7 +121,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
+    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email,job_title,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -130,7 +131,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
+    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email,job_title,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 

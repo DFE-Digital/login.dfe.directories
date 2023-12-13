@@ -1,12 +1,11 @@
 'use strict';
 
 jest.mock('./../../src/app/invitations/data');
-jest.mock('./../../src/infrastructure/logger', () => {
-  return {
-    info: jest.fn(),
-    error: jest.fn(),
-  };
-});
+jest.mock('./../../src/infrastructure/logger', () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+  audit: jest.fn(),
+}));
 jest.mock('login.dfe.notifications.client');
 jest.mock('./../../src/infrastructure/config', () => ({
   redis: {
@@ -18,21 +17,24 @@ jest.mock('./../../src/infrastructure/config', () => ({
   applications: {
     type: 'static',
   },
+  hostingEnvironment: {
+    env: 'test',
+  },
+  loggerSettings: {
+    applicationName: 'Directories - API',
+  },
 }));
 
 jest.mock('./../../src/infrastructure/applications');
 
-
-jest.mock('./../../src/app/invitations/data', () => {
-  return {
-    getUserInvitation: jest.fn(),
-  };
-});
-
-const invitationStorage = require('./../../src/app/invitations/data');
-const post = require('../../src/app/invitations/api/postResendInvitation');
+jest.mock('./../../src/app/invitations/data', () => ({
+  getUserInvitation: jest.fn(),
+  updateInvitation: jest.fn(),
+}));
 
 const httpMocks = require('node-mocks-http');
+const invitationStorage = require('../../src/app/invitations/data');
+const post = require('../../src/app/invitations/api/postResendInvitation');
 
 describe('When resending an invitation', () => {
   let res;
@@ -92,7 +94,22 @@ describe('When resending an invitation', () => {
       },
     });
 
+    invitationStorage.updateInvitation.mockReturnValue({
+      id: expectedInvitationId,
+      email: expectedEmailAddress,
+      firstName: expectedFirstName,
+      lastName: expectedLastName,
+      code: 'XYZ987',
+      selfStarted: true,
+      origin: {
+        clientId: 'client1',
+        redirectUri: 'https://source.test',
+      },
+    });
+
     await post(req, res);
+
+    console.log('resget', res._getData());
 
     expect(res._getData()).toEqual({
       id: expectedInvitationId,

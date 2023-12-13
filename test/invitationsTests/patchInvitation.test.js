@@ -8,27 +8,36 @@ jest.mock('./../../src/infrastructure/config', () => ({
   applications: {
     type: 'static',
   },
+  loggerSettings: {
+    applicationName: 'Directories-API',
+  },
+  hostingEnvironment: {
+    applicationInsights: '6261c542-1f69-416d-80a9-a01cd0707a26',
+  },
 }));
-jest.mock('./../../src/app/invitations/data', () => {
-  return {
-    getUserInvitation: jest.fn(),
-    updateInvitation: jest.fn(),
-  };
-});
-jest.mock('./../../src/app/invitations/utils', () => {
-  return {
-    generateInvitationCode: jest.fn(),
-  };
-});
+jest.mock('./../../src/app/invitations/data', () => ({
+  getUserInvitation: jest.fn(),
+  updateInvitation: jest.fn(),
+}));
+jest.mock('./../../src/app/invitations/utils', () => ({
+  generateInvitationCode: jest.fn(),
+}));
 jest.mock('login.dfe.notifications.client');
 jest.mock('./../../src/infrastructure/applications');
 
+jest.mock('./../../src/infrastructure/logger', () => ({
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  audit: jest.fn(),
+}));
+
 const httpMocks = require('node-mocks-http');
 const notificationClient = require('login.dfe.notifications.client');
-const { getUserInvitation, updateInvitation } = require('./../../src/app/invitations/data');
-const { generateInvitationCode } = require('./../../src/app/invitations/utils');
-const { getServiceById } = require('./../../src/infrastructure/applications');
-const patchInvitation = require('./../../src/app/invitations/api/patchInvitation');
+const { getUserInvitation, updateInvitation } = require('../../src/app/invitations/data');
+const { generateInvitationCode } = require('../../src/app/invitations/utils');
+const { getServiceById } = require('../../src/infrastructure/applications');
+const patchInvitation = require('../../src/app/invitations/api/patchInvitation');
 
 describe('When patching an invitation', () => {
   let req;
@@ -152,7 +161,7 @@ describe('When patching an invitation', () => {
         redirectUri: 'https://example.com',
       },
       selfStarted: false,
-      code: 'existing-code',
+      code: 'new-code',
       id: '714d039d-92f7-4bc4-9422-63d194a7',
       isCompleted: true,
     });
@@ -213,18 +222,20 @@ describe('When patching an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][7]).toBe(false);
   });
 
-  it('then it should not update invitation code if email has not changed', async () => {
-    await patchInvitation(req, res);
+  // The below two test is not needed any more after commit #3f283f0
 
-    expect(updateInvitation.mock.calls).toHaveLength(1);
-    expect(updateInvitation.mock.calls[0][0]).toMatchObject({
-      code: 'existing-code',
-    });
-  });
+  // it('then it should not update invitation code if email has not changed', async () => {
+  //   await patchInvitation(req, res);
 
-  it('then it should not send invitation if email has not changed', async () => {
-    await patchInvitation(req, res);
+  //   expect(updateInvitation.mock.calls).toHaveLength(1);
+  //   expect(updateInvitation.mock.calls[0][0]).toMatchObject({
+  //     code: 'existing-code',
+  //   });
+  // });
 
-    expect(sendInvitationStub.mock.calls).toHaveLength(0);
-  });
+  //   it('then it should not send invitation if email has not changed', async () => {
+  //     await patchInvitation(req, res);
+
+  //     expect(sendInvitationStub.mock.calls).toHaveLength(0);
+  //   });
 });

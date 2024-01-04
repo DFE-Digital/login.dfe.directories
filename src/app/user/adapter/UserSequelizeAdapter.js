@@ -250,34 +250,19 @@ const handlePasswordHistory = async (uid, oldSalt, oldPassword, limit, correlati
 const changePassword = async (uid, newPassword, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
-    const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
-
     if (!userEntity) {
       return null;
     }
-    let limit = 0;
-    const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
-    const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    if (userPasswordPolicyEntity.length !== 0 && userPasswordPolicyEntity[0].password_history_limit !== undefined) {
-      limit = userPasswordPolicyEntity[0].password_history_limit;
-    }
-
-    if (limit > 0) {
-      await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
-    }
     const salt = generateSalt();
-    const password = crypto.pbkdf2Sync(newPassword, salt, iterations, 512, 'sha512');
-
+    const password = crypto.pbkdf2Sync(newPassword, salt, 120000, 512, 'sha512');
     await userEntity.update({
       salt,
       password: password.toString('base64'),
       password_reset_required: false,
     });
-
     return userEntity;
   } catch (e) {
-    logger.error(`change password failed for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(`GetUsers failed for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);
   }
 };
@@ -307,27 +292,19 @@ const authenticate = async (username, password, correlationId) => {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
     const userEntity = await findByUsername(username);
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
-
     if (!userEntity) return null;
     const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
-    const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
+    const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u=>u.policyCode === 'v3').length>0 ? 'v3' : 'v2';
     const request = promisify(crypto.pbkdf2);
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-
     const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
     const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
-    let prevLoggin = null;
-    if (userEntity.last_login !== null) {
-      prevLoggin = userEntity.last_login.toISOString();
-    }
     if (passwordValid) {
       await userEntity.update({
         last_login: new Date().toISOString(),
-        prev_login: prevLoggin,
       });
     }
-
     return {
       user: userEntity,
       passwordValid,

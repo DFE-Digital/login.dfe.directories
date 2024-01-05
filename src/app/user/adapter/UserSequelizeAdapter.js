@@ -35,7 +35,7 @@ const find = async (id, correlationId) => {
 
 const findByUsername = async (username, correlationId) => {
   try {
-    console.time('start find by username');
+    console.time('find by username');
     logger.info(`Get user for request ${username}`, { correlationId });
     const userEntity = await user.findOne({
       where: {
@@ -44,11 +44,12 @@ const findByUsername = async (username, correlationId) => {
         },
       },
     });
+    console.timeLog('find by username');
     if (!userEntity) {
-      console.timeEnd('end find by username');
+      console.timeEnd('find by username');
       return null;
     }
-    console.timeEnd('end find by username');
+    console.timeEnd('ind by username');
     return userEntity;
   } catch (e) {
     logger.error(`error getting user with username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
@@ -291,30 +292,29 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 
 const authenticate = async (username, password, correlationId) => {
   try {
-    console.profile('start profiling authentication');
-    console.time('start user authentication');
+   console.profile('authenication');
+    console.time('user authentication');
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
     const userEntity = await findByUsername(username);
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
     if (!userEntity) return null;
-    console.time('start get user policy');
+   
     const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
     const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    console.timeEnd('end get user policy');
-    console.time('start crypto request');
+ 
     const request = promisify(crypto.pbkdf2);
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
     const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
     const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
-    console.timeEnd('end crypto request');
+    console.timeLog('user authentication');
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
     if (passwordValid) {
       await userEntity.update({
         last_login: new Date().toISOString(),
       });
     }
-    console.timeEnd('end user authentication');
-    console.profileEnd('end profiling authentication')
+    console.timeEnd('user authentication');
+    console.profileEnd('authenication');
     return {
       user: userEntity,
       passwordValid,

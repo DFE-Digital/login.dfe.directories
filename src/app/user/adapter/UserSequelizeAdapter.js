@@ -49,7 +49,7 @@ const findByUsername = async (username, correlationId) => {
       console.timeEnd('find by username');
       return null;
     }
-    console.timeEnd('ind by username');
+    console.timeEnd('find by username');
     return userEntity;
   } catch (e) {
     logger.error(`error getting user with username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });

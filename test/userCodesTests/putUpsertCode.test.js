@@ -35,6 +35,12 @@ jest.mock('./../../src/infrastructure/config', () => ({
       redisurl: 'http://orgs.api.test',
     },
   },
+  loggerSettings: {
+    applicationName: 'Directories-API',
+  },
+  hostingEnvironment: {
+    env: 'dev',
+  },
 }));
 jest.mock('./../../src/infrastructure/logger', () => ({
   error: console.error,
@@ -132,6 +138,8 @@ describe('When getting a user code', () => {
     redisStorage.getUserCode.mockReturnValue(null);
 
     await put(req, res);
+
+    console.log('resgetdata', res._getData())
 
     expect(res._getData().code).toBe('ZXY789');
     expect(res._getData().uid).toBe('7654321');

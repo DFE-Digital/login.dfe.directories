@@ -46,6 +46,7 @@ describe('When patching a user', () => {
         family_name: 'Potter',
         email: 'jenny.potter@dumbledores-army.test',
         phone_number: '07700 900000',
+        job_title: 'Manager',
         legacyUsernames: ['luser1', 'luser2'],
       },
     };
@@ -59,6 +60,7 @@ describe('When patching a user', () => {
       given_name: 'Jenny',
       family_name: 'Weasley',
       email: 'jenny.weasley@dumbledores-army.test',
+      job_title: 'Manager',
       password: 'some-hashed-data',
       salt: 'random-salt-value',
       status: 1,
@@ -95,9 +97,10 @@ describe('When patching a user', () => {
     expect(update.mock.calls[0][1]).toBe('Jennifer');
     expect(update.mock.calls[0][2]).toBe('Potter');
     expect(update.mock.calls[0][3]).toBe('jenny.potter@dumbledores-army.test');
-    expect(update.mock.calls[0][4]).toBe('07700 900000');
-    expect(update.mock.calls[0][5]).toEqual(['luser1', 'luser2']);
-    expect(update.mock.calls[0][6]).toBe('correlation-id');
+    expect(update.mock.calls[0][4]).toBe('Manager');
+    expect(update.mock.calls[0][5]).toBe('07700 900000');
+    expect(update.mock.calls[0][6]).toEqual(['luser1', 'luser2']);
+    expect(update.mock.calls[0][7]).toBe('correlation-id');
   });
 
   it('then it should update users legacy usernames in storage', async () => {
@@ -110,7 +113,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
+    expect(res._getData()).toBe('Unpatchable property bad. Allowed properties given_name,family_name,email,job_title,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -120,7 +123,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
+    expect(res._getData()).toBe('Unpatchable property sub. Allowed properties given_name,family_name,email,job_title,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -130,7 +133,7 @@ describe('When patching a user', () => {
     await patchUser(req, res);
 
     expect(res.statusCode).toBe(400);
-    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email,phone_number,legacyUsernames');
+    expect(res._getData()).toBe('Must specify at least one property to update. Allowed properties given_name,family_name,email,job_title,phone_number,legacyUsernames');
     expect(res._isEndCalled()).toBe(true);
   });
 
@@ -145,6 +148,7 @@ describe('When patching a user', () => {
       sub: '9b543631-884c-4b39-86d5-311ad5fc6cce',
       given_name: 'Jennifer',
       family_name: 'Potter',
+      job_title: 'Manager',
       email: 'jenny.potter@dumbledores-army.test',
       phone_number: '07700 900000',
       status: 1,

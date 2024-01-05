@@ -1,9 +1,8 @@
-const { findByUsername, create } = require('./../adapter');
-const logger = require('./../../../infrastructure/logger');
-const config = require('./../../../infrastructure/config');
-const { safeUser } = require('./../../../utils');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
-const { addUserPasswordPolicy } = require('../adapter/UserSequelizeAdapter');
+const { findByUsername, create } = require('../adapter');
+const logger = require('../../../infrastructure/logger');
+const config = require('../../../infrastructure/config');
+const { safeUser } = require('../../../utils');
 
 const createUser = async (req, res) => {
   const correlationId = req.header('x-correlation-id');
@@ -36,4 +35,3 @@ const createUser = async (req, res) => {
 };
 
 module.exports = createUser;
-

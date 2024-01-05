@@ -45,6 +45,7 @@ const findByUsername = async (username, correlationId) => {
       },
     });
     if (!userEntity) {
+      console.timeEnd('end find by username');
       return null;
     }
     console.timeEnd('end find by username');
@@ -290,6 +291,7 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 
 const authenticate = async (username, password, correlationId) => {
   try {
+    console.profile('start profiling authentication');
     console.time('start user authentication');
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
     const userEntity = await findByUsername(username);
@@ -312,6 +314,7 @@ const authenticate = async (username, password, correlationId) => {
       });
     }
     console.timeEnd('end user authentication');
+    console.profileEnd('end profiling authentication')
     return {
       user: userEntity,
       passwordValid,

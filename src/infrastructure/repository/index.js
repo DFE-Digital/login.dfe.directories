@@ -2,9 +2,9 @@
 
 const Sequelize = require('sequelize');
 
-const Op = Sequelize.Op;
+const { Op } = Sequelize;
 const assert = require('assert');
-const config = require('./../config');
+const config = require('../config');
 
 const getIntValueOrDefault = (value, defaultValue = 0) => {
   if (!value) {
@@ -18,7 +18,6 @@ const databaseName = config.adapter.params.name || 'postgres';
 const encryptDb = config.adapter.params.encrypt || false;
 const dbSchema = config.adapter.params.schema || 'directories';
 const packetSize = config.adapter.params.packetSize || 32768;
-
 
 let db;
 
@@ -67,7 +66,6 @@ if (config.adapter.params && config.adapter.params.postgresUrl) {
   }
   db = new Sequelize(databaseName, config.adapter.params.username, config.adapter.params.password, dbOpts);
 }
-
 const user = db.define('user', {
   sub: {
     type: Sequelize.UUID,
@@ -127,6 +125,47 @@ const user = db.define('user', {
   tableName: 'user',
   schema: dbSchema,
 });
+
+const passwordHistory = db.define('password_history', {
+  id: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  password: {
+    type: Sequelize.STRING(5000),
+    allowNull: false,
+  },
+  salt: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+
+}, {
+  timestamps: true,
+  tableName: 'password_history',
+  schema: dbSchema,
+});
+
+
+const userPasswordHistory = db.define('user_password_history',{
+  passwordHistoryId: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+  userSub: {
+    type: Sequelize.UUID,
+    primaryKey: true,
+    allowNull: false,
+  },
+}, {
+  timestamps: true,
+  tableName: 'user_password_history',
+  schema: dbSchema,
+});
+user.belongsToMany(passwordHistory, { through: userPasswordHistory });
+passwordHistory.belongsToMany(user, { through: userPasswordHistory });
 
 const userCode = db.define('user_code', {
   uid: {
@@ -208,7 +247,6 @@ const userDevice = db.define('user_device', {
 });
 user.hasMany(userDevice, { foreignKey: 'uid', sourceKey: 'sub' });
 userDevice.belongsTo(user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
-
 
 const invitationCallback = db.define('invitation_callback', {
   invitationId: {
@@ -378,7 +416,10 @@ const userPasswordPolicy = db.define('user_password_policy', {
     type: Sequelize.STRING,
     allowNull: false,
   },
-
+  password_history_limit: {
+    type: Sequelize.SMALLINT,
+    defaultValue: 3,
+  }
 }, {
   timestamps: true,
   tableName: 'user_password_policy',
@@ -395,5 +436,7 @@ module.exports = {
   invitation,
   invitationDevice,
   invitationCallback,
+  passwordHistory,
+  userPasswordHistory,
   userPasswordPolicy,
 };

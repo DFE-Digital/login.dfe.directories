@@ -12,7 +12,7 @@ jest.mock('./../../src/infrastructure/logger', () => {
   };
 });
 jest.mock('./../../src/app/user/devices');
-jest.mock('uuid/v4');
+jest.mock('uuid', () => ({ v4: () => 'b8107414-969c-46f4-b0fa-47d3e132e8e1' }));
 
 const httpMocks = require('node-mocks-http');
 const createDevice = require('./../../src/app/user/api/createDevice');
@@ -52,7 +52,6 @@ describe('when getting a list of devices for user', () => {
       },
     ]);
 
-    require('uuid/v4').mockReturnValue('b8107414-969c-46f4-b0fa-47d3e132e8e1');
   });
 
   it('then it should create device for user', async () => {

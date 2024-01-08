@@ -1,17 +1,14 @@
 'use strict';
 
 jest.mock('./../../src/app/invitations/data');
-jest.mock('./../../src/app/invitations/utils', () => {
-  return {
-    generateInvitationCode: jest.fn().mockReturnValue('invite-code'),
-  };
-});
-jest.mock('./../../src/infrastructure/logger', () => {
-  return {
-    info: jest.fn(),
-    error: jest.fn(),
-  };
-});
+jest.mock('./../../src/app/invitations/utils', () => ({
+  generateInvitationCode: jest.fn().mockReturnValue('invite-code'),
+}));
+jest.mock('./../../src/infrastructure/logger', () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+  audit: jest.fn(),
+}));
 jest.mock('login.dfe.notifications.client');
 jest.mock('./../../src/infrastructure/config', () => ({
   redis: {
@@ -23,30 +20,33 @@ jest.mock('./../../src/infrastructure/config', () => ({
   applications: {
     type: 'static',
   },
+  hostingEnvironment: {
+    env: 'dev',
+  },
+  loggerSettings: {
+    applicationName: 'Directories-API',
+  },
 }));
 
 jest.mock('./../../src/infrastructure/applications');
-jest.mock('./../../src/app/invitations/data', () => {
-  return {
-    createUserInvitation: jest.fn(),
-    findInvitationForEmail: jest.fn(),
-  };
-});
-jest.mock('./../../src/app/user/adapter', () => {
-  return {
-    findByUsername: jest.fn(),
-  };
-});
+jest.mock('./../../src/app/invitations/data', () => ({
+  createUserInvitation: jest.fn(),
+  findInvitationForEmail: jest.fn(),
+  getUserInvitation: jest.fn(),
+  updateInvitation: jest.fn(),
+}));
+jest.mock('./../../src/app/user/adapter', () => ({
+  findByUsername: jest.fn(),
+}));
 
-
-const logger = require('./../../src/infrastructure/logger');
 const notificationClient = require('login.dfe.notifications.client');
-const redisStorage = require('./../../src/app/invitations/data');
-const userStorage = require('./../../src/app/user/adapter');
-const { getServiceById } = require('./../../src/infrastructure/applications');
-const post = require('../../src/app/invitations/api/postInvitations');
-
 const httpMocks = require('node-mocks-http');
+const logger = require('../../src/infrastructure/logger');
+const redisStorage = require('../../src/app/invitations/data');
+const userStorage = require('../../src/app/user/adapter');
+const { getServiceById } = require('../../src/infrastructure/applications');
+const post = require('../../src/app/invitations/api/postInvitations');
+const { default: redisMock } = require('ioredis-mock');
 
 describe('When creating an invitation', () => {
   let res;
@@ -177,6 +177,8 @@ describe('When creating an invitation', () => {
   it('then an invitation email is sent when the record is first created', async () => {
     await post(req, res);
 
+    console.log(sendInvitationStub.mock.calls);
+
     expect(sendInvitationStub.mock.calls[0][0]).toBe(expectedEmailAddress);
     expect(sendInvitationStub.mock.calls[0][1]).toBe(expectedFirstName);
     expect(sendInvitationStub.mock.calls[0][2]).toBe(expectedLastName);
@@ -212,7 +214,6 @@ describe('When creating an invitation', () => {
     expect(res.statusCode).toBe(500);
   });
 
-
   it('then it should not create new invitation if an invitation already exists for email', async () => {
     redisStorage.findInvitationForEmail.mockReturnValue({
       id: 'existing-invitation-id',
@@ -234,6 +235,19 @@ describe('When creating an invitation', () => {
 
   it('then it should use existing invitation details to send notification', async () => {
     redisStorage.findInvitationForEmail.mockReturnValue({
+      id: 'existing-invitation-id',
+      email: 'existing.user@unit.test',
+      firstName: 'Existing',
+      lastName: 'User',
+      code: 'XYZ987',
+      selfStarted: true,
+      origin: {
+        clientId: 'client1',
+        redirectUri: 'https://source.test',
+      },
+    });
+
+    redisStorage.updateInvitation.mockReturnValue({
       id: 'existing-invitation-id',
       email: 'existing.user@unit.test',
       firstName: 'Existing',
@@ -275,7 +289,7 @@ describe('When creating an invitation', () => {
 
     await post(req, res);
 
-    expect(res.statusCode).toBe(202);
+    expect(res.statusCode).toBe(201);
   });
 
   it('then it should send existing invitation', async () => {
@@ -307,7 +321,6 @@ describe('When creating an invitation', () => {
       },
     });
   });
-
 
   it('then it should not create new invitation if an account already exists for email', async () => {
     userStorage.findByUsername.mockReset().mockReturnValue({});

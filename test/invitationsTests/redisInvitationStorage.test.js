@@ -1,4 +1,4 @@
-jest.mock('uuid/v4');
+jest.mock('uuid', () => ({ v4: () => '1dcf73dd-1613-470e-a35e-378a3375a6fe' }));
 jest.mock('./../../src/infrastructure/config', () => ({
   invitations: {
     redisUrl: 'http://orgs.api.test',
@@ -10,20 +10,15 @@ jest.mock('./../../src/infrastructure/logger', () => {
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
+    audit: jest.fn(),
   };
 });
 
 describe('When using the redis invitation storage', () => {
-  let uuid;
-  let uuidStub;
   let invitationStorage;
 
   beforeEach(() => {
     jest.resetModules();
-    uuidStub = jest.fn().mockReturnValue('1dcf73dd-1613-470e-a35e-378a3375a6fe');
-
-    uuid = require('uuid/v4');
-    uuid.mockImplementation(uuidStub);
   });
   describe('and getting the invitation by email', () => {
     it('then null is returned if the invitation does not exist', async () => {

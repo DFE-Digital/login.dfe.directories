@@ -12,7 +12,7 @@ jest.mock('./../../src/infrastructure/logger', () => {
   };
 });
 jest.mock('./../../src/app/user/devices');
-jest.mock('uuid/v4');
+jest.mock('uuid', () => ({ v4: () => 'b8107414-969c-46f4-b0fa-47d3e132e8e1' }));
 
 const httpMocks = require('node-mocks-http');
 const deleteDevice = require('./../../src/app/user/api/deleteDevice');
@@ -45,8 +45,6 @@ describe('when deleting a device for user', () => {
     devices = require('./../../src/app/user/devices');
     devices.deleteUserDevice.mockReset();
     devices.deleteUserDevice.mockReturnValue();
-
-    require('uuid/v4').mockReturnValue('b8107414-969c-46f4-b0fa-47d3e132e8e1');
   });
 
   it('then it calls deleteUserDevice for user', async () => {

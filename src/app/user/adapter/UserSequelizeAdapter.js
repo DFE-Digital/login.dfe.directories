@@ -13,6 +13,7 @@ const generateSalt = require('../utils/generateSalt');
 const find = async (id, correlationId) => {
   try {
     logger.info(`Get user for request ${correlationId}`, { correlationId });
+    console.time('find user by username');
     const userEntity = await user.findOne({
       where: {
         sub: {
@@ -23,7 +24,8 @@ const find = async (id, correlationId) => {
     if (!userEntity) {
       return null;
     }
-
+    console.timeLog('find user by username');
+    console.timeEnd('find user by username');
     return userEntity;
   } catch (e) {
     logger.error(`error getting user id:${id} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
@@ -145,6 +147,8 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 
 const authenticate = async (username, password, correlationId) => {
   try {
+    console.profile('Authenticate username');
+    console.time('Auth username');
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
     const userEntity = await findByUsername(username);
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
@@ -168,6 +172,10 @@ const authenticate = async (username, password, correlationId) => {
         prev_login: prevLoggin,
       });
     }
+    
+    console.timeLog('Auth username');
+    console.timeEnd('Auth username');
+    console.profileEnd('Authenticate username');
 
     return {
       user: userEntity,

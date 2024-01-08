@@ -13,7 +13,7 @@ const generateSalt = require('../utils/generateSalt');
 const find = async (id, correlationId) => {
   try {
     logger.info(`Get user for request ${correlationId}`, { correlationId });
-    console.time('find user by username');
+   
     const userEntity = await user.findOne({
       where: {
         sub: {
@@ -24,8 +24,7 @@ const find = async (id, correlationId) => {
     if (!userEntity) {
       return null;
     }
-    console.timeLog('find user by username');
-    console.timeEnd('find user by username');
+  
     return userEntity;
   } catch (e) {
     logger.error(`error getting user id:${id} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
@@ -36,6 +35,7 @@ const find = async (id, correlationId) => {
 const findByUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user for request ${username}`, { correlationId });
+    console.time('find user by username');
     const userEntity = await user.findOne({
       where: {
         email: {
@@ -46,7 +46,8 @@ const findByUsername = async (username, correlationId) => {
     if (!userEntity) {
       return null;
     }
-
+    console.timeLog('find user by username');
+    console.timeEnd('find user by username');
     return userEntity;
   } catch (e) {
     logger.error(`error getting user with username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });

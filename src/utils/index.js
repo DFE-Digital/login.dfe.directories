@@ -1,6 +1,8 @@
 const generate = require('./generateCode');
 const deprecateWith = require('./deprecateMiddleware');
 const safeUser = require('./safeUser');
+const extractValueFromQueryString = require('./extractValueFromQueryString');
+
 
 module.exports = {
   NUMERIC_CHARSET: generate.NUMERIC_CHARSET,
@@ -9,4 +11,5 @@ module.exports = {
   generate: generate.generate,
   deprecateWith,
   safeUser,
+  extractValueFromQueryString
 };

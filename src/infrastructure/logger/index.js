@@ -73,6 +73,8 @@ if (config.hostingEnvironment.applicationInsights) {
 const logger = createLogger(loggerConfig);
 
 process.on('unhandledRejection', (reason, p) => {
+  console.log(p);
+  console.log(reason);
   logger.error('Unhandled Rejection at: ', p, 'reason: ', reason);
 });
 

@@ -4,16 +4,17 @@ const Sequelize = require('sequelize');
 
 const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
-const { userCode } = require('./../../../infrastructure/repository');
+
 const generateResetCode = require('./../utils/generateResetCode');
 const generateSmsCode = require('./../utils/generateSmsCode');
+const db = require('../../../infrastructure/repository/db');
 
 
 const listUsersCodes = async (uid, correlationId) => {
   try {
     logger.info(`List user ${uid}'s codes for request ${correlationId}`, { correlationId });
 
-    const codes = await userCode.findAll({
+    const codes = await db.userCode.findAll({
       where: {
         uid: {
           [Op.eq]: uid,
@@ -31,11 +32,11 @@ const listUsersCodes = async (uid, correlationId) => {
   }
 };
 
-const getUserCode = async (uid, codeType, correlationId) => {
+const getuserCode = async (uid, codeType, correlationId) => {
   try {
     logger.info(`Find User Code for request: ${correlationId}`, { correlationId });
 
-    const code = await userCode.findOne({
+    const code = await db.userCode.findOne({
       where: {
         uid: {
           [Op.eq]: uid,
@@ -55,10 +56,10 @@ const getUserCode = async (uid, codeType, correlationId) => {
   }
 };
 
-const getUserCodeByEmail = async (email, codeType, correlationId) => {
+const getuserCodeByEmail = async (email, codeType, correlationId) => {
   try {
     logger.info(`Find User Code by email for request: ${correlationId}`, { correlationId });
-    const code = await userCode.findOne({
+    const code = await db.userCode.findOne({
       where: {
         email: {
           [Op.eq]: email,
@@ -78,7 +79,7 @@ const getUserCodeByEmail = async (email, codeType, correlationId) => {
   }
 };
 
-const createUserCode = async (uid, clientId, redirectUri, email, contextData, codeType, correlationId) => {
+const createuserCode = async (uid, clientId, redirectUri, email, contextData, codeType, correlationId) => {
   try {
     logger.info(`Create User Password Reset Code for request: ${correlationId}`, { correlationId });
 
@@ -97,8 +98,8 @@ const createUserCode = async (uid, clientId, redirectUri, email, contextData, co
       codeType,
     };
 
-    await userCode.create(userResetCode);
-    const result = await getUserCode(uid, codeType, correlationId);
+    await db.userCode.create(userResetCode);
+    const result = await getuserCode(uid, codeType, correlationId);
     userResetCode.createdAt = result.createdAt;
     return userResetCode;
   } catch (e) {
@@ -107,14 +108,14 @@ const createUserCode = async (uid, clientId, redirectUri, email, contextData, co
   }
 };
 
-const deleteUserCode = async (uid, correlationId) => {
+const deleteuserCode = async (uid, correlationId) => {
   try {
     logger.info(`Delete User Code for request: ${correlationId}`, { correlationId });
     if (!uid) {
       return;
     }
 
-    const code = await userCode.findByPk(uid);
+    const code = await db.userCode.findByPk(uid);
     if (code) {
       await code.destroy();
     }
@@ -124,10 +125,10 @@ const deleteUserCode = async (uid, correlationId) => {
   }
 };
 
-const updateUserCode = async (uid, email, contextData, redirectUri, clientId, codeType, correlationId) => {
+const updateuserCode = async (uid, email, contextData, redirectUri, clientId, codeType, correlationId) => {
   try {
     logger.info(`Update User Code for request: ${correlationId}`, { correlationId });
-    const codeFromFind = await getUserCode(uid, codeType, correlationId);
+    const codeFromFind = await getuserCode(uid, codeType, correlationId);
 
     if (!codeFromFind) {
       return null;
@@ -145,7 +146,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
       clientId,
       code,
     });
-    return await getUserCode(uid, codeType, correlationId);
+    return await getuserCode(uid, codeType, correlationId);
   } catch (e) {
     logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
@@ -154,9 +155,9 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
 
 module.exports = {
   listUsersCodes,
-  getUserCode,
-  getUserCodeByEmail,
-  createUserCode,
-  deleteUserCode,
-  updateUserCode,
+  getuserCode,
+  getuserCodeByEmail,
+  createuserCode,
+  deleteuserCode,
+  updateuserCode,
 };

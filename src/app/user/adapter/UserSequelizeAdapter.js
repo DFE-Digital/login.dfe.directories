@@ -7,6 +7,8 @@ const { v4: uuid } = require('uuid');
 const { promisify } = require('util');
 const crypto = require('crypto');
 const logger = require('../../../infrastructure/logger');
+const db = require('../../../infrastructure/repository/db');
+
 const {
   user, userLegacyUsername, userPasswordPolicy, passwordHistory, userPasswordHistory,
 } = require('../../../infrastructure/repository');
@@ -15,7 +17,7 @@ const generateSalt = require('../utils/generateSalt');
 const find = async (id, correlationId) => {
   try {
     logger.info(`Get user for request ${correlationId}`, { correlationId });
-    const userEntity = await user.findOne({
+    const userEntity = await db.user.findOne({
       where: {
         sub: {
           [Op.eq]: id,
@@ -35,21 +37,21 @@ const find = async (id, correlationId) => {
 
 const findByUsername = async (username, correlationId) => {
   try {
-    console.time('find by username');
+  
     logger.info(`Get user for request ${username}`, { correlationId });
-    const userEntity = await user.findOne({
+    const userEntity = await db.user.findOne({
       where: {
         email: {
           [Op.eq]: username,
         },
       },
     });
-    console.timeLog('find by username');
+  
     if (!userEntity) {
-      console.timeEnd('find by username');
+     
       return null;
     }
-    console.timeEnd('find by username');
+    
     return userEntity;
   } catch (e) {
     logger.error(`error getting user with username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
@@ -188,7 +190,7 @@ const findByLegacyUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user by legacy username for request ${username}`, { correlationId });
 
-    const userEntity = await user.findOne({
+    const userEntity = await db.user.findOne({
       include: [{
         model: userLegacyUsername,
         where: {
@@ -213,7 +215,7 @@ const getUsers = async (uids, correlationId) => {
   try {
     logger.info(`Get Users for request: ${correlationId}`, { correlationId });
 
-    const users = await user.findAll({
+    const users = await db.user.findAll({
       where: {
         sub: {
           [Op.or]: uids,
@@ -292,22 +294,29 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 
 const authenticate = async (username, password, correlationId) => {
   try {
-   console.profile('authenication');
+    console.profile('authenication');
     console.time('user authentication');
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
-    const userEntity = await findByUsername(username);
+    const userEntity = await db.user.findOne({
+      where: {
+        email: {
+          [Op.eq]: username,
+        },
+      },
+    });
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
     if (!userEntity) return null;
-   
+
     const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
     const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
- 
-    const request = promisify(crypto.pbkdf2);
+
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
-    const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
+  
+    const resultkey = crypto.pbkdf2Sync(password, userEntity.salt, iterations, 512, 'sha512');
+    const passwordValid = resultkey.toString('base64') === userEntity.password;
+   
     console.timeLog('user authentication');
-    const passwordValid = derivedKey.toString('base64') === userEntity.password;
+  
     if (passwordValid) {
       await userEntity.update({
         last_login: new Date().toISOString(),
@@ -390,7 +399,7 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
     };
   }
 
-  const users = await user.findAll({
+  const users = await db.user.findAll({
     where,
     order: [
       ['email', 'DESC'],
@@ -403,7 +412,7 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
     return null;
   }
 
-  const numberOfUsersResult = await user.findAll({
+  const numberOfUsersResult = await db.user.findAll({
     attributes: [[Sequelize.fn('COUNT', Sequelize.col('sub')), 'NumberOfUsers']],
     where,
   });
@@ -488,7 +497,7 @@ const removeUserPasswordPolicy = async (id, correlationId) => {
 const updateUserPasswordPolicy = async (uid, policyCode, correlationId) => {
   try {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
-    const passwordPolicy = await userPasswordPolicy.findOne({
+    const passwordPolicy = await db.userPasswordPolicy.findOne({
       where: {
         uid: {
           [Op.eq]: uid,

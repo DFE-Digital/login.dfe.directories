@@ -5,67 +5,10 @@ const Sequelize = require('sequelize');
 const { Op } = Sequelize;
 const assert = require('assert');
 const config = require('../config');
-
-const getIntValueOrDefault = (value, defaultValue = 0) => {
-  if (!value) {
-    return defaultValue;
-  }
-  const int = parseInt(value);
-  return isNaN(int) ? defaultValue : int;
-};
-
-const databaseName = config.adapter.params.name || 'postgres';
-const encryptDb = config.adapter.params.encrypt || false;
+const db = require('./db');
 const dbSchema = config.adapter.params.schema || 'directories';
-const packetSize = config.adapter.params.packetSize || 32768;
 
-let db;
-
-if (config.adapter.params && config.adapter.params.postgresUrl) {
-  db = new Sequelize(config.database.postgresUrl);
-} else {
-  assert(config.adapter.params.username, 'Database property username must be supplied');
-  assert(config.adapter.params.password, 'Database property password must be supplied');
-  assert(config.adapter.params.host, 'Database property host must be supplied');
-  assert(config.adapter.params.dialect, 'Database property dialect must be supplied, this must be postgres or mssql');
-
-  const dbOpts = {
-    retry: {
-      match: [
-        /SequelizeConnectionError/,
-        /SequelizeConnectionRefusedError/,
-        /SequelizeHostNotFoundError/,
-        /SequelizeHostNotReachableError/,
-        /SequelizeInvalidConnectionError/,
-        /SequelizeConnectionTimedOutError/,
-        /TimeoutError/,
-      ],
-      name: 'query',
-      backoffBase: 100,
-      backoffExponent: 1.1,
-      timeout: 60000,
-      max: 5,
-    },
-    host: config.adapter.params.host,
-    operatorsAliases: Op,
-    dialect: config.adapter.params.dialect,
-    dialectOptions: {
-      options: {
-        encrypt: encryptDb,
-        packetSize,
-      },
-    },
-  };
-  if (config.adapter.params.pool) {
-    dbOpts.pool = {
-      max: getIntValueOrDefault(config.adapter.params.pool.max, 5),
-      min: getIntValueOrDefault(config.adapter.params.pool.min, 0),
-      acquire: getIntValueOrDefault(config.adapter.params.pool.acquire, 10000),
-      idle: getIntValueOrDefault(config.adapter.params.pool.idle, 10000),
-    };
-  }
-  db = new Sequelize(databaseName, config.adapter.params.username, config.adapter.params.password, dbOpts);
-}
+/*
 const user = db.define('user', {
   sub: {
     type: Sequelize.UUID,
@@ -440,3 +383,4 @@ module.exports = {
   userPasswordHistory,
   userPasswordPolicy,
 };
+*/

@@ -73,7 +73,7 @@ const removePasswordHistory = async (recid, uid, correlationId) => {
 const findUserPasswordPolicies = async (uid, correlationId) => {
   try {
     logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
-    const passwordPolicy = await userPasswordPolicy.findAll({
+    const passwordPolicy = await db.userPasswordPolicy.findAll({
       where: {
         uid: {
           [Op.eq]: uid,
@@ -529,7 +529,7 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
       createdAt: Sequelize.fn('GETDATE'),
       updatedAt: Sequelize.fn('GETDATE'),
     };
-    await userPasswordPolicy.create(newPasswordPolicy);
+    await db.userPasswordPolicy.create(newPasswordPolicy);
     return newPasswordPolicy;
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });

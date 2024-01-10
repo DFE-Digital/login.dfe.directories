@@ -8,7 +8,7 @@ const config = require('../config');
 const db = require('./db');
 const dbSchema = config.adapter.params.schema || 'directories';
 
-/*
+
 const user = db.define('user', {
   sub: {
     type: Sequelize.UUID,
@@ -372,15 +372,11 @@ user.hasMany(userPasswordPolicy, { foreignKey: 'uid', sourceKey: 'sub', as: 'use
 userPasswordPolicy.belongsTo(user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
 
 module.exports = {
-  user,
   userCode,
-  userLegacyUsername,
   userDevice,
   invitation,
   invitationDevice,
   invitationCallback,
   passwordHistory,
   userPasswordHistory,
-  userPasswordPolicy,
 };
-*/

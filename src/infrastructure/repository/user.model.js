@@ -10,19 +10,19 @@ function model(sequelize) {
       allowNull: false,
     },
     email: {
-      type: Sequelize.STRING,
+      type: 'VARCHAR(255)',
       allowNull: false,
     },
     given_name: {
-      type: Sequelize.STRING,
+      type: 'VARCHAR(255)',
       allowNull: false,
     },
     job_title: {
-      type: Sequelize.STRING,
+      type: 'VARCHAR(255)',
       allowNull: true,
     },
     family_name: {
-      type: Sequelize.STRING,
+      type: 'VARCHAR(255)',
       allowNull: false,
     },
     password: {
@@ -30,7 +30,7 @@ function model(sequelize) {
       allowNull: false,
     },
     salt: {
-      type: Sequelize.STRING,
+      type: 'VARCHAR(255)',
       allowNull: false,
     },
     status: {
@@ -39,13 +39,13 @@ function model(sequelize) {
       defaultValue: Sequelize.SMALLINT,
     },
     phone_number: {
-      type: Sequelize.STRING,
+      type: 'VARCHAR(50)',
     },
     last_login: {
-      type: Sequelize.DATE,
+      type: 'DateTime',
     },
     prev_login: {
-      type: Sequelize.DATE,
+      type: 'DateTime',
     },
     isMigrated: {
       type: Sequelize.BOOLEAN,

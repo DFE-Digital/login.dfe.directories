@@ -309,11 +309,12 @@ const authenticate = async (username, password, correlationId) => {
 
     const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
     const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-
+    const request = promisify(crypto.pbkdf2);
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-  
-    const resultkey = crypto.pbkdf2Sync(password, userEntity.salt, iterations, 512, 'sha512');
-    const passwordValid = resultkey.toString('base64') === userEntity.password;
+
+    const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
+    const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
+    const passwordValid = derivedKey.toString('base64') === userEntity.password;
    
     console.timeLog('user authentication');
   

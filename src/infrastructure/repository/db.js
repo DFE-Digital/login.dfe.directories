@@ -76,11 +76,23 @@ async function initialize() {
   db.userCode = require('./userCode.model')(sequelize);
   db.userPasswordPolicy = require('./userPasswordPolicy.model')(sequelize);
   db.userLegacyUsername = require('./userLegacyUsername.model')(sequelize);
-
+  db.passwordHistory = require('./passwordHistory.model')(Sequelize);
+  db.userPasswordHistory = require('./userPasswordHistory.model')(Sequelize);
+  db.userDevice = require('./userDevice.model')(sequelize);
+  db.invitation = require('./invitation.model')(sequelize);
+  db.invitationCallback = require('./invitationCallback.model')(Sequelize);
+  db.invitationDevice = require('./invitationDevice.model')(Sequelize);
   // define associations?
   db.user.hasMany(db.userPasswordPolicy, { foreignKey: 'uid', sourceKey: 'sub', as: 'userPasswordPolicy' });
   db.userPasswordPolicy.belongsTo(db.user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
   db.user.hasMany(db.userLegacyUsername, { foreignKey: 'uid', sourceKey: 'sub' });
+  db.user.belongsToMany(db.passwordHistory, { through: db.userPasswordHistory });
+  db.passwordHistory.belongsToMany(db.user, { through: db.userPasswordHistory });
+  db.user.hasMany(db.userDevice, { foreignKey: 'uid', sourceKey: 'sub' });
+  db.userDevice.belongsTo(db.user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
+  db.invitation.hasMany(db.invitationDevice, { foreignKey: 'invitationId', sourceKey: 'id', as: 'devices' });
+  db.invitation.hasMany(db.invitationCallback, { foreignKey: 'invitationId', sourceKey: 'id', as: 'callbacks' });
+  db.invitationDevice.belongsTo(db.invitation, { as: 'invitation' });
   // sync all models with database
   await sequelize.sync({ alter: false });
 }

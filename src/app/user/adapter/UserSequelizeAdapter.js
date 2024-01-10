@@ -474,7 +474,7 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
 const getLegacyUsernames = async (uids, correlationId) => {
   try {
     logger.info('Get legacy user names', { correlationId });
-    const legacyUsernameEntities = await userLegacyUsername.findAll({
+    const legacyUsernameEntities = await db.userLegacyUsername.findAll({
       where: {
         uid: {
           [Op.or]: uids,

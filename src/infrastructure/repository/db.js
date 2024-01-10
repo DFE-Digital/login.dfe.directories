@@ -75,10 +75,12 @@ async function initialize() {
   db.user = require('./user.model')(sequelize);
   db.userCode = require('./userCode.model')(sequelize);
   db.userPasswordPolicy = require('./userPasswordPolicy.model')(sequelize);
+  db.userLegacyUsername = require('./userLegacyUsername.model')(sequelize);
 
   // define associations?
   db.user.hasMany(db.userPasswordPolicy, { foreignKey: 'uid', sourceKey: 'sub', as: 'userPasswordPolicy' });
   db.userPasswordPolicy.belongsTo(db.user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
+  db.user.hasMany(db.userLegacyUsername, { foreignKey: 'uid', sourceKey: 'sub' });
   // sync all models with database
   await sequelize.sync({ alter: false });
 }

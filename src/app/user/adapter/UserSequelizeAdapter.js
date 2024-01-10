@@ -307,7 +307,13 @@ const authenticate = async (username, password, correlationId) => {
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
     if (!userEntity) return null;
 
-    const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+    const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
+      where: {
+        uid: {
+          [Op.eq]: userEntity.sub,
+        },
+      },
+    });
     const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
     const request = promisify(crypto.pbkdf2);
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;

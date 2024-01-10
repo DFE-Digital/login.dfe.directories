@@ -1,4 +1,4 @@
-const { invitation, invitationDevice, invitationCallback } = require('./../../../infrastructure/repository');
+
 const logger = require('./../../../infrastructure/logger');
 const { Op } = require('sequelize');
 const { v4: uuid } = require('uuid');
@@ -183,7 +183,7 @@ const createUserInvitation = async (userInvitation, correlationId) => {
 
     const entities = mapInvitationToEntities(userInvitation);
 
-    await invitation.create(entities.invitationEntity);
+    await db.invitation.create(entities.invitationEntity);
     for (let i = 0; i < entities.deviceEntities.length; i++) {
       await db.invitationDevice.create(entities.deviceEntities[i]);
     }
@@ -227,7 +227,7 @@ const deleteInvitation = async (id, correlationId) => {
       },
     });
   } catch (e) {
-    logger.error(`Error deleting invitation ${invitation.id} - ${e.message}`, { correlationId, stack: e.stack });
+    logger.error(`Error deleting invitation ${db.invitation.id} - ${e.message}`, { correlationId, stack: e.stack });
     throw e;
   }
 };
@@ -262,7 +262,7 @@ const updateInvitation = async (userInvitation, correlationId) => {
 
     return await getUserInvitation(userInvitation.id);
   } catch (e) {
-    logger.error(`Error updating ${invitation.id} - ${e.message}`, { correlationId, stack: e.stack, });
+    logger.error(`Error updating ${db.invitation.id} - ${e.message}`, { correlationId, stack: e.stack, });
     throw e;
   }
 };

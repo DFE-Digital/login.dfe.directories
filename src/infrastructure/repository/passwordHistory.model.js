@@ -10,7 +10,7 @@ function model(sequelize) {
       allowNull: false,
     },
     password: {
-      type: Sequelize.STRING(5000),
+      type: 'VARCHAR(5000)',
       allowNull: false,
     },
     salt: {

@@ -1,6 +1,7 @@
 const logger = require('./../../../infrastructure/logger');
 const { userDevice, user } = require('./../../../infrastructure/repository');
 const { Op } = require('sequelize');
+const db = require('../../../infrastructure/repository/db');
 
 const mapEntityToDevice = (entity) => {
   return {
@@ -21,7 +22,7 @@ const mapDeviceToEntity = (device, userId) => {
 
 const getUserDevices = async (userId, correlationId) => {
   try {
-    const entities = await userDevice.findAll({
+    const entities = await db.userDevice.findAll({
       where: {
         uid: {
           [Op.eq]: userId,
@@ -43,7 +44,7 @@ const getUserDevices = async (userId, correlationId) => {
 const createUserDevices = async (userId, device, correlationId) => {
   try {
     const entity = mapDeviceToEntity(device, userId);
-    await userDevice.upsert(entity);
+    await db.userDevice.upsert(entity);
   } catch (e) {
     logger.error(`Error creating device mapping for user ${userId}, device ${JSON.stringify(device)}`, { correlationId });
     throw e;
@@ -52,7 +53,7 @@ const createUserDevices = async (userId, device, correlationId) => {
 
 const deleteUserDevice = async (userId, device, correlationId) => {
   try {
-    await userDevice.destroy({
+    await db.userDevice.destroy({
       where: {
         uid: {
           [Op.eq]: userId,
@@ -73,7 +74,7 @@ const deleteUserDevice = async (userId, device, correlationId) => {
 
 const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
   try {
-    const entity = await userDevice.findOne({
+    const entity = await db.userDevice.findOne({
       where: {
         deviceType: {
           [Op.eq]: type,
@@ -92,7 +93,7 @@ const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
 
 const listUserDeviceAssociations = async (pageNumber, pageSize, correlationId) => {
   try {
-    const resultset = await userDevice.findAndCountAll({
+    const resultset = await db.userDevice.findAndCountAll({
       order: ['deviceType', 'serialNumber', 'uid'],
       limit: pageSize,
       offset: pageSize * (pageNumber - 1),

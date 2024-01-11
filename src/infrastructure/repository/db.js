@@ -87,7 +87,7 @@ async function initialize() {
   db.invitationCallback = require('./invitationCallback.model')(sequelize);
   db.invitationDevice = require('./invitationDevice.model')(sequelize);
   // define associations?
-  db.user.hasMany(db.userPasswordPolicy, { foreignKey: 'uid', sourceKey: 'sub', as: 'userPasswordPolicy' });
+ // db.user.belongsTo(db.userPasswordPolicy, { sourceKey: 'sub' });
   db.userPasswordPolicy.belongsTo(db.user, { foreignKey: 'uid', sourceKey: 'sub', as: 'user' });
   db.user.hasMany(db.userLegacyUsername, { foreignKey: 'uid', sourceKey: 'sub' });
   db.user.belongsToMany(db.passwordHistory, { through: db.userPasswordHistory });

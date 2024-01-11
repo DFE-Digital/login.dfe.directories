@@ -37,7 +37,6 @@ const find = async (id, correlationId) => {
 
 const findByUsername = async (username, correlationId) => {
   try {
-  
     logger.info(`Get user for request ${username}`, { correlationId });
     const userEntity = await db.user.findOne({
       where: {
@@ -46,12 +45,11 @@ const findByUsername = async (username, correlationId) => {
         },
       },
     });
-  
+
     if (!userEntity) {
-     
       return null;
     }
-    
+
     return userEntity;
   } catch (e) {
     logger.error(`error getting user with username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
@@ -306,7 +304,6 @@ const authenticate = async (username, password, correlationId) => {
     });
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
     if (!userEntity) return null;
-
     const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
       where: {
         uid: {
@@ -315,15 +312,19 @@ const authenticate = async (username, password, correlationId) => {
       },
     });
     const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    const request = promisify(crypto.pbkdf2);
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-
     const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
-    const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
+    const derivedKey = crypto.pbkdf2Sync(
+      password,
+      saltBuffer,
+      iterations,
+      512,
+      'sha512'
+    );
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
-   
+
     console.timeLog('user authentication');
-  
+
     if (passwordValid) {
       await userEntity.update({
         last_login: new Date().toISOString(),

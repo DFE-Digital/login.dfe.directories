@@ -94,7 +94,7 @@ async function initialize() {
   db.invitation.hasMany(db.invitationCallback, { foreignKey: 'invitationId', sourceKey: 'id', as: 'callbacks' });
   db.invitationDevice.belongsTo(db.invitation, { as: 'invitation' });
   // sync all models with database
-  await sequelize.sync({ alter: false });
+  await sequelize.sync({ alter: false, force: false });
 }
 
 async function ensureDbExists(dbName) {

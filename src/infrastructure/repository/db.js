@@ -53,6 +53,10 @@ async function initialize() {
     operatorsAliases: Op,
     dialect: config.adapter.params.dialect,
     dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
       options: {
         encrypt: true,
         packetSize,

@@ -30,7 +30,7 @@ async function initialize() {
   assert(config.adapter.params.dialect, 'Database property dialect must be supplied, this must be postgres or mssql');
 
   // create db if it doesn't already exist
-  //await ensureDbExists(databaseName);
+  // await ensureDbExists(databaseName);
 
   const dbOpts = {
     retry: {
@@ -54,7 +54,7 @@ async function initialize() {
     dialect: config.adapter.params.dialect,
     dialectOptions: {
       options: {
-        encrypt: encryptDb,
+        encrypt: true,
         packetSize,
       },
     },

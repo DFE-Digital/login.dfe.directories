@@ -2,9 +2,8 @@
 
 const Sequelize = require('sequelize');
 
-const { Op } = Sequelize;
+const { Op, TableHints} = Sequelize;
 const { v4: uuid } = require('uuid');
-const { promisify } = require('util');
 const crypto = require('crypto');
 const logger = require('../../../infrastructure/logger');
 const db = require('../../../infrastructure/repository/db');
@@ -72,6 +71,7 @@ const findUserPasswordPolicies = async (uid, correlationId) => {
   try {
     logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
     const passwordPolicy = await db.userPasswordPolicy.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         uid: {
           [Op.eq]: uid,
@@ -137,6 +137,7 @@ const fetchPasswordHistory = async (uid, correlationId) => {
     let returnArray = [];
     let ids = [];
     const resultArray = await userPasswordHistory.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         userSub: {
           [Op.eq]: uid,
@@ -151,6 +152,7 @@ const fetchPasswordHistory = async (uid, correlationId) => {
       ids = resultArray.map((i) => i.passwordHistoryId);
 
       returnArray = await passwordHistory.findAll({
+        tableHint: TableHints.NOLOCK,
         where: {
           id: {
             [Op.in]: ids,
@@ -168,6 +170,7 @@ const fetchPasswordHistory = async (uid, correlationId) => {
 const fetchUserPasswordHistory = async (uid, correlationId) => {
   try {
     const resultArray = await userPasswordHistory.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         userSub: {
           [Op.eq]: uid,
@@ -214,6 +217,7 @@ const getUsers = async (uids, correlationId) => {
     logger.info(`Get Users for request: ${correlationId}`, { correlationId });
 
     const users = await db.user.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         sub: {
           [Op.or]: uids,
@@ -296,6 +300,7 @@ const authenticate = async (username, password, correlationId) => {
     console.time('user authentication');
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
     const userEntity = await db.user.findOne({
+      tableHint: TableHints.NOLOCK,
       where: {
         email: {
           [Op.eq]: username,
@@ -305,6 +310,7 @@ const authenticate = async (username, password, correlationId) => {
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
     if (!userEntity) return null;
     const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         uid: {
           [Op.eq]: userEntity.sub,
@@ -319,7 +325,7 @@ const authenticate = async (username, password, correlationId) => {
       saltBuffer,
       iterations,
       512,
-      'sha512'
+      'sha512',
     );
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
 
@@ -408,6 +414,7 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
   }
 
   const users = await db.user.findAll({
+    tableHint: TableHints.NOLOCK,
     where,
     order: [
       ['email', 'DESC'],
@@ -419,8 +426,8 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
   if (!users) {
     return null;
   }
-
   const numberOfUsersResult = await db.user.findAll({
+    tableHint: TableHints.NOLOCK,
     attributes: [[Sequelize.fn('COUNT', Sequelize.col('sub')), 'NumberOfUsers']],
     where,
   });
@@ -476,6 +483,7 @@ const getLegacyUsernames = async (uids, correlationId) => {
   try {
     logger.info('Get legacy user names', { correlationId });
     const legacyUsernameEntities = await db.userLegacyUsername.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         uid: {
           [Op.or]: uids,

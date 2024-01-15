@@ -2,10 +2,9 @@
 
 const Sequelize = require('sequelize');
 
-const { Op, TableHints } = Sequelize;
+const { Op, TableHints} = Sequelize;
 const { v4: uuid } = require('uuid');
 const crypto = require('crypto');
-const { promisify } = require('util');
 const logger = require('../../../infrastructure/logger');
 const db = require('../../../infrastructure/repository/db');
 
@@ -317,11 +316,15 @@ const authenticate = async (username, password, correlationId) => {
       },
     });
     const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    const request = promisify(crypto.pbkdf2);
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-
     const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
-    const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
+    const derivedKey = crypto.pbkdf2Sync(
+      password,
+      saltBuffer,
+      iterations,
+      512,
+      'sha512',
+    );
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
 
     if (passwordValid) {
@@ -329,7 +332,7 @@ const authenticate = async (username, password, correlationId) => {
         last_login: new Date().toISOString(),
       });
     }
-
+  
     return {
       user: userEntity,
       passwordValid,

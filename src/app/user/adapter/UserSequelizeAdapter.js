@@ -296,8 +296,6 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 
 const authenticate = async (username, password, correlationId) => {
   try {
-    console.profile('authenication');
-    console.time('user authentication');
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,
@@ -329,15 +327,12 @@ const authenticate = async (username, password, correlationId) => {
     );
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
 
-    console.timeLog('user authentication');
-
     if (passwordValid) {
       await userEntity.update({
         last_login: new Date().toISOString(),
       });
     }
-    console.timeEnd('user authentication');
-    console.profileEnd('authenication');
+  
     return {
       user: userEntity,
       passwordValid,

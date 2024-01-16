@@ -332,7 +332,6 @@ const authenticate = async (username, password, correlationId) => {
        userEntity.update({
         last_login: new Date().toISOString(),
       });
-      await userEntity.save();
     }
     return {
       user: userEntity,

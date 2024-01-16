@@ -1,10 +1,11 @@
 'use strict';
 
-const { createLogger, transports, format} = require('winston');
-const config = require('./../config');
+const { createLogger, transports, format } = require('winston');
 const appInsights = require('applicationinsights');
 const AppInsightsTransport = require('login.dfe.winston-appinsights');
 const AuditTransporter = require('login.dfe.audit.transporter');
+const config = require('../config/index');
+
 const logLevel = (config && config.loggerSettings && config.loggerSettings.logLevel) ? config.loggerSettings.logLevel : 'info';
 
 const customLevels = {
@@ -64,7 +65,7 @@ if (config.hostingEnvironment.applicationInsights) {
     .start();
   loggerConfig.transports.push(new AppInsightsTransport({
     client: appInsights.defaultClient,
-    applicationName: config.loggerSettings.applicationName || 'Directories',
+    applicationName: config.loggerSettings.applicationName || 'Directories-Api',
     type: 'event',
     treatErrorsAsExceptions: true,
   }));

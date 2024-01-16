@@ -39,7 +39,7 @@ const fetchConfig = () => {
     }
   }
 
-  return null;
+  throw new Error('Missing configuration');
 };
 
 module.exports = fetchConfig();

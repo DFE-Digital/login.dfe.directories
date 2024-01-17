@@ -7,13 +7,14 @@ const logger = require('./../../../infrastructure/logger');
 const { userCode } = require('./../../../infrastructure/repository');
 const generateResetCode = require('./../utils/generateResetCode');
 const generateSmsCode = require('./../utils/generateSmsCode');
+const db = require('../../../infrastructure/repository/db');
 
 
 const listUsersCodes = async (uid, correlationId) => {
   try {
     logger.info(`List user ${uid}'s codes for request ${correlationId}`, { correlationId });
 
-    const codes = await userCode.findAll({
+    const codes = await db.userCode.findAll({
       where: {
         uid: {
           [Op.eq]: uid,
@@ -35,7 +36,7 @@ const getUserCode = async (uid, codeType, correlationId) => {
   try {
     logger.info(`Find User Code for request: ${correlationId}`, { correlationId });
 
-    const code = await userCode.findOne({
+    const code = await db.userCode.findOne({
       where: {
         uid: {
           [Op.eq]: uid,
@@ -58,7 +59,7 @@ const getUserCode = async (uid, codeType, correlationId) => {
 const getUserCodeByEmail = async (email, codeType, correlationId) => {
   try {
     logger.info(`Find User Code by email for request: ${correlationId}`, { correlationId });
-    const code = await userCode.findOne({
+    const code = await db.userCode.findOne({
       where: {
         email: {
           [Op.eq]: email,
@@ -97,7 +98,7 @@ const createUserCode = async (uid, clientId, redirectUri, email, contextData, co
       codeType,
     };
 
-    await userCode.create(userResetCode);
+    await db.userCode.create(userResetCode);
     const result = await getUserCode(uid, codeType, correlationId);
     userResetCode.createdAt = result.createdAt;
     return userResetCode;
@@ -114,7 +115,7 @@ const deleteUserCode = async (uid, correlationId) => {
       return;
     }
 
-    const code = await userCode.findByPk(uid);
+    const code = await db.userCode.findByPk(uid);
     if (code) {
       await code.destroy();
     }

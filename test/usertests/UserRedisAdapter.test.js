@@ -18,7 +18,7 @@ jest.mock('./../../src/infrastructure/logger', () => {
   };
 });
 
-let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+//let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
 const { promisify } = require('util');
 
 const crypto = require('crypto');
@@ -48,7 +48,7 @@ describe('When using redis storage service', () => {
         }
       })
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.findByUsername('test@localuser.com');
 
       expect(actual).not.toBeUndefined();
@@ -71,7 +71,7 @@ describe('When using redis storage service', () => {
         }
       })
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.findByUsername('test@localuser.com');
 
       expect(actual).toBeNull();
@@ -95,7 +95,7 @@ describe('When using redis storage service', () => {
         }
       })
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.findByUsername('test3@localuser.com');
 
       expect(actual).not.toBeNull();
@@ -120,7 +120,7 @@ describe('When using redis storage service', () => {
         }
       })
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.findByUsername('test4@localuser.com');
 
       expect(actual).toBeNull();
@@ -150,7 +150,7 @@ describe('When using redis storage service', () => {
         }
       })
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.changePassword('test@localuser.com', 'my-new-password');
 
       expect(actual).toBe(false);
@@ -173,7 +173,7 @@ describe('When using redis storage service', () => {
         }
       })
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.changePassword('test3@localuser.com', 'my-new-password');
 
       expect(actual).toBe(true);
@@ -196,7 +196,7 @@ describe('When using redis storage service', () => {
       const firstName = null;
       const lastName = null;
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.create(username, password, firstName, lastName);
 
       expect(actual).toBeNull();
@@ -226,7 +226,7 @@ describe('When using redis storage service', () => {
       const firstName = 'Bill';
       const lastName = 'Shankley';
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.create(username, password, firstName, lastName);
 
       expect(actual).not.toBeNull();
@@ -240,7 +240,7 @@ describe('When using redis storage service', () => {
     it('null is returned if the userIds are not supplied', async () => {
       const userIds = null;
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.getUsers(userIds);
 
       expect(actual).toBeNull();
@@ -266,7 +266,7 @@ describe('When using redis storage service', () => {
 
       const userIds = ['12345', '54321'];
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.getUsers(userIds);
 
       expect(actual).not.toBeNull();
@@ -291,7 +291,7 @@ describe('When using redis storage service', () => {
       })
       const userIds = ['abcdef', 'ghijkl'];
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.getUsers(userIds);
 
       expect(actual).toBeNull();
@@ -321,7 +321,7 @@ describe('When using redis storage service', () => {
         }
       })
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.changeStatus('test@localuser.com', 0);
 
       expect(actual).toBe(false);
@@ -344,7 +344,7 @@ describe('When using redis storage service', () => {
         }
       })
 
-      userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
+      let userStorage = require('./../../src/app/user/adapter/UserRedisAdapter');
       const actual = await userStorage.changeStatus('test3@localuser.com', 0);
 
       expect(actual).toBe(true);

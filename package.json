@@ -71,7 +71,7 @@
     "url": "https://github.com/DFE-Digital/login.dfe.directories/issues"
   },
   "scripts": {
-    "test": "jest --coverage",
+    "test": "jest --coverage --detectOpenHandles --forceExit",
     "setup": "./generate-certs.sh",
     "dev": "settings='./config/login.dfe.directories.dev.json' PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
     "start_live": "node src/index.js",

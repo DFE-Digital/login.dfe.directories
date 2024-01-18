@@ -2,6 +2,7 @@ const { invitation, invitationDevice, invitationCallback } = require('./../../..
 const logger = require('./../../../infrastructure/logger');
 const { Op } = require('sequelize');
 const { v4: uuid } = require('uuid');
+const db = require('../../../infrastructure/repository/db');
 
 const mapEntityToInvitation = (entity) => {
   const overrides = entity.overrideSubject || entity.overrideBody ? {
@@ -132,7 +133,7 @@ const list = async (pageNumber, pageSize, changedAfter, correlationId) => {
       };
     }
 
-    const resultset = await invitation.findAndCountAll({
+    const resultset = await db.invitation.findAndCountAll({
       where,
       order: [
         ['email', 'DESC'],
@@ -160,7 +161,7 @@ const list = async (pageNumber, pageSize, changedAfter, correlationId) => {
 
 const getUserInvitation = async (id, correlationId) => {
   try {
-    const entity = await invitation.findOne({
+    const entity = await db.invitation.findOne({
       where: {
         id: {
           [Op.eq]: id,
@@ -182,15 +183,15 @@ const createUserInvitation = async (userInvitation, correlationId) => {
 
     const entities = mapInvitationToEntities(userInvitation);
 
-    await invitation.create(entities.invitationEntity);
+    await db.invitation.create(entities.invitationEntity);
     for (let i = 0; i < entities.deviceEntities.length; i++) {
-      await invitationDevice.create(entities.deviceEntities[i]);
+      await db.invitationDevice.create(entities.deviceEntities[i]);
     }
     for (let i = 0; i < entities.callbackEntities.length; i++) {
-      await invitationCallback.create(entities.callbackEntities[i]);
+      await db.invitationCallback.create(entities.callbackEntities[i]);
     }
 
-    return await getUserInvitation(userInvitation.id);
+    return await db.getUserInvitation(userInvitation.id);
   } catch (e) {
     logger.error(`Error creating invitation for ${userInvitation.email} (id: ${userInvitation.id}) - ${e.message}`, {
       correlationId,
@@ -202,7 +203,7 @@ const createUserInvitation = async (userInvitation, correlationId) => {
 
 const deleteInvitation = async (id, correlationId) => {
   try {
-    await invitationDevice.destroy({
+    await db.invitationDevice.destroy({
       where: {
         invitationId: {
           [Op.eq]: id,
@@ -210,7 +211,7 @@ const deleteInvitation = async (id, correlationId) => {
       },
     });
 
-    await invitationCallback.destroy({
+    await db.invitationCallback.destroy({
       where: {
         invitationId: {
           [Op.eq]: id,
@@ -218,7 +219,7 @@ const deleteInvitation = async (id, correlationId) => {
       },
     });
 
-    await invitation.destroy({
+    await db.invitation.destroy({
       where: {
         id: {
           [Op.eq]: id,
@@ -235,9 +236,9 @@ const updateInvitation = async (userInvitation, correlationId) => {
   try {
     const entities = mapInvitationToEntities(userInvitation);
 
-    await invitation.upsert(entities.invitationEntity);
+    await db.invitation.upsert(entities.invitationEntity);
 
-    await invitationDevice.destroy({
+    await db.invitationDevice.destroy({
       where: {
         invitationId: {
           [Op.eq]: userInvitation.id,
@@ -248,7 +249,7 @@ const updateInvitation = async (userInvitation, correlationId) => {
       invitationDevice.create(entities.deviceEntities[i]);
     }
 
-    await invitationCallback.destroy({
+    await db.invitationCallback.destroy({
       where: {
         invitationId: {
           [Op.eq]: userInvitation.id,
@@ -278,7 +279,7 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
         [Op.eq]: false,
       };
     }
-    const entity = await invitation.findOne({
+    const entity = await db.invitation.findOne({
       where,
       include: ['callbacks', 'devices'],
     });
@@ -292,7 +293,7 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
 
 const getInvitationIdAssociatedToDevice = async (type, serialNumber, correlationId) => {
   try {
-    const deviceEntity = await invitationDevice.findOne({
+    const deviceEntity = await db.invitationDevice.findOne({
       where: {
         deviceType: {
           [Op.eq]: type,

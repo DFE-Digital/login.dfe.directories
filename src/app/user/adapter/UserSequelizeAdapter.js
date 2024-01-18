@@ -2,20 +2,21 @@
 
 const Sequelize = require('sequelize');
 
-const { Op } = Sequelize;
+const { Op,TableHints } = Sequelize;
 const { v4: uuid } = require('uuid');
-const { promisify } = require('util');
 const crypto = require('crypto');
 const logger = require('../../../infrastructure/logger');
+const db = require('../../../infrastructure/repository/db');
 const {
-  user, userLegacyUsername, userPasswordPolicy, passwordHistory, userPasswordHistory,
+   userLegacyUsername
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
 
 const find = async (id, correlationId) => {
   try {
     logger.info(`Get user for request ${correlationId}`, { correlationId });
-    const userEntity = await user.findOne({
+    const userEntity = await db.user.findOne({
+      tableHint: TableHints.NOLOCK,
       where: {
         sub: {
           [Op.eq]: id,
@@ -36,7 +37,8 @@ const find = async (id, correlationId) => {
 const findByUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user for request ${username}`, { correlationId });
-    const userEntity = await user.findOne({
+    const userEntity = await db.user.findOne({
+      tableHint: TableHints.NOLOCK,
       where: {
         email: {
           [Op.eq]: username,
@@ -57,8 +59,8 @@ const removePasswordHistory = async (recid, uid, correlationId) => {
   try {
     logger.info(`remove a password history item for user ${recid}`, { correlationId });
 
-    await passwordHistory.destroy({ where: { id: recid } });
-    await userPasswordHistory.destroy({ where: { passwordHistoryId: recid } });
+    await db.passwordHistory.destroy({ where: { id: recid } });
+    await db.userPasswordHistory.destroy({ where: { passwordHistoryId: recid } });
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
@@ -68,7 +70,8 @@ const removePasswordHistory = async (recid, uid, correlationId) => {
 const findUserPasswordPolicies = async (uid, correlationId) => {
   try {
     logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
-    const passwordPolicy = await userPasswordPolicy.findAll({
+    const passwordPolicy = await db.userPasswordPolicy.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         uid: {
           [Op.eq]: uid,
@@ -101,8 +104,8 @@ const addPasswordHistory = async (uid, correlationId, password, salt) => {
       createdAt: Sequelize.fn('GETDATE'),
       updatedAt: Sequelize.fn('GETDATE'),
     };
-    await passwordHistory.create(newPasswordHistory);
-    await userPasswordHistory.create(newUserPasswordHistory);
+    await db.passwordHistory.create(newPasswordHistory);
+    await db.userPasswordHistory.create(newUserPasswordHistory);
 
     return newPasswordHistory;
   } catch (e) {
@@ -133,7 +136,8 @@ const fetchPasswordHistory = async (uid, correlationId) => {
   try {
     let returnArray = [];
     let ids = [];
-    const resultArray = await userPasswordHistory.findAll({
+    const resultArray = await db.userPasswordHistory.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         userSub: {
           [Op.eq]: uid,
@@ -147,7 +151,8 @@ const fetchPasswordHistory = async (uid, correlationId) => {
     if (resultArray.length > 0) {
       ids = resultArray.map((i) => i.passwordHistoryId);
 
-      returnArray = await passwordHistory.findAll({
+      returnArray = await db.passwordHistory.findAll({
+        tableHint: TableHints.NOLOCK,
         where: {
           id: {
             [Op.in]: ids,
@@ -164,7 +169,8 @@ const fetchPasswordHistory = async (uid, correlationId) => {
 };
 const fetchUserPasswordHistory = async (uid, correlationId) => {
   try {
-    const resultArray = await userPasswordHistory.findAll({
+    const resultArray = await db.userPasswordHistory.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         userSub: {
           [Op.eq]: uid,
@@ -185,7 +191,8 @@ const findByLegacyUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user by legacy username for request ${username}`, { correlationId });
 
-    const userEntity = await user.findOne({
+    const userEntity = await db.user.findOne({
+      tableHint: TableHints.NOLOCK,
       include: [{
         model: userLegacyUsername,
         where: {
@@ -210,7 +217,8 @@ const getUsers = async (uids, correlationId) => {
   try {
     logger.info(`Get Users for request: ${correlationId}`, { correlationId });
 
-    const users = await user.findAll({
+    const users = await db.user.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         sub: {
           [Op.or]: uids,
@@ -304,18 +312,36 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 
 const authenticate = async (username, password, correlationId) => {
   try {
+   
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
-    const userEntity = await findByUsername(username);
+    const userEntity = await db.user.findOne({
+      tableHint: TableHints.NOLOCK,
+      where: {
+        email: {
+          [Op.eq]: username,
+        },
+      },
+    });
     const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
-
     if (!userEntity) return null;
-    const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+    const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
+      tableHint: TableHints.NOLOCK,
+      where: {
+        uid: {
+          [Op.eq]: userEntity.sub,
+        },
+      },
+    });
     const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    const request = promisify(crypto.pbkdf2);
     const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-
     const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
-    const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
+    const derivedKey = crypto.pbkdf2Sync(
+      password,
+      saltBuffer,
+      iterations,
+      512,
+      'sha512',
+    );
     const passwordValid = derivedKey.toString('base64') === userEntity.password;
     let prevLoggin = null;
     if (userEntity.last_login !== null) {
@@ -327,7 +353,6 @@ const authenticate = async (username, password, correlationId) => {
         prev_login: prevLoggin,
       });
     }
-
     return {
       user: userEntity,
       passwordValid,
@@ -366,7 +391,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     password_reset_required: false,
   };
 
-  await user.create(newUser);
+  await db.user.create(newUser);
   const pId = uuid();
   const historyLimit = 3;
 
@@ -378,10 +403,10 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     createdAt: Sequelize.fn('GETDATE'),
     updatedAt: Sequelize.fn('GETDATE'),
   };
-  await userPasswordPolicy.create(newPasswordPolicy);
+  await db.userPasswordPolicy.create(newPasswordPolicy);
 
   if (legacyUsername) {
-    await userLegacyUsername.create({
+    await db.userLegacyUsername.create({
       uid: id,
       legacy_username: legacyUsername,
     });
@@ -403,7 +428,8 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
     };
   }
 
-  const users = await user.findAll({
+  const users = await db.user.findAll({
+    tableHint: TableHints.NOLOCK,
     where,
     order: [
       ['email', 'DESC'],
@@ -416,7 +442,8 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
     return null;
   }
 
-  const numberOfUsersResult = await user.findAll({
+  const numberOfUsersResult = await db.user.findAll({
+    tableHint: TableHints.NOLOCK,
     attributes: [[Sequelize.fn('COUNT', Sequelize.col('sub')), 'NumberOfUsers']],
     where,
   });
@@ -448,13 +475,13 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
     });
 
     if (legacyUsernames) {
-      await userLegacyUsername.destroy({
+      await db.userLegacyUsername.destroy({
         where: {
           uid,
         },
       });
       for (let i = 0; i < legacyUsernames.length; i += 1) {
-        await userLegacyUsername.create({
+        await db.userLegacyUsername.create({
           uid,
           legacy_username: legacyUsernames[i],
         });
@@ -471,7 +498,8 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
 const getLegacyUsernames = async (uids, correlationId) => {
   try {
     logger.info('Get legacy user names', { correlationId });
-    const legacyUsernameEntities = await userLegacyUsername.findAll({
+    const legacyUsernameEntities = await db.userLegacyUsername.findAll({
+      tableHint: TableHints.NOLOCK,
       where: {
         uid: {
           [Op.or]: uids,
@@ -491,7 +519,7 @@ const getLegacyUsernames = async (uids, correlationId) => {
 
 const removeUserPasswordPolicy = async (id, correlationId) => {
   try {
-    await userPasswordPolicy.destroy({ where: { id } });
+    await db.userPasswordPolicy.destroy({ where: { id } });
   } catch (e) {
     logger.error(`Error removing user password policy - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
@@ -501,7 +529,8 @@ const removeUserPasswordPolicy = async (id, correlationId) => {
 const updateUserPasswordPolicy = async (uid, policyCode, correlationId) => {
   try {
     logger.info(`Add a user password policy for user ${uid}`, { correlationId });
-    const passwordPolicy = await userPasswordPolicy.findOne({
+    const passwordPolicy = await db.userPasswordPolicy.findOne({
+      tableHint: TableHints.NOLOCK,
       where: {
         uid: {
           [Op.eq]: uid,
@@ -532,7 +561,7 @@ const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
       createdAt: Sequelize.fn('GETDATE'),
       updatedAt: Sequelize.fn('GETDATE'),
     };
-    await userPasswordPolicy.create(newPasswordPolicy);
+    await db.userPasswordPolicy.create(newPasswordPolicy);
     return newPasswordPolicy;
   } catch (e) {
     logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });

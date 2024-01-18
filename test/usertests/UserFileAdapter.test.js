@@ -29,10 +29,11 @@ describe('When using the UsersFileAdapter', () => {
         readFileCallbackInvoker(callback);
       };
     });
-    it('the user are read from the users.json in app_data', async () => {
-      await adapter.find('test@user');
-
-      expect(readFilePath).toMatch(/\/app_data\/users\.json$/);
+    it('the users are read from the users.json in app_data', async () => {
+      const user = await adapter.list();
+      const item= user.users[0];
+      expect(item.given_name).toBe('Demo');
+      expect(user.users.length).toBe(2);
       expect(readFileOpts.encoding).toBe('utf8');
     });
     it('null is returned if there is no data in the file', async () =>  {

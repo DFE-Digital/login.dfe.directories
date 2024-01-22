@@ -121,7 +121,14 @@ const isMatched = async (uid, newPass, correlationId) => {
       return null;
     }
 
-    const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+    const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
+      tableHint: TableHints.NOLOCK,
+      where: {
+        uid: {
+          [Op.eq]: userEntity.sub,
+        },
+      },
+    });
     const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
     const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
     const resultkey = crypto.pbkdf2Sync(newPass, userEntity.salt, iterations, 512, 'sha512');
@@ -264,7 +271,14 @@ const changePassword = async (uid, newPassword, correlationId) => {
       return null;
     }
     let limit = 0;
-    const userPasswordPolicyEntity = await userEntity.getUserPasswordPolicy();
+    const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
+      tableHint: TableHints.NOLOCK,
+      where: {
+        uid: {
+          [Op.eq]: userEntity.sub,
+        },
+      },
+    });
     const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
     const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
     if (userPasswordPolicyEntity.length !== 0 && userPasswordPolicyEntity[0].password_history_limit !== undefined) {

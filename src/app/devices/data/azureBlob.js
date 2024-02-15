@@ -1,9 +1,10 @@
-const config = require('./../../../infrastructure/config');
-const logger = require('./../../../infrastructure/logger');
 const rp = require('request-promise');
 const { URL } = require('url');
-const { DOMParser } = require('xmldom');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const { DOMParser } = require('@xmldom/xmldom');
 const xpath = require('xpath');
+const logger = require('../../../infrastructure/logger');
+const config = require('../../../infrastructure/config');
 
 const getBlobUrl = (blobName = '') => {
   const sasUrl = new URL(config.devices.containerUrl);
@@ -16,11 +17,8 @@ const listBlobs = async () => {
     uri: `${getBlobUrl()}&restype=container&comp=list`,
   });
   const blobListDoc = new DOMParser().parseFromString(blobListXml);
-  return xpath.select('/EnumerationResults/Blobs/Blob/Name', blobListDoc).map((node) => {
-    return node.childNodes[0].nodeValue;
-  });
+  return xpath.select('/EnumerationResults/Blobs/Blob/Name', blobListDoc).map((node) => node.childNodes[0].nodeValue);
 };
-
 
 const getUserDevices = async (userId, correlationId) => {
   try {
@@ -67,7 +65,7 @@ const deleteUserDevice = async (userId, device, correlationId) => {
     logger.info(`Removing user device: ${device.serialNumber} for request: ${correlationId}`, { correlationId });
     const devices = await getUserDevices(userId);
 
-    const indexOfSerialNumber = devices.findIndex(c => c.serialNumber === device.serialNumber);
+    const indexOfSerialNumber = devices.findIndex((c) => c.serialNumber === device.serialNumber);
 
     if (indexOfSerialNumber !== -1) {
       devices.splice(indexOfSerialNumber, 1);
@@ -91,11 +89,11 @@ const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
   try {
     logger.info(`Get user associated to device for request: ${correlationId}`, { correlationId });
 
-    const userIdWithDevices = (await listBlobs()).map(blobName => blobName.substr(0, blobName.length - 5));
+    const userIdWithDevices = (await listBlobs()).map((blobName) => blobName.substr(0, blobName.length - 5));
     for (let i = 0; i < userIdWithDevices.length; i += 1) {
       const userId = userIdWithDevices[i];
       const userDevices = await getUserDevices(userId, correlationId);
-      if (userDevices.find(d => d.type.toLowerCase() === type.toLowerCase() && d.serialNumber === serialNumber)) {
+      if (userDevices.find((d) => d.type.toLowerCase() === type.toLowerCase() && d.serialNumber === serialNumber)) {
         return userId;
       }
     }
@@ -109,9 +107,8 @@ const getUserAssociatedToDevice = async (type, serialNumber, correlationId) => {
   }
 };
 
-const listUserDeviceAssociations = async (pageNumber, pageSize, correlationId) => {
-  return Promise.reject(new Error('listUserDeviceAssociations not implemented for azure blob adapter'));
-};
+// eslint-disable-next-line no-unused-vars
+const listUserDeviceAssociations = async (pageNumber, pageSize, correlationId) => Promise.reject(new Error('listUserDeviceAssociations not implemented for azure blob adapter'));
 
 module.exports = {
   getUserDevices,

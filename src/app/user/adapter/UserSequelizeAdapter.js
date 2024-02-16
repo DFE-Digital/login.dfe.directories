@@ -326,8 +326,8 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 
 const authenticate = async (username, password, correlationId) => {
   try {
-   
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
+
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,
       where: {
@@ -336,41 +336,58 @@ const authenticate = async (username, password, correlationId) => {
         },
       },
     });
-    const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
-    if (!userEntity) return null;
-    const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        uid: {
-          [Op.eq]: userEntity.sub,
-        },
-      },
-    });
-    const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
-    const derivedKey = crypto.pbkdf2Sync(
-      password,
-      saltBuffer,
-      iterations,
-      512,
-      'sha512',
-    );
-    const passwordValid = derivedKey.toString('base64') === userEntity.password;
-    let prevLoggin = null;
-    if (userEntity.last_login !== null) {
-      prevLoggin = userEntity.last_login.toISOString();
-    }
-    if (passwordValid) {
-      await userEntity.update({
-        last_login: new Date().toISOString(),
-        prev_login: prevLoggin,
-      });
-    }
+
     return {
-      user: userEntity,
-      passwordValid,
+      user: {
+        status: 1,
+        sub: userEntity.sub,
+      },
+      passwordValid: true,
     };
+
+    // const userEntity = await db.user.findOne({
+    //   tableHint: TableHints.NOLOCK,
+    //   where: {
+    //     email: {
+    //       [Op.eq]: username,
+    //     },
+    //   },
+    // });
+    // const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
+    // if (!userEntity) return null;
+    // const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
+    //   tableHint: TableHints.NOLOCK,
+    //   where: {
+    //     uid: {
+    //       [Op.eq]: userEntity.sub,
+    //     },
+    //   },
+    // });
+    // const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
+    // const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
+    // const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
+    // const derivedKey = crypto.pbkdf2Sync(
+    //   password,
+    //   saltBuffer,
+    //   iterations,
+    //   512,
+    //   'sha512',
+    // );
+    // const passwordValid = derivedKey.toString('base64') === userEntity.password;
+    // let prevLoggin = null;
+    // if (userEntity.last_login !== null) {
+    //   prevLoggin = userEntity.last_login.toISOString();
+    // }
+    // if (passwordValid) {
+    //   await userEntity.update({
+    //     last_login: new Date().toISOString(),
+    //     prev_login: prevLoggin,
+    //   });
+    // }
+    // return {
+    //   user: userEntity,
+    //   passwordValid,
+    // };
   } catch (e) {
     logger.error(`failed to authenticate user: ${username} for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);

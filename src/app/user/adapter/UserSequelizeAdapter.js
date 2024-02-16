@@ -2,13 +2,13 @@
 
 const Sequelize = require('sequelize');
 
-const { Op,TableHints } = Sequelize;
+const { Op, TableHints } = Sequelize;
 const { v4: uuid } = require('uuid');
 const crypto = require('crypto');
 const logger = require('../../../infrastructure/logger');
 const db = require('../../../infrastructure/repository/db');
 const {
-   userLegacyUsername
+  userLegacyUsername,
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
 
@@ -328,19 +328,21 @@ const authenticate = async (username, password, correlationId) => {
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
 
-    const userEntity = await db.user.findOne({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        email: {
-          [Op.eq]: username,
-        },
-      },
+    // const userEntity = await db.user.findOne({
+    //   where: {
+    //     email: username,
+    //   },
+    // });
+
+    const result = await db.user.sequelize.query('SELECT sub from [user] WHERE email = :email', {
+      replacements: { email: username },
+      type: db.user.sequelize.QueryTypes.SELECT,
     });
 
     return {
       user: {
         status: 1,
-        sub: userEntity.sub,
+        sub: result[0].sub,
       },
       passwordValid: true,
     };

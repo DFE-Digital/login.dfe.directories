@@ -55,7 +55,7 @@ describe('When authenticating a user request', () => {
     await authenticate(req, res);
 
     expect(res.statusCode).toBe(200);
-    expect(res._getData()).toBe('user1');
+    expect(res._getData()).toMatchObject({ status: 1, sub: 'user1' });
     expect(res._isEndCalled()).toBe(true);
   });
 

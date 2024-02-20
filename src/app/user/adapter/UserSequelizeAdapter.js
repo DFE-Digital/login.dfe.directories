@@ -14,6 +14,7 @@ const generateSalt = require('../utils/generateSalt');
 
 const find = async (id, correlationId) => {
   try {
+    console.log('4');
     logger.info(`Get user for request ${correlationId}`, { correlationId });
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,
@@ -36,6 +37,7 @@ const find = async (id, correlationId) => {
 
 const findByUsername = async (username, correlationId) => {
   try {
+    console.log('3');
     logger.info(`Get user for request ${username}`, { correlationId });
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,
@@ -69,6 +71,7 @@ const removePasswordHistory = async (recid, uid, correlationId) => {
 
 const findUserPasswordPolicies = async (uid, correlationId) => {
   try {
+    console.log('2');
     logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
     const passwordPolicy = await db.userPasswordPolicy.findAll({
       tableHint: TableHints.NOLOCK,
@@ -325,71 +328,51 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 };
 
 const authenticate = async (username, password, correlationId) => {
+  const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
+
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
 
-    // const userEntity = await db.user.findOne({
-    //   where: {
-    //     email: username,
-    //   },
-    // });
-
-    const result = await db.user.sequelize.query('SELECT sub from [user] WHERE email = :email', {
+    let userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required FROM [user] u JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
       replacements: { email: username },
       type: db.user.sequelize.QueryTypes.SELECT,
     });
 
+    if (!userEntity) return null;
+
+    const v3Policy = userEntity.filter((u) => u.policyCode === 'v3');
+    userEntity = v3Policy[0] || userEntity[0];
+
+    const hasV3Policy = userEntity.policyCode === latestPasswordPolicy;
+
+    const iterations = hasV3Policy ? 120000 : 10000;
+    const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
+    const derivedKey = crypto.pbkdf2Sync(
+      password,
+      saltBuffer,
+      iterations,
+      512,
+      'sha512',
+    );
+    const passwordValid = derivedKey.toString('base64') === userEntity.password;
+    let prevLoggin = null;
+    if (userEntity.last_login !== null) {
+      prevLoggin = userEntity.last_login.toISOString();
+    }
+
+    if (passwordValid) {
+      const [metadata] = await db.user.sequelize.query(`UPDATE [user] SET last_login = '${new Date().toISOString()}', prev_login = '${prevLoggin || new Date().toISOString()}' WHERE sub = '${userEntity.sub}'`);
+      console.log(`${metadata} rows were updated`);
+    }
     return {
       user: {
-        status: 1,
-        sub: result[0].sub,
+        status: userEntity.status,
+        id: userEntity.sub,
+        hasV3Policy,
+        passwordResetRequired: userEntity.password_reset_required,
       },
-      passwordValid: true,
+      passwordValid,
     };
-
-    // const userEntity = await db.user.findOne({
-    //   tableHint: TableHints.NOLOCK,
-    //   where: {
-    //     email: {
-    //       [Op.eq]: username,
-    //     },
-    //   },
-    // });
-    // const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
-    // if (!userEntity) return null;
-    // const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
-    //   tableHint: TableHints.NOLOCK,
-    //   where: {
-    //     uid: {
-    //       [Op.eq]: userEntity.sub,
-    //     },
-    //   },
-    // });
-    // const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    // const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    // const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
-    // const derivedKey = crypto.pbkdf2Sync(
-    //   password,
-    //   saltBuffer,
-    //   iterations,
-    //   512,
-    //   'sha512',
-    // );
-    // const passwordValid = derivedKey.toString('base64') === userEntity.password;
-    // let prevLoggin = null;
-    // if (userEntity.last_login !== null) {
-    //   prevLoggin = userEntity.last_login.toISOString();
-    // }
-    // if (passwordValid) {
-    //   await userEntity.update({
-    //     last_login: new Date().toISOString(),
-    //     prev_login: prevLoggin,
-    //   });
-    // }
-    // return {
-    //   user: userEntity,
-    //   passwordValid,
-    // };
   } catch (e) {
     logger.error(`failed to authenticate user: ${username} for request ${correlationId} error: ${e}`, { correlationId });
     throw (e);
@@ -530,6 +513,7 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
 
 const getLegacyUsernames = async (uids, correlationId) => {
   try {
+    console.log('5');
     logger.info('Get legacy user names', { correlationId });
     const legacyUsernameEntities = await db.userLegacyUsername.findAll({
       tableHint: TableHints.NOLOCK,

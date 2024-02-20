@@ -31,9 +31,9 @@ const authenticate = async (req, res) => {
       });
     }
 
-    console.log('id =>', result.user.sub);
+    console.log('user =>', result.user);
 
-    return res.send(result.user.sub);
+    return res.send(result.user);
   } catch (e) {
     logger.error(e);
     return res.status(500).send(e);

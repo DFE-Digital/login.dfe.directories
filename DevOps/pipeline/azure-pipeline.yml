@@ -70,7 +70,7 @@ variables:
 - name: numberOfWorkers
   value: 1
 - name: tran
-  ${{ if or(eq(parameters.pp, 'true'), contains(variables['Build.SourceBranch'],'feature')) }}:
+  ${{ if eq(parameters.tran, 'true') }}:
     value: true
   ${{ else }}:
     value: false

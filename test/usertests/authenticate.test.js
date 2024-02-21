@@ -5,6 +5,7 @@ jest.mock('./../../src/app/user/adapter', () => {
 });
 jest.mock('./../../src/infrastructure/logger', () => {
   return {
+    info: jest.fn().mockReturnValue('test')
   };
 });
 const httpMocks = require('node-mocks-http');
@@ -20,10 +21,14 @@ describe('When authenticating a user request', () => {
 
     req = {
       header: () => 'correlation-id',
+      get: jest.fn().mockReturnValue({
+        host: 'localhost',
+      }),
       body: {
         username: 'user.one@unit.test',
         password: 'password1234',
       },
+      headers: { referer: 'referer' },
     };
 
     res = httpMocks.createResponse();

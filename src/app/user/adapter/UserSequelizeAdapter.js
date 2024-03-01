@@ -333,20 +333,19 @@ const authenticate = async (username, password, correlationId) => {
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
 
-    let userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required FROM [user] u JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
+    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
       replacements: { email: username },
       type: db.user.sequelize.QueryTypes.SELECT,
     });
 
     if (!userEntity) return null;
 
-    const v3Policy = userEntity.filter((u) => u.policyCode === 'v3');
-    userEntity = v3Policy[0] || userEntity[0];
+    const policyCode = userEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
 
-    const hasV3Policy = userEntity.policyCode === latestPasswordPolicy;
+    const hasV3Policy = policyCode === latestPasswordPolicy;
 
     const iterations = hasV3Policy ? 120000 : 10000;
-    const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
+    const saltBuffer = Buffer.from(userEntity[0].salt, 'utf8');
     const derivedKey = crypto.pbkdf2Sync(
       password,
       saltBuffer,
@@ -354,22 +353,22 @@ const authenticate = async (username, password, correlationId) => {
       512,
       'sha512',
     );
-    const passwordValid = derivedKey.toString('base64') === userEntity.password;
+    const passwordValid = derivedKey.toString('base64') === userEntity[0].password;
     let prevLoggin = null;
-    if (userEntity.last_login !== null) {
-      prevLoggin = userEntity.last_login.toISOString();
+    if (userEntity[0].last_login !== null) {
+      prevLoggin = userEntity[0].last_login.toISOString();
     }
 
     if (passwordValid) {
-      const [metadata] = await db.user.sequelize.query(`UPDATE [user] SET last_login = '${new Date().toISOString()}', prev_login = '${prevLoggin || new Date().toISOString()}' WHERE sub = '${userEntity.sub}'`);
+      const [metadata] = await db.user.sequelize.query(`UPDATE [user] SET last_login = '${new Date().toISOString()}', prev_login = '${prevLoggin || new Date().toISOString()}' WHERE sub = '${userEntity[0].sub}'`);
       console.log(`${metadata} rows were updated`);
     }
     return {
       user: {
-        status: userEntity.status,
-        id: userEntity.sub,
+        status: userEntity[0].status,
+        id: userEntity[0].sub,
         hasV3Policy,
-        passwordResetRequired: userEntity.password_reset_required,
+        passwordResetRequired: userEntity[0].password_reset_required,
       },
       passwordValid,
     };

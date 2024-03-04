@@ -191,9 +191,9 @@ const createUserInvitation = async (userInvitation, correlationId) => {
       await db.invitationCallback.create(entities.callbackEntities[i]);
     }
 
-    return await db.getUserInvitation(userInvitation.id);
+    return await getUserInvitation(userInvitation.id);
   } catch (e) {
-    logger.error(`Error creating invitation for ${userInvitation.email} (id: ${userInvitation.id}) - ${e.message}`, {
+    logger.error(`Error creating invitation for (id: ${userInvitation.id}) - ${e.message}`, {
       correlationId,
       stack: e.stack,
     });

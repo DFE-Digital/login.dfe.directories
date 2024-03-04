@@ -286,7 +286,7 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
 
     return entity ? mapEntityToInvitation(entity) : undefined;
   } catch (e) {
-    logger.error(`Error finding invitation with email ${email} - ${e.message}`, { correlationId, stack: e.stack });
+    logger.error(`Error finding invitation - ${e.message}`, { correlationId, stack: e.stack });
     throw e;
   }
 };

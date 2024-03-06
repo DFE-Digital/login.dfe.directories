@@ -1,8 +1,11 @@
-const userAdapter = require('./../adapter');
-const logger = require('./../../../infrastructure/logger');
+const userAdapter = require('../adapter');
+const logger = require('../../../infrastructure/logger');
 
 const authenticate = async (req, res) => {
   try {
+    const requestUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    logger.info(`client host: ${req.headers.referer} request url: ${requestUrl}`);
+
     const result = await userAdapter.authenticate(
       req.body.username,
       req.body.password,
@@ -31,7 +34,7 @@ const authenticate = async (req, res) => {
       });
     }
 
-    return res.send(result.user.sub);
+    return res.send(result.user);
   } catch (e) {
     logger.error(e);
     return res.status(500).send(e);
@@ -39,4 +42,3 @@ const authenticate = async (req, res) => {
 };
 
 module.exports = authenticate;
-

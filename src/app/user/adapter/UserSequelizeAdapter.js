@@ -2,13 +2,13 @@
 
 const Sequelize = require('sequelize');
 
-const { Op,TableHints } = Sequelize;
+const { Op, TableHints } = Sequelize;
 const { v4: uuid } = require('uuid');
 const crypto = require('crypto');
 const logger = require('../../../infrastructure/logger');
 const db = require('../../../infrastructure/repository/db');
 const {
-   userLegacyUsername
+  userLegacyUsername,
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
 
@@ -325,30 +325,25 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 };
 
 const authenticate = async (username, password, correlationId) => {
+  const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
+
   try {
-   
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
-    const userEntity = await db.user.findOne({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        email: {
-          [Op.eq]: username,
-        },
-      },
+
+    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
+      replacements: { email: username },
+      type: db.user.sequelize.QueryTypes.SELECT,
     });
-    const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
+
     if (!userEntity) return null;
-    const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        uid: {
-          [Op.eq]: userEntity.sub,
-        },
-      },
-    });
-    const userPasswordPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    const saltBuffer = Buffer.from(userEntity.salt, 'utf8');
+
+    const policyCode = userEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
+
+    // V3 policy is the latest, need to revisit when adding higher policy
+    const hasV3Policy = policyCode === latestPasswordPolicy;
+
+    const iterations = hasV3Policy ? 120000 : 10000;
+    const saltBuffer = Buffer.from(userEntity[0].salt, 'utf8');
     const derivedKey = crypto.pbkdf2Sync(
       password,
       saltBuffer,
@@ -356,19 +351,23 @@ const authenticate = async (username, password, correlationId) => {
       512,
       'sha512',
     );
-    const passwordValid = derivedKey.toString('base64') === userEntity.password;
+    const passwordValid = derivedKey.toString('base64') === userEntity[0].password;
     let prevLoggin = null;
-    if (userEntity.last_login !== null) {
-      prevLoggin = userEntity.last_login.toISOString();
+    if (userEntity[0].last_login !== null) {
+      prevLoggin = userEntity[0].last_login.toISOString();
     }
+
     if (passwordValid) {
-      await userEntity.update({
-        last_login: new Date().toISOString(),
-        prev_login: prevLoggin,
-      });
+      const [metadata] = await db.user.sequelize.query(`UPDATE [user] SET last_login = '${new Date().toISOString()}', prev_login = '${prevLoggin || new Date().toISOString()}' WHERE sub = '${userEntity[0].sub}'`);
+      console.log(`${metadata} rows were updated`);
     }
     return {
-      user: userEntity,
+      user: {
+        status: userEntity[0].status,
+        id: userEntity[0].sub,
+        hasV3Policy,
+        passwordResetRequired: userEntity[0].password_reset_required,
+      },
       passwordValid,
     };
   } catch (e) {

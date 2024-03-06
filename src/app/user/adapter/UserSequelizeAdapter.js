@@ -339,6 +339,7 @@ const authenticate = async (username, password, correlationId) => {
 
     const policyCode = userEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
 
+    // V3 policy is the latest, need to revisit when adding higher policy
     const hasV3Policy = policyCode === latestPasswordPolicy;
 
     const iterations = hasV3Policy ? 120000 : 10000;

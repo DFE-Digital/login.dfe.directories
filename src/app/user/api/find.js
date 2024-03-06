@@ -14,7 +14,6 @@ const addLegacyUsernames = async (user, correlationId) => {
 
 const find = async (req, res) => {
   try {
-    console.log('find');
     if (!req.params.id) {
       return res.status(400).send();
     }

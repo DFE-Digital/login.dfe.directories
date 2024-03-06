@@ -14,7 +14,6 @@ const generateSalt = require('../utils/generateSalt');
 
 const find = async (id, correlationId) => {
   try {
-    console.log('4');
     logger.info(`Get user for request ${correlationId}`, { correlationId });
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,
@@ -37,7 +36,6 @@ const find = async (id, correlationId) => {
 
 const findByUsername = async (username, correlationId) => {
   try {
-    console.log('3');
     logger.info(`Get user for request ${username}`, { correlationId });
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,
@@ -71,7 +69,6 @@ const removePasswordHistory = async (recid, uid, correlationId) => {
 
 const findUserPasswordPolicies = async (uid, correlationId) => {
   try {
-    console.log('2');
     logger.info(`Get user pasword policies by user uid for request ${uid}`, { correlationId });
     const passwordPolicy = await db.userPasswordPolicy.findAll({
       tableHint: TableHints.NOLOCK,
@@ -512,7 +509,6 @@ const update = async (uid, given_name, family_name, email, job_title, phone_numb
 
 const getLegacyUsernames = async (uids, correlationId) => {
   try {
-    console.log('5');
     logger.info('Get legacy user names', { correlationId });
     const legacyUsernameEntities = await db.userLegacyUsername.findAll({
       tableHint: TableHints.NOLOCK,

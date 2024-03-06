@@ -34,8 +34,6 @@ const authenticate = async (req, res) => {
       });
     }
 
-    console.log('user =>', result.user);
-
     return res.send(result.user);
   } catch (e) {
     logger.error(e);

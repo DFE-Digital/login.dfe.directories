@@ -65,3 +65,8 @@ ssl
 /config/
 !/config/login.dfe.directories.dev.json
 .vscode/launch.json
+
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store

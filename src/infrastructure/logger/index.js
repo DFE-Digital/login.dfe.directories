@@ -1,11 +1,14 @@
 'use strict';
 
-const { createLogger, transports, format} = require('winston');
-const config = require('./../config');
+const { createLogger, transports, format } = require('winston');
 const appInsights = require('applicationinsights');
 const AppInsightsTransport = require('login.dfe.winston-appinsights');
 const AuditTransporter = require('login.dfe.audit.transporter');
+const config = require('../config');
+
 const logLevel = (config && config.loggerSettings && config.loggerSettings.logLevel) ? config.loggerSettings.logLevel : 'info';
+// Formatter to hide audit records from other loggers.
+const hideAudit = format((info) => ((info.level.toLowerCase() === 'audit') ? false : info));
 
 const customLevels = {
   levels: {
@@ -27,34 +30,21 @@ const customLevels = {
 
 const loggerConfig = {
   levels: customLevels.levels,
-  colorize: true,
-  format: format.combine(
-    format.simple(),
-  ),
   transports: [],
 };
 
-// const sequelizeTransport = WinstonSequelizeTransport(config);
-
-// if (sequelizeTransport) {
-//   loggerConfig.transports.push(sequelizeTransport);
-// }
-loggerConfig.transports.push(new transports.Console({ level: logLevel, colorize: true }));
+loggerConfig.transports.push(
+  new transports.Console({
+    level: logLevel,
+    format: format.combine(hideAudit()),
+  }),
+);
 
 const opts = { application: config.loggerSettings.applicationName, level: 'audit' };
 const auditTransport = AuditTransporter(opts);
 
 if (auditTransport) {
   loggerConfig.transports.push(auditTransport);
-}
-if (config && config.loggerSettings && config.loggerSettings.redis && config.loggerSettings.redis.enabled) {
-  loggerConfig.transports.push(new transports.Redis({
-    level: 'audit',
-    length: 4294967295,
-    host: config.loggerSettings.redis.host,
-    port: config.loggerSettings.redis.port,
-    auth: config.loggerSettings.redis.auth,
-  }));
 }
 
 if (config.hostingEnvironment.applicationInsights) {

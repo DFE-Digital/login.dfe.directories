@@ -6,6 +6,7 @@ const { Op, TableHints } = Sequelize;
 const { v4: uuid } = require('uuid');
 const crypto = require('crypto');
 const logger = require('../../../infrastructure/logger');
+const config = require('../../../infrastructure/config');
 const db = require('../../../infrastructure/repository/db');
 const {
   userLegacyUsername,
@@ -36,7 +37,7 @@ const find = async (id, correlationId) => {
 
 const findByUsername = async (username, correlationId) => {
   try {
-    logger.info(`Get user for request ${username}`, { correlationId });
+    logger.info('Get user for request', { correlationId });
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,
       where: {
@@ -51,7 +52,7 @@ const findByUsername = async (username, correlationId) => {
 
     return userEntity;
   } catch (e) {
-    logger.error(`error getting user with username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(`error getting user with username - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };
@@ -196,7 +197,7 @@ const fetchUserPasswordHistory = async (uid, correlationId) => {
 };
 const findByLegacyUsername = async (username, correlationId) => {
   try {
-    logger.info(`Get user by legacy username for request ${username}`, { correlationId });
+    logger.info('Get user by legacy username for request', { correlationId });
 
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,
@@ -215,7 +216,7 @@ const findByLegacyUsername = async (username, correlationId) => {
 
     return userEntity;
   } catch (e) {
-    logger.error(`error getting user with legacy username:${username} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(`error getting user with legacy username - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
     throw e;
   }
 };
@@ -335,7 +336,7 @@ const authenticate = async (username, password, correlationId) => {
       type: db.user.sequelize.QueryTypes.SELECT,
     });
 
-    if (!userEntity) return null;
+    if (!userEntity || userEntity.length === 0) return null;
 
     const policyCode = userEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
 
@@ -371,7 +372,14 @@ const authenticate = async (username, password, correlationId) => {
       passwordValid,
     };
   } catch (e) {
-    logger.error(`failed to authenticate user: ${username} for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(`failed to authenticate user for request ${correlationId}. Check Audit logs for username. error: ${e}`, { correlationId });
+    logger.audit({
+      type: 'authentication',
+      subType: 'login-failed',
+      env: config.hostingEnvironment.env,
+      application: config.loggerSettings.applicationName,
+      message: `failed to authenticate user: ${username} for request ${correlationId}.`,
+    });
     throw (e);
   }
 };

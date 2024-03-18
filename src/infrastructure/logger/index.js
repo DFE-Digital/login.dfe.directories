@@ -57,6 +57,7 @@ if (config.hostingEnvironment.applicationInsights) {
     applicationName: config.loggerSettings.applicationName || 'Directories',
     type: 'event',
     treatErrorsAsExceptions: true,
+    format: format.combine(hideAudit()),
   }));
 }
 

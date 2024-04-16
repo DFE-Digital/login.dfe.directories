@@ -348,7 +348,7 @@ const authenticate = async (username, password, correlationId) => {
 
     if (!userEntity || userEntity.length === 0) return null;
 
-    const derivedKey = await hashPasswordWithUserPolicy(password, userEntity[0].salt);
+    const derivedKey = await hashPasswordWithUserPolicy(password, userEntity[0].salt, userEntity);
     const passwordValid = derivedKey === userEntity[0].password;
     let prevLoggin = null;
     if (userEntity[0].last_login !== null) {

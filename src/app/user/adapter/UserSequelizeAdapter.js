@@ -531,58 +531,6 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
-const removeUserPasswordPolicy = async (id, correlationId) => {
-  try {
-    await db.userPasswordPolicy.destroy({ where: { id } });
-  } catch (e) {
-    logger.error(`Error removing user password policy - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
-
-const updateUserPasswordPolicy = async (uid, policyCode, correlationId) => {
-  try {
-    logger.info(`Add a user password policy for user ${uid}`, { correlationId });
-    const passwordPolicy = await db.userPasswordPolicy.findOne({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        uid: {
-          [Op.eq]: uid,
-        },
-      },
-    });
-    if (!passwordPolicy) {
-      return null;
-    }
-    await passwordPolicy.update({ policyCode });
-    return passwordPolicy;
-  } catch (e) {
-    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
-const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
-  try {
-    logger.info(`Add a user password policy for user ${uid}`, { correlationId });
-    const id = uuid();
-    const historyLimit = 3;
-
-    const newPasswordPolicy = {
-      id,
-      uid,
-      policyCode,
-      password_history_limit: historyLimit,
-      createdAt: Sequelize.fn('GETDATE'),
-      updatedAt: Sequelize.fn('GETDATE'),
-    };
-    await db.userPasswordPolicy.create(newPasswordPolicy);
-    return newPasswordPolicy;
-  } catch (e) {
-    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
-
 module.exports = {
   find,
   getUsers,
@@ -596,10 +544,7 @@ module.exports = {
   create,
   authenticate,
   changeStatus,
-  removeUserPasswordPolicy,
   update,
   findByLegacyUsername,
   getLegacyUsernames,
-  addUserPasswordPolicy,
-  updateUserPasswordPolicy,
 };

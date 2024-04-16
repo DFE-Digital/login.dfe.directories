@@ -287,6 +287,20 @@ const changePassword = async (uid, newPassword, correlationId) => {
     if (limit > 0) {
       await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
     }
+
+    await db.userPasswordPolicy.findOrCreate({
+      where: {
+        uid,
+        policyCode: getLatestPolicyCode(),
+      },
+      defaults: {
+        id: uuid(),
+        password_history_limit: 3,
+        createdAt: Sequelize.fn('GETDATE'),
+        updatedAt: Sequelize.fn('GETDATE'),
+      },
+    });
+
     const salt = generateSalt();
     const derivedKey = await hashPasswordWithLatestPolicy(newPassword, salt);
 

@@ -272,21 +272,9 @@ const changePassword = async (uid, newPassword, correlationId) => {
       return null;
     }
 
-    let limit = 0;
-    const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        uid: {
-          [Op.eq]: userEntity.sub,
-        },
-      },
-    });
-    if (userPasswordPolicyEntity.length !== 0 && userPasswordPolicyEntity[0].password_history_limit !== undefined) {
-      limit = userPasswordPolicyEntity[0].password_history_limit;
-    }
-    if (limit > 0) {
-      await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
-    }
+    const passwordHistoryLimit = 3;
+
+    await handlePasswordHistory(uid, userEntity.salt, userEntity.password, passwordHistoryLimit, correlationId);
 
     await db.userPasswordPolicy.findOrCreate({
       where: {
@@ -295,7 +283,7 @@ const changePassword = async (uid, newPassword, correlationId) => {
       },
       defaults: {
         id: uuid(),
-        password_history_limit: 3,
+        password_history_limit: passwordHistoryLimit,
         createdAt: Sequelize.fn('GETDATE'),
         updatedAt: Sequelize.fn('GETDATE'),
       },

@@ -6,7 +6,7 @@ const { Op, TableHints } = Sequelize;
 const { v4: uuid } = require('uuid');
 const {
   getLatestPolicyCode,
-  hashPasswordWithLatestPolicy,
+  hashPassword,
   hashPasswordWithUserPolicy,
 } = require('login.dfe.password-policy');
 const logger = require('../../../infrastructure/logger');
@@ -16,6 +16,9 @@ const {
   userLegacyUsername,
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
+
+const activePasswordPolicyCode = process.env.POLICY_CODE ?? getLatestPolicyCode();
+const passwordHistoryLimit = 3;
 
 const find = async (id, correlationId) => {
   try {
@@ -272,14 +275,12 @@ const changePassword = async (uid, newPassword, correlationId) => {
       return null;
     }
 
-    const passwordHistoryLimit = 3;
-
     await handlePasswordHistory(uid, userEntity.salt, userEntity.password, passwordHistoryLimit, correlationId);
 
     await db.userPasswordPolicy.findOrCreate({
       where: {
         uid,
-        policyCode: getLatestPolicyCode(),
+        policyCode: activePasswordPolicyCode,
       },
       defaults: {
         id: uuid(),
@@ -290,7 +291,7 @@ const changePassword = async (uid, newPassword, correlationId) => {
     });
 
     const salt = generateSalt();
-    const derivedKey = await hashPasswordWithLatestPolicy(newPassword, salt);
+    const derivedKey = await hashPassword(activePasswordPolicyCode, newPassword, salt);
 
     await userEntity.update({
       salt,
@@ -380,7 +381,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   }
 
   const salt = generateSalt();
-  const derivedKey = await hashPasswordWithLatestPolicy(password, salt);
+  const derivedKey = await hashPassword(activePasswordPolicyCode, password, salt);
   const id = uuid();
 
   const newUser = {
@@ -401,8 +402,8 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   await db.userPasswordPolicy.create({
     id: uuid(),
     uid: id,
-    policyCode: getLatestPolicyCode(),
-    password_history_limit: 3,
+    policyCode: activePasswordPolicyCode,
+    password_history_limit: passwordHistoryLimit,
     createdAt: Sequelize.fn('GETDATE'),
     updatedAt: Sequelize.fn('GETDATE'),
   });

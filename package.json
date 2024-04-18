@@ -30,7 +30,7 @@
     "login.dfe.healthcheck": "git+https://github.com/DFE-Digital/login.dfe.healthcheck.git#v3.0.0",
     "login.dfe.jwt-strategies": "github:DFE-Digital/login.dfe.jwt-strategies#v4.0.0",
     "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v5.2.0",
-    "login.dfe.password-policy": "github:DFE-Digital/login.dfe.password-policy#main",
+    "login.dfe.password-policy": "1.0.0",
     "login.dfe.public-api.jobs.client": "git+https://github.com/DFE-Digital/login.dfe.public-api.jobs.client.git#v3.0.0",
     "login.dfe.request-promise-retry": "git+https://github.com/DFE-Digital/login.dfe.request-promise-retry.git#v3.0.0",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",

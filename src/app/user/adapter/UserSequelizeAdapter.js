@@ -4,7 +4,11 @@ const Sequelize = require('sequelize');
 
 const { Op, TableHints } = Sequelize;
 const { v4: uuid } = require('uuid');
-const crypto = require('crypto');
+const {
+  getLatestPolicyCode,
+  hashPassword,
+  hashPasswordWithUserPolicy,
+} = require('login.dfe.password-policy');
 const logger = require('../../../infrastructure/logger');
 const config = require('../../../infrastructure/config');
 const db = require('../../../infrastructure/repository/db');
@@ -12,6 +16,9 @@ const {
   userLegacyUsername,
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
+
+const activePasswordPolicyCode = process.env.POLICY_CODE ?? getLatestPolicyCode();
+const passwordHistoryLimit = 3;
 
 const find = async (id, correlationId) => {
   try {
@@ -117,7 +124,6 @@ const addPasswordHistory = async (uid, correlationId, password, salt) => {
 const isMatched = async (uid, newPass, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
-    const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
     if (!userEntity) {
       return null;
     }
@@ -130,10 +136,9 @@ const isMatched = async (uid, newPass, correlationId) => {
         },
       },
     });
-    const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    const resultkey = crypto.pbkdf2Sync(newPass, userEntity.salt, iterations, 512, 'sha512');
-    const passwordValid = resultkey.toString('base64') === userEntity.password;
+
+    const derivedKey = await hashPasswordWithUserPolicy(newPass, userEntity.salt, userPasswordPolicyEntity);
+    const passwordValid = derivedKey === userEntity.password;
     return passwordValid;
   } catch (e) {
     logger.error(`error saving pasword history for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
@@ -266,35 +271,31 @@ const handlePasswordHistory = async (uid, oldSalt, oldPassword, limit, correlati
 const changePassword = async (uid, newPassword, correlationId) => {
   try {
     const userEntity = await find(uid, correlationId);
-    const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
-
     if (!userEntity) {
       return null;
     }
-    let limit = 0;
-    const userPasswordPolicyEntity = await db.userPasswordPolicy.findAll({
-      tableHint: TableHints.NOLOCK,
+
+    await handlePasswordHistory(uid, userEntity.salt, userEntity.password, passwordHistoryLimit, correlationId);
+
+    await db.userPasswordPolicy.findOrCreate({
       where: {
-        uid: {
-          [Op.eq]: userEntity.sub,
-        },
+        uid,
+        policyCode: activePasswordPolicyCode,
+      },
+      defaults: {
+        id: uuid(),
+        password_history_limit: passwordHistoryLimit,
+        createdAt: Sequelize.fn('GETDATE'),
+        updatedAt: Sequelize.fn('GETDATE'),
       },
     });
-    const userPolicyCode = userPasswordPolicyEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-    const iterations = userPolicyCode === latestPasswordPolicy ? 120000 : 10000;
-    if (userPasswordPolicyEntity.length !== 0 && userPasswordPolicyEntity[0].password_history_limit !== undefined) {
-      limit = userPasswordPolicyEntity[0].password_history_limit;
-    }
 
-    if (limit > 0) {
-      await handlePasswordHistory(uid, userEntity.salt, userEntity.password, limit, correlationId);
-    }
     const salt = generateSalt();
-    const password = crypto.pbkdf2Sync(newPassword, salt, iterations, 512, 'sha512');
+    const derivedKey = await hashPassword(activePasswordPolicyCode, newPassword, salt);
 
     await userEntity.update({
       salt,
-      password: password.toString('base64'),
+      password: derivedKey,
       password_reset_required: false,
     });
 
@@ -326,8 +327,6 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 };
 
 const authenticate = async (username, password, correlationId) => {
-  const latestPasswordPolicy = process.env.POLICY_CODE || 'v3';
-
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
 
@@ -338,21 +337,8 @@ const authenticate = async (username, password, correlationId) => {
 
     if (!userEntity || userEntity.length === 0) return null;
 
-    const policyCode = userEntity.filter((u) => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
-
-    // V3 policy is the latest, need to revisit when adding higher policy
-    const hasV3Policy = policyCode === latestPasswordPolicy;
-
-    const iterations = hasV3Policy ? 120000 : 10000;
-    const saltBuffer = Buffer.from(userEntity[0].salt, 'utf8');
-    const derivedKey = crypto.pbkdf2Sync(
-      password,
-      saltBuffer,
-      iterations,
-      512,
-      'sha512',
-    );
-    const passwordValid = derivedKey.toString('base64') === userEntity[0].password;
+    const derivedKey = await hashPasswordWithUserPolicy(password, userEntity[0].salt, userEntity);
+    const passwordValid = derivedKey === userEntity[0].password;
     let prevLoggin = null;
     if (userEntity[0].last_login !== null) {
       prevLoggin = userEntity[0].last_login.toISOString();
@@ -366,7 +352,6 @@ const authenticate = async (username, password, correlationId) => {
       user: {
         status: userEntity[0].status,
         id: userEntity[0].sub,
-        hasV3Policy,
         passwordResetRequired: userEntity[0].password_reset_required,
       },
       passwordValid,
@@ -396,7 +381,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   }
 
   const salt = generateSalt();
-  const encryptedPassword = crypto.pbkdf2Sync(password, salt, 120000, 512, 'sha512').toString('base64');
+  const derivedKey = await hashPassword(activePasswordPolicyCode, password, salt);
   const id = uuid();
 
   const newUser = {
@@ -405,7 +390,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     family_name: lastName,
     email: username,
     salt,
-    password: encryptedPassword,
+    password: derivedKey,
     status: 1,
     phone_number,
     isMigrated,
@@ -413,18 +398,15 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   };
 
   await db.user.create(newUser);
-  const pId = uuid();
-  const historyLimit = 3;
 
-  const newPasswordPolicy = {
-    id: pId,
+  await db.userPasswordPolicy.create({
+    id: uuid(),
     uid: id,
-    policyCode: 'v3',
-    password_history_limit: historyLimit,
+    policyCode: activePasswordPolicyCode,
+    password_history_limit: passwordHistoryLimit,
     createdAt: Sequelize.fn('GETDATE'),
     updatedAt: Sequelize.fn('GETDATE'),
-  };
-  await db.userPasswordPolicy.create(newPasswordPolicy);
+  });
 
   if (legacyUsername) {
     await db.userLegacyUsername.create({
@@ -538,58 +520,6 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
-const removeUserPasswordPolicy = async (id, correlationId) => {
-  try {
-    await db.userPasswordPolicy.destroy({ where: { id } });
-  } catch (e) {
-    logger.error(`Error removing user password policy - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
-
-const updateUserPasswordPolicy = async (uid, policyCode, correlationId) => {
-  try {
-    logger.info(`Add a user password policy for user ${uid}`, { correlationId });
-    const passwordPolicy = await db.userPasswordPolicy.findOne({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        uid: {
-          [Op.eq]: uid,
-        },
-      },
-    });
-    if (!passwordPolicy) {
-      return null;
-    }
-    await passwordPolicy.update({ policyCode });
-    return passwordPolicy;
-  } catch (e) {
-    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
-const addUserPasswordPolicy = async (uid, policyCode, correlationId) => {
-  try {
-    logger.info(`Add a user password policy for user ${uid}`, { correlationId });
-    const id = uuid();
-    const historyLimit = 3;
-
-    const newPasswordPolicy = {
-      id,
-      uid,
-      policyCode,
-      password_history_limit: historyLimit,
-      createdAt: Sequelize.fn('GETDATE'),
-      updatedAt: Sequelize.fn('GETDATE'),
-    };
-    await db.userPasswordPolicy.create(newPasswordPolicy);
-    return newPasswordPolicy;
-  } catch (e) {
-    logger.error(`failed to add user pasword policy for user with uid:${uid} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
-
 module.exports = {
   find,
   getUsers,
@@ -603,10 +533,7 @@ module.exports = {
   create,
   authenticate,
   changeStatus,
-  removeUserPasswordPolicy,
   update,
   findByLegacyUsername,
   getLegacyUsernames,
-  addUserPasswordPolicy,
-  updateUserPasswordPolicy,
 };

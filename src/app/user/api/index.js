@@ -42,7 +42,7 @@ const routeExport = () => {
   router.get('/users/by-legacyusername/:id', asyncWrapper(findByLegacyUsername));
   router.get('/users/:id', asyncWrapper(find));
   router.get('/users/:uid/legacy-username', asyncWrapper(findLegacyUsernamesById));
-  router.get('/users/:uid/match-phrase', asyncWrapper(matchedPassphrase));
+  router.post('/users/:uid/match-phrase', asyncWrapper(matchedPassphrase));
   router.get('/users/:uid/password-policies', asyncWrapper(getUserPasswordPolicies));
   router.get('/users/:uid/password-history', asyncWrapper(passwordHistory));
   router.post('/:directoryId/user/authenticate', deprecateWith('/users/authenticate'), asyncWrapper(authenticate));

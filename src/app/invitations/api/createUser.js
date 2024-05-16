@@ -8,11 +8,17 @@ const { safeUser } = require('./../../../utils');
 // const NotificationClient = require('login.dfe.notifications.client');
 const PublicApiClient = require('login.dfe.public-api.jobs.client');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
+const {createEntraIdUserAccount} = require('./../../../infrastructure/entraId/index');
+const {getAuthCodeUrl} = require('./../../../infrastructure/entraId/auth');
+const { generateEntraIdOtp } = require('../../../app/invitations/utils/index');
 
 const createUser = async (req, res) => {
+
+  //create a dsi user 
+  // password body will be undefined - it will generate a placeholder password
   try {
     const invId = req.params.id;
-    const password = req.body.password;
+    const password = req.body?.password || generateEntraIdOtp();
 
     if (!invId) {
       return res.status(400).send();
@@ -27,6 +33,39 @@ const createUser = async (req, res) => {
       return res.status(404).send();
     }
 
+    // If no password is provided in the body, it implies that user is attempting to create an account in Entra
+    // and not just a standard DSI account.
+  
+    let entraLoginRedirectUrl;
+    let entraIdUserAccount;
+  
+    if(!req.body.password){
+    //create entra id account
+    
+    const requestedEntraIdAccount = {
+      displayName: `${invitation.firstName} ${invitation.lastName}`,
+      givenName: invitation.firstName,
+      surname: invitation.lastName,
+      identities:[{
+        signInType: 'emailAddress',
+        issuer: 'devDSIPoC.onmicrosoft.com',
+        issuerAssignedId: invitation.email}],
+      mail: invitation.email,
+      passwordProfile:{
+        forceChangePasswordNextSignIn:true, 
+        // forceChangePasswordNextSignInWithMfa:true,
+        password:generateEntraIdOtp(),
+      }
+    }
+    //OTP password to be sent in the email to activate the Entra account
+     console.log(requestedEntraIdAccount.password)
+  
+    //create entraID account 
+     entraIdUserAccount = await createEntraIdUserAccount(requestedEntraIdAccount)
+
+    // Get the entra redirect URL 
+     entraLoginRedirectUrl = await getAuthCodeUrl(entraIdUserAccount.mail)
+  }
     const user = await userStorage.create(invitation.email, password, invitation.firstName, invitation.lastName, null, null, req.header('x-correlation-id'), invitation.isMigrated);
 
     const completedInvitation = Object.assign(invitation, { isCompleted: true, userId: user.id });
@@ -47,7 +86,7 @@ const createUser = async (req, res) => {
     });
     await publicApiClient.sendInvitationComplete(user.id, invitation.callbacks);
 
-    return res.status(201).send(safeUser(user));
+    return res.status(201).send({...safeUser(user), entraIdUserAccount: entraIdUserAccount, entraLoginRedirectUrl:entraLoginRedirectUrl });
   } catch (e) {
     logger.error(e);
     res.status(500).send(e.message);

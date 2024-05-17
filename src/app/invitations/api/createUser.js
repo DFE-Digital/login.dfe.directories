@@ -10,7 +10,6 @@ const PublicApiClient = require('login.dfe.public-api.jobs.client');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 const NotificationClient = require('login.dfe.notifications.client');
 const {createEntraIdUserAccount} = require('./../../../infrastructure/entraId/index');
-const {getAuthCodeUrl} = require('./../../../infrastructure/entraId/auth');
 const { generateEntraIdOtp } = require('../../../app/invitations/utils/index');
 
 const createUser = async (req, res) => {

@@ -9,7 +9,6 @@ const msalConfig = {
   auth: {
     clientId: process.env.CLIENT_ID,
     authority: `${process.env.AAD_ENDPOINT}/${process.env.TENANT_ID}`,
-    redirectUri: process.env.APP_REDIRECT_URI,
     clientSecret: process.env.CLIENT_SECRET,
   },
 };
@@ -41,32 +40,8 @@ async function getClientAppToken(tokenRequest) {
   return await cca.acquireTokenByClientCredential(tokenRequest);
 }
 
-// * Initialize a public client application. For more info, visit:
-const pca = new msal.PublicClientApplication(msalConfig);
-
-async function getAuthCodeUrl(entraEmail) {
-  const cryptoProvider = new msal.CryptoProvider();
-  const { challenge } = await cryptoProvider.generatePkceCodes();
-
-  const authCodeUrlRequest = {
-    scopes: ['openid', 'profile', 'offline_access'],
-    redirectUri: process.env.APP_REDIRECT_URI,
-    prompt: 'login',
-    loginHint: `${entraEmail}`,
-    responseMode: msal.ResponseMode.FORM_POST,
-    response_type: 'code',
-    codeChallenge: challenge,
-    codeChallengeMethod: 'S256',
-  };
-
-  const redirectURL = await pca.getAuthCodeUrl(authCodeUrlRequest);
-
-  return redirectURL;
-}
-
 module.exports = {
   apiConfig,
   tokenRequest,
   getClientAppToken,
-  getAuthCodeUrl,
 };

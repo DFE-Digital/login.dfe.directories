@@ -369,7 +369,7 @@ const authenticate = async (username, password, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated, entraSub) => {
+const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated, entraSub = null) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
   if (!username || !password) {
     return null;

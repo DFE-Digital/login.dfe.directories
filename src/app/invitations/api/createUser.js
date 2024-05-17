@@ -8,6 +8,7 @@ const { safeUser } = require('./../../../utils');
 // const NotificationClient = require('login.dfe.notifications.client');
 const PublicApiClient = require('login.dfe.public-api.jobs.client');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
+const NotificationClient = require('login.dfe.notifications.client');
 const {createEntraIdUserAccount} = require('./../../../infrastructure/entraId/index');
 const {getAuthCodeUrl} = require('./../../../infrastructure/entraId/auth');
 const { generateEntraIdOtp } = require('../../../app/invitations/utils/index');
@@ -58,15 +59,13 @@ const createUser = async (req, res) => {
       }
     }
     //OTP password to be sent in the email to activate the Entra account
-     console.log(requestedEntraIdAccount.password)
+    const entraIdOtp = requestedEntraIdAccount.passwordProfile.password
+     console.log(entraIdOtp)
   
     //create entraID account 
      entraIdUserAccount = await createEntraIdUserAccount(requestedEntraIdAccount)
-
-    // Get the entra redirect URL 
-     entraLoginRedirectUrl = await getAuthCodeUrl(entraIdUserAccount.mail)
   }
-    const user = await userStorage.create(invitation.email, password, invitation.firstName, invitation.lastName, null, null, req.header('x-correlation-id'), invitation.isMigrated);
+    const user = await userStorage.create(invitation.email, password, invitation.firstName, invitation.lastName, null, null, req.header('x-correlation-id'), invitation.isMigrated,entraIdUserAccount.id );
 
     const completedInvitation = Object.assign(invitation, { isCompleted: true, userId: user.id });
     await updateInvitation(completedInvitation);
@@ -76,10 +75,12 @@ const createUser = async (req, res) => {
     });
     await serviceNotificationsClient.notifyUserUpdated(safeUser(user));
 
-    /* const notificationClient = new NotificationClient({
+    //send OTP EMAIL 
+    const servicesUrl = config.hostingEnvironment.servicesUrl || 'https://tran-services.signin.education.gov.uk/';
+    const notificationClient = new NotificationClient({
       connectionString: config.notifications.connectionString,
     });
-    notificationClient.sendRegistrationComplete(user.email, user.given_name, user.family_name); */
+    notificationClient.sendEntraIdOTP(user.email, user.given_name, user.family_name,entraIdOtp, servicesUrl); 
 
     const publicApiClient = new PublicApiClient({
       connectionString: config.notifications.connectionString,

@@ -57,6 +57,10 @@ function model(sequelize) {
       allowNull: false,
       defaultValue: Sequelize.BOOLEAN,
     },
+    entra_sub: {
+      type: Sequelize.UUID,
+      allowNull: true,
+    },
   };
 
   const options = {

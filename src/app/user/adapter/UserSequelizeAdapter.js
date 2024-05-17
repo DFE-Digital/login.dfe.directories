@@ -330,7 +330,7 @@ const authenticate = async (username, password, correlationId) => {
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
 
-    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
+    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required, entra_sub FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
       replacements: { email: username },
       type: db.user.sequelize.QueryTypes.SELECT,
     });
@@ -369,7 +369,7 @@ const authenticate = async (username, password, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated) => {
+const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated, entraSub) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
   if (!username || !password) {
     return null;
@@ -395,6 +395,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     phone_number,
     isMigrated,
     password_reset_required: false,
+    entra_sub: entraSub,
   };
 
   await db.user.create(newUser);

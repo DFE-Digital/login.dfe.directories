@@ -62,6 +62,14 @@ class UserModel {
   set password_reset_required(value) {
     this._password_reset_required = value;
   }
+
+  get entra_sub() {
+    return this._entra_sub;
+  }
+
+  set entra_sub(value) {
+    this._entra_sub = value;
+  }
 }
 
 module.exports = UserModel;

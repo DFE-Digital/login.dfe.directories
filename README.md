@@ -108,7 +108,8 @@ Then a corresponding User_[Sub] record should be created as shown
   "job_title": "Administrative Assistant",
 	"password": "xxxx",
 	"salt": "zzzzzzz",
-  "password_reset_required": false
+  "password_reset_required": false, 
+  "entra_sub": "21d62132-6570-4e63-9dcb-137cc35e7543"
 }
 ```
 

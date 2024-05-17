@@ -37,9 +37,8 @@ const createUser = async (req, res) => {
     // If no password is provided in the body, it implies that user is attempting to create an account in Entra
     // and not just a standard DSI account.
   
-    let entraLoginRedirectUrl;
     let entraIdUserAccount;
-  
+    let entraIdOtp;
     if(!req.body.password){
     //create entra id account
     
@@ -59,8 +58,8 @@ const createUser = async (req, res) => {
       }
     }
     //OTP password to be sent in the email to activate the Entra account
-    const entraIdOtp = requestedEntraIdAccount.passwordProfile.password
-     console.log(entraIdOtp)
+     entraIdOtp = requestedEntraIdAccount.passwordProfile.password
+    //  console.log(entraIdOtp)
   
     //create entraID account 
      entraIdUserAccount = await createEntraIdUserAccount(requestedEntraIdAccount)
@@ -87,7 +86,7 @@ const createUser = async (req, res) => {
     });
     await publicApiClient.sendInvitationComplete(user.id, invitation.callbacks);
 
-    return res.status(201).send({...safeUser(user), entraIdUserAccount: entraIdUserAccount, entraLoginRedirectUrl:entraLoginRedirectUrl });
+    return res.status(201).send({...safeUser(user), entraIdUserAccount: entraIdUserAccount});
   } catch (e) {
     logger.error(e);
     res.status(500).send(e.message);

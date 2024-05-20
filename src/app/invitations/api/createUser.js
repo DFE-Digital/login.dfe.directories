@@ -78,7 +78,7 @@ const createUser = async (req, res) => {
     const notificationClient = new NotificationClient({
       connectionString: config.notifications.connectionString,
     });
-    notificationClient.sendEntraIdOTP(user.email, user.given_name, user.family_name,entraIdOtp, servicesUrl); 
+    await notificationClient.sendEntraIdOTP(user.email, user.given_name, user.family_name,entraIdOtp, servicesUrl); 
 
     const publicApiClient = new PublicApiClient({
       connectionString: config.notifications.connectionString,

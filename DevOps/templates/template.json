@@ -243,7 +243,12 @@
                             "QUEUE_CONNECTION_STRING": "[parameters('auditServiceBusConnectionString')]",
                             "TOPIC_NAME": "[parameters('auditServiceBusTopicName')]",
                             "SUBSCRIPTION_NAME": "[parameters('auditServiceBusSubscriptionName')]",
-                            "WEBSITE_HEALTHCHECK_MAXPINGFAILURES": "4"
+                            "WEBSITE_HEALTHCHECK_MAXPINGFAILURES": "4",
+                            "CLIENT_ID": "[concat('@Microsoft.KeyVault(VaultName=',parameters('keyVaultName'),';SecretName=entClientId)')]",
+                            "AAD_ENDPOINT": "[concat('@Microsoft.KeyVault(VaultName=',parameters('keyVaultName'),';SecretName=entUrlADD)')]",
+                            "TENANT_ID": "[concat('@Microsoft.KeyVault(VaultName=',parameters('keyVaultName'),';SecretName=entTenantId)')]",
+                            "CLIENT_SECRET": "[concat('@Microsoft.KeyVault(VaultName=',parameters('keyVaultName'),';SecretName=entClientSecret)')]",
+                            "GRAPH_API_ENDPOINT": "[concat('@Microsoft.KeyVault(VaultName=',parameters('keyVaultName'),';SecretName=entGraphEndpoint)')]"
                         }
                     },
                      "healthCheckPath": {

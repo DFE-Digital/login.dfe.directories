@@ -118,6 +118,9 @@
         },
         "ipSecurityRestrictions": {
             "type": "array"
+        },
+        "keyVaultName": {
+            "type": "string"
         }
     },
     "variables": {

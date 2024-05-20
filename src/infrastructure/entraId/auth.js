@@ -1,4 +1,5 @@
 const msal = require('@azure/msal-node');
+require('dotenv').config();
 
 /**
  * Configuration object to be passed to MSAL instance on creation.

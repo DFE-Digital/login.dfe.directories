@@ -1,4 +1,5 @@
-const rp = require('request-promise');
+const { fetchApi, fetchApiRaw } = require('login.dfe.async-retry');
+
 const { URL } = require('url');
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { DOMParser } = require('@xmldom/xmldom');
@@ -12,9 +13,9 @@ const getBlobUrl = (blobName = '') => {
 };
 
 const listBlobs = async () => {
-  const blobListXml = await rp({
+  //listBlobs is wrapped by callee within try/catch
+  const blobListXml = await fetchApiRaw(`${getBlobUrl()}&restype=container&comp=list`,{
     method: 'GET',
-    uri: `${getBlobUrl()}&restype=container&comp=list`,
   });
   const blobListDoc = new DOMParser().parseFromString(blobListXml);
   return xpath.select('/EnumerationResults/Blobs/Blob/Name', blobListDoc).map((node) => node.childNodes[0].nodeValue);
@@ -23,14 +24,13 @@ const listBlobs = async () => {
 const getUserDevices = async (userId, correlationId) => {
   try {
     logger.info(`Get user devices for request: ${correlationId}`, { correlationId });
-    const json = await rp({
+    const json = await fetchApi(getBlobUrl(`${userId}.json`),{
       method: 'GET',
-      uri: getBlobUrl(`${userId}.json`),
     });
     if (!json) {
       return [];
     }
-    return JSON.parse(json);
+    return json;
   } catch (e) {
     if (e.statusCode === 404) {
       return null;
@@ -46,13 +46,12 @@ const createUserDevices = async (userId, device, correlationId) => {
     const devices = await getUserDevices(userId);
     devices.push(device);
 
-    await rp({
+    await fetchApi(getBlobUrl(`${userId}.json`),{
       method: 'PUT',
-      uri: getBlobUrl(`${userId}.json`),
       headers: {
         'x-ms-blob-type': 'BlockBlob',
       },
-      body: JSON.stringify(devices),
+      body: devices,
     });
   } catch (e) {
     logger.error(`Create user devices failed for request ${correlationId} error: ${e}`, { correlationId });
@@ -71,13 +70,12 @@ const deleteUserDevice = async (userId, device, correlationId) => {
       devices.splice(indexOfSerialNumber, 1);
     }
 
-    await rp({
+    await fetchApi(getBlobUrl(`${userId}.json`),{
       method: 'PUT',
-      uri: getBlobUrl(`${userId}.json`),
       headers: {
         'x-ms-blob-type': 'BlockBlob',
       },
-      body: JSON.stringify(devices),
+      body: devices,
     });
   } catch (e) {
     logger.error(`Remove user device: ${device.serialNumber} failed for request ${correlationId} error: ${e}`, { correlationId });

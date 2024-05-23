@@ -43,7 +43,6 @@
     "pg-hstore": "^2.3.2",
     "pm2": "^5.3.0",
     "redis": "^4.6.10",
-    "request-promise": "^4.2.2",
     "sequelize": "^6.36.0",
     "simpl-schema": "^3.4.1",
     "tedious": "^16.6.0",

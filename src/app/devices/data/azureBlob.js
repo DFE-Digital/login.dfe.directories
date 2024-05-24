@@ -1,4 +1,4 @@
-const { fetchApi, fetchApiRaw } = require('login.dfe.async-retry');
+const { fetchApiRaw } = require('login.dfe.async-retry');
 
 const { URL } = require('url');
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -24,13 +24,13 @@ const listBlobs = async () => {
 const getUserDevices = async (userId, correlationId) => {
   try {
     logger.info(`Get user devices for request: ${correlationId}`, { correlationId });
-    const json = await fetchApi(getBlobUrl(`${userId}.json`),{
+    const json = await fetchApiRaw(getBlobUrl(`${userId}.json`),{
       method: 'GET',
     });
     if (!json) {
       return [];
     }
-    return json;
+    return JSON.parse(json);
   } catch (e) {
     if (e.statusCode === 404) {
       return null;
@@ -46,12 +46,12 @@ const createUserDevices = async (userId, device, correlationId) => {
     const devices = await getUserDevices(userId);
     devices.push(device);
 
-    await fetchApi(getBlobUrl(`${userId}.json`),{
+    await fetchApiRaw(getBlobUrl(`${userId}.json`),{
       method: 'PUT',
       headers: {
         'x-ms-blob-type': 'BlockBlob',
       },
-      body: devices,
+      body: JSON.stringify(devices),
     });
   } catch (e) {
     logger.error(`Create user devices failed for request ${correlationId} error: ${e}`, { correlationId });
@@ -70,12 +70,12 @@ const deleteUserDevice = async (userId, device, correlationId) => {
       devices.splice(indexOfSerialNumber, 1);
     }
 
-    await fetchApi(getBlobUrl(`${userId}.json`),{
+    await fetchApiRaw(getBlobUrl(`${userId}.json`),{
       method: 'PUT',
       headers: {
         'x-ms-blob-type': 'BlockBlob',
       },
-      body: devices,
+      body: JSON.stringify(devices),
     });
   } catch (e) {
     logger.error(`Remove user device: ${device.serialNumber} failed for request ${correlationId} error: ${e}`, { correlationId });

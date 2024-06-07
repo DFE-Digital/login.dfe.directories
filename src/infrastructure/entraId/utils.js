@@ -29,7 +29,3 @@ async function callGraphApi(endpoint, method, accessToken, body = null) {
 module.exports = {
   callGraphApi,
 };
-
-module.exports = {
-  callGraphApi,
-};

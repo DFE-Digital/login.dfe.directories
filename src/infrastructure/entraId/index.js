@@ -1,4 +1,4 @@
-const { callGraphApi } = require('./api');
+const { callGraphApi } = require('./utils');
 const { getClientAppToken, tokenRequest, apiConfig } = require('./auth');
 
 async function getAllEntraUsers() {
@@ -25,6 +25,19 @@ async function getEntraAccountByEmail(email) {
   }
 }
 
+async function getEntraAccountByEntraSub(entraSub) {
+  try {
+    const { accessToken } = await getClientAppToken(tokenRequest);
+
+    const result = await callGraphApi(`${apiConfig.uri}/users/${entraSub}`, 'GET', accessToken);
+    return result;
+  } catch (error) {
+    console.log('Error fetching users:', error);
+    throw error;
+  }
+}
+
+
 async function createEntraIdUserAccount(accountDetails) {
   try {
     const { accessToken } = await getClientAppToken(tokenRequest);
@@ -49,9 +62,23 @@ async function createTemporaryAccessPass(entraSub, temporaryAccessPassAuthentica
   }
 }
 
+async function updateEntraIdUser(entraSub, passwordProfileData) {
+  try {
+    const { accessToken } = await getClientAppToken(tokenRequest);
+    const endpointUrl = `${apiConfig.uri}/users/${entraSub}`;
+    const userAccount = await callGraphApi(endpointUrl, 'PATCH', accessToken, passwordProfileData);
+    return userAccount;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 module.exports = {
   getAllEntraUsers,
   getEntraAccountByEmail,
   createEntraIdUserAccount,
   createTemporaryAccessPass,
+  getEntraAccountByEntraSub,
+  updateEntraIdUser,
 };

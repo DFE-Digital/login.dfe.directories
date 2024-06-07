@@ -13,6 +13,7 @@ const users = require('./app/user/api');
 const devices = require('./app/devices/api');
 const userCodes = require('./app/userCodes/api');
 const invitations = require('./app/invitations/api');
+const entraId = require('./app/entraId/api');
 const dev = require('./app/dev');
 const healthCheck = require('login.dfe.healthcheck');
 const { getErrorHandler } = require('login.dfe.express-error-handling');
@@ -51,6 +52,7 @@ app.use('/', users);
 app.use('/devices', devices);
 app.use('/userCodes', userCodes);
 app.use('/invitations', invitations);
+app.use('/entraId', entraId);
 
 // Error handing
 app.use(getErrorHandler({

@@ -18,7 +18,7 @@ const createUser = async (req, res) => {
       return res.status(409).send();
     }
 
-    const user = await create(req.body.email, req.body.password, req.body.firstName, req.body.lastName, req.body.legacy_username, req.body.phone_number, req.header('x-correlation-id'));
+    const user = await create(req.body.email, req.body.password, req.body.firstName, req.body.lastName, req.body.legacy_username, req.body.phone_number, req.header('x-correlation-id'), req.body.isMigrated, req.body.entraSub);
     if (config.toggles && config.toggles.notificationsEnabled) {
       const serviceNotificationsClient = new ServiceNotificationsClient({
         connectionString: config.notifications.connectionString,

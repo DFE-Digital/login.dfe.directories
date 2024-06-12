@@ -4,6 +4,8 @@ const { asyncWrapper } = require('login.dfe.express-error-handling');
 const config = require('../../../infrastructure/config');
 
 const patchEntraIdUser = require('./patchEntraIdUser');
+const getCreateAccountUrl = require('./getCreateAccountUrl');
+const getEntraIdUser = require('./getEntraIdUser');
 
 const router = express.Router();
 
@@ -14,7 +16,9 @@ const routeExport = () => {
   }
 
   // Map routed to functions.
-  router.patch('/:entraSub', asyncWrapper(patchEntraIdUser));
+  // router.get('/createAccountUrl', asyncWrapper(getCreateAccountUrl));
+  router.get('/users/:userId', asyncWrapper(getEntraIdUser));
+  router.patch('/users/:entraSub', asyncWrapper(patchEntraIdUser));
   return router;
 };
 

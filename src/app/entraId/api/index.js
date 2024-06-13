@@ -4,7 +4,6 @@ const { asyncWrapper } = require('login.dfe.express-error-handling');
 const config = require('../../../infrastructure/config');
 
 const patchEntraIdUser = require('./patchEntraIdUser');
-const getCreateAccountUrl = require('./getCreateAccountUrl');
 const getEntraIdUser = require('./getEntraIdUser');
 
 const router = express.Router();

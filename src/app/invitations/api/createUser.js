@@ -33,11 +33,15 @@ const createUser = async (req, res) => {
       return res.status(404).send();
     }
 
+    let entraIdUserAccount = {
+      id: req.body.entraSub
+    };
+
+    /* TODO: this functionality is for Graph API registration with Entra -  this code should be cleaned if Graph API solution is aborted
+    let entraIdOtp;
     // If no password is provided in the body, it implies that user is attempting to create an account in Entra
     // and not just a standard DSI account.
-  
-    let entraIdUserAccount;
-    let entraIdOtp;
+
     if(!req.body.password){
     //create entra id account
     
@@ -63,7 +67,8 @@ const createUser = async (req, res) => {
     //create entraID account 
      entraIdUserAccount = await createEntraIdUserAccount(requestedEntraIdAccount)
   }
-    const user = await userStorage.create(invitation.email, password, invitation.firstName, invitation.lastName, null, null, req.header('x-correlation-id'), invitation.isMigrated,entraIdUserAccount.id );
+    */
+    const user = await userStorage.create(invitation.email, password, invitation.firstName, invitation.lastName, null, null, req.header('x-correlation-id'), invitation.isMigrated,entraIdUserAccount?.id );
 
     const completedInvitation = Object.assign(invitation, { isCompleted: true, userId: user.id });
     await updateInvitation(completedInvitation);
@@ -73,12 +78,14 @@ const createUser = async (req, res) => {
     });
     await serviceNotificationsClient.notifyUserUpdated(safeUser(user));
 
+  /* TODO: this functionality is for Graph API registration with Entra -  this code should be cleaned if Graph API solution is aborted
     //send OTP EMAIL 
     const servicesUrl = config.hostingEnvironment.servicesUrl || 'https://tran-services.signin.education.gov.uk/';
     const notificationClient = new NotificationClient({
       connectionString: config.notifications.connectionString,
     });
     await notificationClient.sendEntraIdOTP(user.email, user.given_name, user.family_name,entraIdOtp, servicesUrl); 
+    */
 
     const publicApiClient = new PublicApiClient({
       connectionString: config.notifications.connectionString,

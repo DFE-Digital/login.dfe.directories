@@ -16,8 +16,8 @@ async function getAllEntraUsers() {
 async function getEntraAccountByEmail(email) {
   try {
     const { accessToken } = await getClientAppToken(tokenRequest);
-
-    const result = await callGraphApi(`${apiConfig.uri}/users?$filter=mail eq '${email}'`, 'GET', accessToken);
+    const encodedEmail = encodeURIComponent(email);
+    const result = await callGraphApi(`${apiConfig.uri}/users?$filter=mail eq '${encodedEmail}'`, 'GET', accessToken);
     return result.value;
   } catch (error) {
     console.log('Error fetching users:', error);

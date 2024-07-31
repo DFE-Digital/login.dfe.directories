@@ -330,7 +330,7 @@ const authenticate = async (username, password, correlationId) => {
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
 
-    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
+    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required, is_entra, entra_oid, entra_linked FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
       replacements: { email: username },
       type: db.user.sequelize.QueryTypes.SELECT,
     });
@@ -395,6 +395,9 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     phone_number,
     isMigrated,
     password_reset_required: false,
+    is_entra: false,
+    entra_oid: null,
+    entra_linked: null,
   };
 
   await db.user.create(newUser);

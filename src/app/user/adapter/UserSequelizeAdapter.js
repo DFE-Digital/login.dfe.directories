@@ -369,9 +369,10 @@ const authenticate = async (username, password, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated) => {
+const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated, entraOid) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
-  if (!username || !password) {
+
+  if (!username || (!password && !entraOid)) {
     return null;
   }
 
@@ -381,7 +382,8 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   }
 
   const salt = generateSalt();
-  const derivedKey = await hashPassword(activePasswordPolicyCode, password, salt);
+  const derivedKey = password ?  await hashPassword(activePasswordPolicyCode, password, salt) : 'none'
+
   const id = uuid();
 
   const newUser = {
@@ -395,12 +397,12 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     phone_number,
     isMigrated,
     password_reset_required: false,
-    is_entra: false,
-    entra_oid: null,
-    entra_linked: null,
+    is_entra: !!entraOid,
+    entra_oid: entraOid || null,
+    entra_linked: entraOid ? Sequelize.fn('GETDATE') : null
   };
 
-  await db.user.create(newUser);
+  const  createdUser = await db.user.create(newUser);
 
   await db.userPasswordPolicy.create({
     id: uuid(),
@@ -419,6 +421,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   }
 
   newUser.id = id;
+  newUser.entra_linked = createdUser.entra_linked;
   return newUser;
 };
 

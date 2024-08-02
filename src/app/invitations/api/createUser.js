@@ -1,13 +1,12 @@
 'use strict';
 
-const config = require('./../../../infrastructure/config');
-const logger = require('./../../../infrastructure/logger');
-const { getUserInvitation, updateInvitation } = require('./../data');
-const userStorage = require('./../../user/adapter');
-const { safeUser } = require('./../../../utils');
-// const NotificationClient = require('login.dfe.notifications.client');
 const PublicApiClient = require('login.dfe.public-api.jobs.client');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
+const config = require('../../../infrastructure/config');
+const logger = require('../../../infrastructure/logger');
+const { getUserInvitation, updateInvitation } = require('../data');
+const userStorage = require('../../user/adapter');
+const { safeUser } = require('../../../utils');
 
 const createUser = async (req, res) => {
   try {

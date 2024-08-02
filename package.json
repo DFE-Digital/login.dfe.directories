@@ -45,7 +45,7 @@
     "redis": "^4.6.10",
     "sequelize": "^6.36.0",
     "simpl-schema": "^3.4.1",
-    "tedious": "^16.6.0",
+    "tedious": "^18.3.0",
     "uuid": "^9.0.1",
     "winston": "^3.4.0",
     "xpath": "^0.0.34"

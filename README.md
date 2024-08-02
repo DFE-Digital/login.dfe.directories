@@ -133,25 +133,29 @@ will return as ABC123.
  
 To determine which user adapter to use, an adapter type must be added of one of the following supported types:
 
-1) file - *uses users.json in app_data*
-2) mongo
-3) redis
-4) azure
+1) sequelize
+2) redis
+3) azure
 
 This can then be in the following format for each type
 
 ```
 adapter: {
-  type: 'file'
-},
-```
-
-
-```
-adapter: {
-  "type": "mongo",
+  "type": "sequelize",
   "params": {
-    "mongoConnection": ""
+    "host": "",
+      "username": "",
+      "password": "",
+      "dialect": "",
+      "name": "",
+      "encrypt": ,
+      "schema": "",
+      "pool": {
+        "max": ,
+        "min": ,
+        "acquire": ,
+        "idle": 
+      }
   }
 }
 ```

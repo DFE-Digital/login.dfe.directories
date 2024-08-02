@@ -11,9 +11,6 @@ const getUserAdapter = () => {
     return require('./UserSequelizeAdapter');
   }
 
-  if (userAdapterType.type === 'file') {
-    return require('./UserFileAdapter');
-  }
   if (userAdapterType.type === 'redis') {
     assert(userAdapterType.params.redisurl, 'redisurl is required');
     return require('./UserRedisAdapter');

@@ -1,13 +1,15 @@
 const { v4: uuid } = require('uuid');
 const { hashPassword, getLatestPolicyCode } = require('login.dfe.password-policy');
-const { create, findByUsername } = require('../../../../src/app/user/adapter/UserSequelizeAdapter');
+
+const { create } = require('../../../../src/app/user/adapter/UserSequelizeAdapter');
+const { findByUsernameHelper } = require('../../../../src/app/user/adapter/userSequelizeHelpers/findByUsernameHelper');
 const generateSalt = require('../../../../src/app/user/utils/generateSalt');
 const db = require('../../../../src/infrastructure/repository/db');
 
-jest.mock('../../../../src/app/user/adapter/UserSequelizeAdapter', () => ({
-  ...jest.requireActual('../../../../src/app/user/adapter/UserSequelizeAdapter'),
-  findByUsername: jest.fn(),
+jest.mock('../../../../src/app/user/adapter/userSequelizeHelpers/findByUsernameHelper', () => ({
+  findByUsernameHelper: jest.fn(),
 }));
+
 jest.mock('../../../../src/infrastructure/repository/db', () => ({
   user: {
     create: jest.fn().mockResolvedValue({ entra_linked: new Date() }),
@@ -38,16 +40,19 @@ jest.mock('login.dfe.password-policy', () => ({
   hashPassword: jest.fn(),
 }));
 
-describe('create', () => {
+jest.mock('sequelize');
+
+describe('userSequelizeAdapter.create', () => {
   beforeEach(() => {
     uuid.mockReturnValue('newId');
     generateSalt.mockReturnValue('salt');
     hashPassword.mockResolvedValue('hashedPassword');
     getLatestPolicyCode.mockReturnValue('v3');
-    findByUsername.mockResolvedValue('test');
+    findByUsernameHelper.mockResolvedValue(null);
   });
   afterEach(() => {
     jest.clearAllMocks();
+    jest.clearAllTimers();
   });
 
   it('should return null if username is missing', async () => {
@@ -58,6 +63,16 @@ describe('create', () => {
   it('should return null if both username and password are missing', async () => {
     const result = await create(null, null, 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', false, 'entraOid');
     expect(result).toBeNull();
+  });
+
+  it('should return the existing user record if already exists', async () => {
+    const existingUserRecord = {
+      given_name: 'Test',
+      family_name: 'User',
+    };
+    findByUsernameHelper.mockResolvedValue(existingUserRecord);
+    const result = await create('john.doe@test.com', 'password', 'John', 'Doe', null, null, 'correlationId', false, undefined);
+    expect(result).toBe(existingUserRecord);
   });
 
   it('should create a new user with hashed password and entra `is_entra` flag set to `false` when `entraOid` is not provided', async () => {

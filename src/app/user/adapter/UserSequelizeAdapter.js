@@ -16,6 +16,7 @@ const {
   userLegacyUsername,
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
+const { findByUsernameHelper } = require('./userSequelizeHelpers/findByUsernameHelper');
 
 const activePasswordPolicyCode = process.env.POLICY_CODE ?? getLatestPolicyCode();
 const passwordHistoryLimit = 3;
@@ -42,27 +43,8 @@ const find = async (id, correlationId) => {
   }
 };
 
-const findByUsername = async (username, correlationId) => {
-  try {
-    logger.info('Get user for request', { correlationId });
-    const userEntity = await db.user.findOne({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        email: {
-          [Op.eq]: username,
-        },
-      },
-    });
-    if (!userEntity) {
-      return null;
-    }
+const findByUsername = async (username, correlationId) =>  await findByUsernameHelper(username, correlationId);
 
-    return userEntity;
-  } catch (e) {
-    logger.error(`error getting user with username - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
 const removePasswordHistory = async (recid, uid, correlationId) => {
   try {
     logger.info(`remove a password history item for user ${recid}`, { correlationId });
@@ -346,7 +328,6 @@ const authenticate = async (username, password, correlationId) => {
 
     if (passwordValid) {
       const [metadata] = await db.user.sequelize.query(`UPDATE [user] SET last_login = '${new Date().toISOString()}', prev_login = '${prevLoggin || new Date().toISOString()}' WHERE sub = '${userEntity[0].sub}'`);
-      console.log(`${metadata} rows were updated`);
     }
     return {
       user: {
@@ -376,7 +357,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     return null;
   }
 
-  const exists = await findByUsername(username);
+  const exists = await findByUsernameHelper(username);
   if (exists) {
     return exists;
   }

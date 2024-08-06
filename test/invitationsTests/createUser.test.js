@@ -1,5 +1,3 @@
-'use strict';
-
 const PublicApiClient = require('login.dfe.public-api.jobs.client');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 const httpMocks = require('node-mocks-http');
@@ -38,6 +36,15 @@ jest.mock('../../src/utils/index', () => ({
 }));
 jest.mock('login.dfe.public-api.jobs.client');
 jest.mock('login.dfe.service-notifications.jobs.client');
+jest.mock('sequelize');
+jest.mock('../../src/infrastructure/repository/db', () => ({
+  user: {
+    create: jest.fn().mockResolvedValue({ entra_linked: new Date() }),
+    findOne: jest.fn(),
+  },
+  userPasswordPolicy: { create: jest.fn() },
+  userLegacyUsername: { create: jest.fn() },
+}));
 
 const serviceNotificationsClient = {
   notifyUserUpdated: jest.fn(),

@@ -60,8 +60,18 @@ describe('userSequelizeAdapter.create', () => {
     expect(result).toBeNull();
   });
 
-  it('should return null if both username and password are missing', async () => {
-    const result = await create(null, null, 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', false, 'entraOid');
+  it('should return null if username and password and entraOid are missing', async () => {
+    const result = await create(null, null, 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', false, null);
+    expect(result).toBeNull();
+  });
+
+  it('should return null if username is present but password and entrOid are missing', async () => {
+    const result = await create('john.doe@test.com', null, 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', false, null);
+    expect(result).toBeNull();
+  });
+
+  it('should return null if username, password and entraOid are all present', async () => {
+    const result = await create('john.doe@test.com', 'password', 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', false, 'entraOid');
     expect(result).toBeNull();
   });
 

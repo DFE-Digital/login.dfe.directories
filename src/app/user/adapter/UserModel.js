@@ -62,6 +62,30 @@ class UserModel {
   set password_reset_required(value) {
     this._password_reset_required = value;
   }
+
+  get is_entra() {
+    return this._is_entra;
+  }
+
+  set is_entra(value) {
+    this._is_entra = value;
+  }
+
+  get entra_oid() {
+    return this._entra_oid;
+  }
+
+  set entra_oid(value) {
+    this._entra_oid = value;
+  }
+
+  get entra_linked() {
+    return this._entra_linked;
+  }
+
+  set entra_linked(value) {
+    this._entra_linked = value;
+  }
 }
 
 module.exports = UserModel;

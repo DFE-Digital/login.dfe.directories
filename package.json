@@ -5,7 +5,7 @@
     "collectCoverage": false,
     "clearMocks": true
   },
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "API to return list of users",
   "dependencies": {
     "@slack/webhook": "^7.0.0",

@@ -16,6 +16,7 @@ const {
   userLegacyUsername,
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
+const { findByUsernameHelper } = require('./userSequelizeHelpers/findByUsernameHelper');
 
 const activePasswordPolicyCode = process.env.POLICY_CODE ?? getLatestPolicyCode();
 const passwordHistoryLimit = 3;
@@ -42,27 +43,8 @@ const find = async (id, correlationId) => {
   }
 };
 
-const findByUsername = async (username, correlationId) => {
-  try {
-    logger.info('Get user for request', { correlationId });
-    const userEntity = await db.user.findOne({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        email: {
-          [Op.eq]: username,
-        },
-      },
-    });
-    if (!userEntity) {
-      return null;
-    }
+const findByUsername = async (username, correlationId) =>  await findByUsernameHelper(username, correlationId);
 
-    return userEntity;
-  } catch (e) {
-    logger.error(`error getting user with username - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
 const removePasswordHistory = async (recid, uid, correlationId) => {
   try {
     logger.info(`remove a password history item for user ${recid}`, { correlationId });
@@ -330,7 +312,7 @@ const authenticate = async (username, password, correlationId) => {
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
 
-    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
+    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required, is_entra, entra_oid, entra_linked FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
       replacements: { email: username },
       type: db.user.sequelize.QueryTypes.SELECT,
     });
@@ -346,7 +328,6 @@ const authenticate = async (username, password, correlationId) => {
 
     if (passwordValid) {
       const [metadata] = await db.user.sequelize.query(`UPDATE [user] SET last_login = '${new Date().toISOString()}', prev_login = '${prevLoggin || new Date().toISOString()}' WHERE sub = '${userEntity[0].sub}'`);
-      console.log(`${metadata} rows were updated`);
     }
     return {
       user: {
@@ -369,19 +350,21 @@ const authenticate = async (username, password, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated) => {
+const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated, entraOid) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
-  if (!username || !password) {
+
+  if (!username || (!password && !entraOid) || (password && entraOid)) {
     return null;
   }
 
-  const exists = await findByUsername(username);
+  const exists = await findByUsernameHelper(username);
   if (exists) {
     return exists;
   }
 
   const salt = generateSalt();
-  const derivedKey = await hashPassword(activePasswordPolicyCode, password, salt);
+  const derivedKey = password ?  await hashPassword(activePasswordPolicyCode, password, salt) : 'none'
+
   const id = uuid();
 
   const newUser = {
@@ -395,9 +378,12 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     phone_number,
     isMigrated,
     password_reset_required: false,
+    is_entra: !!entraOid,
+    entra_oid: entraOid || null,
+    entra_linked: entraOid ? Sequelize.fn('GETDATE') : null
   };
 
-  await db.user.create(newUser);
+  const  createdUser = await db.user.create(newUser);
 
   await db.userPasswordPolicy.create({
     id: uuid(),
@@ -416,6 +402,7 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
   }
 
   newUser.id = id;
+  newUser.entra_linked = createdUser.entra_linked;
   return newUser;
 };
 

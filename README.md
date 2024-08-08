@@ -108,7 +108,10 @@ Then a corresponding User_[Sub] record should be created as shown
   "job_title": "Administrative Assistant",
 	"password": "xxxx",
 	"salt": "zzzzzzz",
-  "password_reset_required": false
+  "password_reset_required": false,
+  "is_entra": false,
+  "entra_oid": null,
+  "entra_linked": null
 }
 ```
 
@@ -130,25 +133,29 @@ will return as ABC123.
  
 To determine which user adapter to use, an adapter type must be added of one of the following supported types:
 
-1) file - *uses users.json in app_data*
-2) mongo
-3) redis
-4) azure
+1) sequelize
+2) redis
+3) azure
 
 This can then be in the following format for each type
 
 ```
 adapter: {
-  type: 'file'
-},
-```
-
-
-```
-adapter: {
-  "type": "mongo",
+  "type": "sequelize",
   "params": {
-    "mongoConnection": ""
+    "host": "",
+      "username": "",
+      "password": "",
+      "dialect": "",
+      "name": "",
+      "encrypt": ,
+      "schema": "",
+      "pool": {
+        "max": ,
+        "min": ,
+        "acquire": ,
+        "idle": 
+      }
   }
 }
 ```

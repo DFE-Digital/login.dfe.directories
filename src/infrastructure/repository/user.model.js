@@ -57,6 +57,19 @@ function model(sequelize) {
       allowNull: false,
       defaultValue: Sequelize.BOOLEAN,
     },
+    is_entra: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: Sequelize.BOOLEAN,
+    },
+    entra_oid: {
+      type: Sequelize.UUID,
+      allowNull: true,
+    },
+    entra_linked: {
+      type: 'DateTime',
+      allowNull: true,
+    },
   };
 
   const options = {

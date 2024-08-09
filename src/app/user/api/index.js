@@ -24,7 +24,8 @@ const searchV2 = require('./searchV2');
 const getUserPasswordPolicies = require('./getUserPasswordPolicies');
 const passwordHistory = require('./getPasswordHistory');
 const matchedPassphrase = require('./matchedPassphrase');
-const findByEntraOid = require('./findByEntraOid');
+const findByEntraOid = require('./findByEntraOidHandler');
+const linkDsiUserWithEntra = require('./linkDsiUserWithEntraHandler');
 
 const router = express.Router();
 
@@ -61,6 +62,7 @@ const routeExport = () => {
   router.delete('/users/:id/devices', asyncWrapper(deleteDevice));
 
   router.get('/users/by-entra-oid/:entraOid', asyncWrapper(findByEntraOid));
+  router.post('/users/:uid/link-entra-oid/:entraOid', asyncWrapper(linkDsiUserWithEntra));
 
   return router;
 };

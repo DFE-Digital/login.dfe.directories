@@ -17,6 +17,7 @@ const {
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
 const { findByUsernameHelper } = require('./userSequelizeHelpers/findByUsernameHelper');
+const { findUserByEntraOidHelper} = require('./userSequelizeHelpers/findUserByEntraOidHelper');
 
 const activePasswordPolicyCode = process.env.POLICY_CODE ?? getLatestPolicyCode();
 const passwordHistoryLimit = 3;
@@ -44,6 +45,8 @@ const find = async (id, correlationId) => {
 };
 
 const findByUsername = async (username, correlationId) =>  await findByUsernameHelper(username, correlationId);
+
+const findByEntraOid = async (entraOid, correlationId) =>  await findUserByEntraOidHelper(entraOid, correlationId);
 
 const removePasswordHistory = async (recid, uid, correlationId) => {
   try {
@@ -523,4 +526,5 @@ module.exports = {
   update,
   findByLegacyUsername,
   getLegacyUsernames,
+  findByEntraOid,
 };

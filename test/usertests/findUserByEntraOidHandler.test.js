@@ -1,5 +1,5 @@
 const httpMocks = require('node-mocks-http');
-const findByEntraOid = require('../../src/app/user/api/findByEntraOid');
+const findByEntraOid = require('../../src/app/user/api/findByEntraOidHandler');
 
 const { addLegacyUsernames } = require('../../src/app/user/api/helpers');
 

@@ -5,10 +5,14 @@ const { isUuid } = require('./helpers');
 const config = require('../../../infrastructure/config');
 const { safeUser } = require('../../../utils');
 
+/**
+ * POST body with {"entraOid" : "", lastName": "", "firstName": ""}
+ * lastName & firstName optional.
+ */
 const linkDsiUserWithEntra = async (req, res) => {
   const correlationId = req.header('x-correlation-id');
-  const { uid, entraOid } = req.params;
-  const { firstName, lastName } = req.query || {};
+  const { uid } = req.params;
+  const { firstName, lastName, entraOid } = req.body || {};
 
   if (!uid || !entraOid) {
     return res.status(404).send();

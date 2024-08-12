@@ -62,7 +62,7 @@ const routeExport = () => {
   router.delete('/users/:id/devices', asyncWrapper(deleteDevice));
 
   router.get('/users/by-entra-oid/:entraOid', asyncWrapper(findByEntraOid));
-  router.post('/users/:uid/link-entra-oid/:entraOid', asyncWrapper(linkDsiUserWithEntra));
+  router.post('/users/:uid/link-entra-oid', asyncWrapper(linkDsiUserWithEntra));
 
   return router;
 };

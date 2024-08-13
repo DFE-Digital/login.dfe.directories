@@ -30,12 +30,14 @@ const linkDsiUserWithEntra = async (req, res) => {
 
   const safeEntity = safeUser(updatedEntity);
 
+  // serviceNotificationsClient ultimately submits information to redis via Kue.
+  // This is then picked up by `login.dfe.jobs` and dispatched accordingly.
   if (config.toggles && config.toggles.notificationsEnabled) {
     const serviceNotificationsClient = new ServiceNotificationsClient({
       connectionString: config.notifications.connectionString,
     });
     const jobId = await serviceNotificationsClient.notifyUserUpdated(safeEntity);
-    logger.info(`Send user updated notification for ${updatedEntity.sub} with job id ${jobId} (reason: patch)`, { correlationId });
+    logger.info(`Send user updated notification for ${updatedEntity.sub} with job id ${jobId} (reason: linkDsiUserWithEntra)`, { correlationId });
   }
 
   res.send(safeEntity);

@@ -1,6 +1,0 @@
-{
-    "name": "login.dfe.directories",
-    "script": "src/index.js",
-    "instances": "max",
-    "exec_mode": "cluster"
-  }

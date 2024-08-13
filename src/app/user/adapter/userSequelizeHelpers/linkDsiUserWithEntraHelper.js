@@ -10,9 +10,9 @@ const linkUserWithEntraOid = async (uid, entraOid, firstName, lastName, correlat
       return null;
     }
 
-    // If the entraOid is already linked to a user then don't permit it to be assigned to someone else.
     const alreadyLinkedUserEntity = await findUserByEntraOidHelper(entraOid, correlationId);
     if (alreadyLinkedUserEntity) {
+      logger.error(`Cannot link entra oid '${entraOid}' with DSI user '${userEntity.sub}' because it has already been linked to a DSI user '${alreadyLinkedUserEntity.sub}' (correlation id: ${correlationId})`, { correlationId });
       return null;
     }
 

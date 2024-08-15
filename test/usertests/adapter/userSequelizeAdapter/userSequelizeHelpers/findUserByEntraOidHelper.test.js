@@ -10,7 +10,7 @@ jest.mock('../../../../../src/infrastructure/repository/db', () => ({
 }));
 
 const Sequelize = require('sequelize');
-const { findUserByEntraOidHelper } = require('../../../../../src/app/user/adapter/userSequelizeHelpers/findUserByEntraOidHelper');
+const findUserByEntraOidHelper = require('../../../../../src/app/user/adapter/userSequelizeHelpers/findUserByEntraOidHelper');
 const logger = require('../../../../../src/infrastructure/logger');
 const db = require('../../../../../src/infrastructure/repository/db');
 

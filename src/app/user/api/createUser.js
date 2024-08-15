@@ -1,24 +1,43 @@
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
-const { findByUsername, create } = require('../adapter');
+const { findByUsername, create, findByEntraOid } = require('../adapter');
 const logger = require('../../../infrastructure/logger');
 const config = require('../../../infrastructure/config');
 const { safeUser } = require('../../../utils');
 
 const createUser = async (req, res) => {
   const correlationId = req.header('x-correlation-id');
-  const PolicyCode = 'v3';
+
   try {
-    if (!req.body.email || !req.body.password || !req.body.firstName || !req.body.lastName) {
+    const {
+      email,
+      password,
+      entraOid,
+      firstName,
+      lastName,
+      legacy_username,
+      phone_number,
+    } = req.body;
+
+    if ((!email || !firstName || !lastName) || (!password && !entraOid) || (password && entraOid)) {
       return res.status(400).send();
     }
 
-    const existingUser = await findByUsername(req.body.email, correlationId);
+    const existingUser = await findByUsername(email, correlationId);
 
     if (existingUser) {
       return res.status(409).send();
     }
 
-    const user = await create(req.body.email, req.body.password, req.body.firstName, req.body.lastName, req.body.legacy_username, req.body.phone_number, req.header('x-correlation-id'));
+    if (entraOid) {
+      const existingUserWithEntraOid = await findByEntraOid(entraOid);
+      if (existingUserWithEntraOid) {
+        logger.error(`Unable to create the user as the entraOid is already associated with user '${existingUserWithEntraOid.sub}' (correlationId: '${correlationId}')`, { correlationId });
+        return res.status(409).send();
+      }
+    }
+
+    const user = await create(email, password, firstName, lastName, legacy_username, phone_number, req.header('x-correlation-id'), false, entraOid);
+
     if (config.toggles && config.toggles.notificationsEnabled) {
       const serviceNotificationsClient = new ServiceNotificationsClient({
         connectionString: config.notifications.connectionString,

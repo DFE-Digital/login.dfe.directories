@@ -291,30 +291,6 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
   }
 };
 
-const getInvitationIdAssociatedToDevice = async (type, serialNumber, correlationId) => {
-  try {
-    const deviceEntity = await db.invitationDevice.findOne({
-      where: {
-        deviceType: {
-          [Op.eq]: type,
-        },
-        serialNumber: {
-          [Op.eq]: serialNumber,
-        },
-      },
-      include: ['invitation'],
-    });
-
-    return deviceEntity && !deviceEntity.invitation.completed ? deviceEntity.invitation.id : null;
-  } catch (e) {
-    logger.error(`Error finding invitation associated to device ${type}/${serialNumber} - ${e.message}`, {
-      correlationId,
-      stack: e.stack,
-    });
-    throw e;
-  }
-};
-
 module.exports = {
   list,
   deleteInvitation,
@@ -322,5 +298,4 @@ module.exports = {
   getUserInvitation,
   updateInvitation,
   findInvitationForEmail,
-  getInvitationIdAssociatedToDevice,
 };

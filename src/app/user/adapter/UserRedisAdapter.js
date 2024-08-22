@@ -36,6 +36,20 @@ const findByEmail = async (email) => {
   return user || null;
 };
 
+const findByEntraId = async (entraOid) => {
+  const result = await client.get(`User_entraOid_${entraOid}`);
+  if (!result) {
+    return null;
+  }
+
+  const userResult = JSON.parse(result);
+  if (!userResult) {
+    return null;
+  }
+  const user = await findById(userResult.sub);
+  return user || null;
+};
+
 const findByUsername = async (username, correlationId) => {
   try {
     logger.info(`Get user by username for request: ${correlationId}`, { correlationId });
@@ -46,7 +60,17 @@ const findByUsername = async (username, correlationId) => {
   }
 };
 
-const createUser = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId) => {
+const findByEntraOid = async (entraOid, correlationId) => {
+  try {
+    logger.info(`Get user by entraOid for request: ${correlationId}`, { correlationId });
+    return await findByEntraId(entraOid);
+  } catch (e) {
+    logger.error(`Get user by entraOid failed for request ${correlationId} error: ${e}`, { correlationId });
+    throw (e);
+  }
+};
+
+const createUser = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, entraOid = null) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || !password) {
@@ -72,11 +96,15 @@ const createUser = async (username, password, firstName, lastName, legacyUsernam
     password: encryptedPassword,
     legacy_username: legacyUsername,
     phone_number: phone_number,
+    entra_oid: entraOid,
   };
 
   const content = JSON.stringify(newUser);
   await client.set(`User_${id}`, content);
   await client.set(`User_e_${username}`, JSON.stringify({ sub: id }));
+  if (newUser.entra_oid) {
+    await client.set(`User_entraOid_${entraOid}`, JSON.stringify({ sub: id }));
+  }
 
   let users = await client.get('Users');
   users = JSON.parse(users);
@@ -142,7 +170,7 @@ const find = async (id, correlationId) => {
   }
 };
 
-const create = async (username, password, firstName, lastName, phone_number, correlationId) => createUser(username, password, firstName, lastName, phone_number, correlationId);
+const create = async (username, password, firstName, lastName, phone_number, correlationId, entraOid = null) => createUser(username, password, firstName, lastName, phone_number, correlationId, entraOid);
 
 const findAllKeys = async () => {
   const keys = [];
@@ -162,7 +190,6 @@ const list = async (page = 1, pageSize = 10, changedAfter = undefined, correlati
   logger.info(`Get user list for request: ${correlationId}`, { correlationId });
 
   const userList = await findAllKeys();
-
 
   if (!userList) {
     return null;
@@ -232,12 +259,12 @@ const authenticate = async (username, password, correlationId) => {
   if (!user) return null;
   const request = promisify(crypto.pbkdf2);
   const userPasswordPolicyEntity = await user.getUserPasswordPolicy();
-  const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u=>u.policyCode === 'v3').length>0 ? 'v3' : 'v2';
+  const userPasswordPolicyCode = userPasswordPolicyEntity.filter(u => u.policyCode === 'v3').length > 0 ? 'v3' : 'v2';
   const iterations = userPasswordPolicyCode === latestPasswordPolicy ? 120000 : 10000;
   user.prev_login = user.last_login;
   const saltBuffer = Buffer.from(user.salt, 'utf8');
   const derivedKey = await request(password, saltBuffer, iterations, 512, 'sha512');
-  
+
   if (derivedKey.toString('base64') === user.password) {
     return user;
   }
@@ -291,4 +318,5 @@ module.exports = {
   update,
   findByLegacyUsername,
   getLegacyUsernames,
+  findByEntraOid,
 };

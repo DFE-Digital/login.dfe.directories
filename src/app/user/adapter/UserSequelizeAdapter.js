@@ -16,34 +16,19 @@ const {
   userLegacyUsername,
 } = require('../../../infrastructure/repository');
 const generateSalt = require('../utils/generateSalt');
+
 const { findByUsernameHelper } = require('./userSequelizeHelpers/findByUsernameHelper');
+const findUserByEntraOidHelper = require('./userSequelizeHelpers/findUserByEntraOidHelper');
+const findUserById = require('./userSequelizeHelpers/findUserByIdHelper');
+const linkDsiUserWithEntra = require('./userSequelizeHelpers/linkDsiUserWithEntraHelper');
 
 const activePasswordPolicyCode = process.env.POLICY_CODE ?? getLatestPolicyCode();
 const passwordHistoryLimit = 3;
 
-const find = async (id, correlationId) => {
-  try {
-    logger.info(`Get user for request ${correlationId}`, { correlationId });
-    const userEntity = await db.user.findOne({
-      tableHint: TableHints.NOLOCK,
-      where: {
-        sub: {
-          [Op.eq]: id,
-        },
-      },
-    });
-    if (!userEntity) {
-      return null;
-    }
-
-    return userEntity;
-  } catch (e) {
-    logger.error(`error getting user id:${id} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
-    throw e;
-  }
-};
-
+const find = async (id, correlationId) => await findUserById(id, correlationId);
 const findByUsername = async (username, correlationId) =>  await findByUsernameHelper(username, correlationId);
+const findByEntraOid = async (entraOid, correlationId) =>  await findUserByEntraOidHelper(entraOid, correlationId);
+const linkUserWithEntraOid = async(uid, entraOid, firstName, lastName, correlationId) => await linkDsiUserWithEntra(uid, entraOid, firstName, lastName, correlationId);
 
 const removePasswordHistory = async (recid, uid, correlationId) => {
   try {
@@ -523,4 +508,6 @@ module.exports = {
   update,
   findByLegacyUsername,
   getLegacyUsernames,
+  findByEntraOid,
+  linkUserWithEntraOid,
 };

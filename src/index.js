@@ -18,9 +18,9 @@ const healthCheck = require('login.dfe.healthcheck');
 const { getErrorHandler } = require('login.dfe.express-error-handling');
 const configSchema = require('./infrastructure/config/schema');
 
+const { entraExternalAuthProvider } = require('login.dfe.entra-auth-extensions/provider');
 
-https.globalAgent.maxSockets = http.globalAgent.maxSockets =
-  config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
+https.globalAgent.maxSockets = http.globalAgent.maxSockets = config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
 
 configSchema.validate();
 
@@ -32,6 +32,18 @@ app.use(alwaysOnFilter());
 
 app.use('/healthcheck', healthCheck({
   config,
+}));
+
+app.use(entraExternalAuthProvider({
+  msal: {
+    cloudInstance: config.entra.cloudInstance,
+    tenantId: config.entra.tenantId,
+    clientId: config.entra.clientId,
+    clientSecret: config.entra.clientSecret,
+  },
+  graphApi: {
+    endpoint: config.entra.graphEndpoint,
+  },
 }));
 
 if (config.hostingEnvironment.useDevViews) {

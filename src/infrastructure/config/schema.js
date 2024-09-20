@@ -115,11 +115,6 @@ const togglesSchema = new SimpleSchema({
 });
 
 const entraSchema = new SimpleSchema({
-  useEntraForAccountRegistration: {
-    type: Boolean,
-    optional: true,
-    defaultValue: false,
-  },
   cloudInstance: {
     type: String,
     optional: true,

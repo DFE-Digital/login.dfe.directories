@@ -1,7 +1,6 @@
 const logger = require('./../../../infrastructure/logger');
 const adapter = require('./../adapter');
 const { safeUser } = require('./../../../utils');
-const { getUserDevices } = require('./../devices');
 const { listUsersCodes } = require('./../userCodes');
 
 const extractPageNumber = (req) => {
@@ -47,12 +46,6 @@ const getSafePageOfUsers = async (pageNumber, pageSize, changedAfter) => {
     numberOfPages: pageOfUsers ? pageOfUsers.numberOfPages : 0,
   };
 };
-const addDevicesToUsers = async (pageOfUsers, correlationId) => {
-  for (let i = 0; i < pageOfUsers.users.length; i++) {
-    const user = pageOfUsers.users[i];
-    user.devices = await getUserDevices(user.sub.toLowerCase(), correlationId);
-  }
-};
 const addLegacyUsernames = async (pageOfUsers, correlationId) => {
   const uids = pageOfUsers.users.map(u => u.sub);
   const legacyUsernames = await adapter.getLegacyUsernames(uids, correlationId);
@@ -95,9 +88,6 @@ const list = async (req, res) => {
   try {
     const safePageOfUsers = await getSafePageOfUsers(pageNumber, pageSize, changedAfter);
 
-    if (include.find(x => x.toLowerCase() === 'devices')) {
-      await addDevicesToUsers(safePageOfUsers, correlationId);
-    }
     if (include.find(x => x.toLowerCase() === 'legacyusernames')) {
       await addLegacyUsernames(safePageOfUsers, correlationId);
     }

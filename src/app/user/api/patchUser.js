@@ -50,7 +50,7 @@ const patchUser = async (req, res) => {
   }
 
   const nameDetailsChanged = ['given_name', 'family_name'].some((property) => property in req.body && req.body[property].trim().toLowerCase() !== user[property].trim().toLowerCase());
-  const emailAddrressChanged = !!req.body.email && req.body.email.trim().toLowerCase() !== user.email.trim().toLowerCase();
+  const emailAddressChanged = !!req.body.email && req.body.email.trim().toLowerCase() !== user.email.trim().toLowerCase();
 
   // Patch user
   const updatedUser = Object.assign(userModel, req.body);
@@ -68,6 +68,7 @@ const patchUser = async (req, res) => {
   if (!!user.is_entra && !!user.entra_oid) {
     let nameChangeFailed = false;
     let emailChangeFailed = false;
+    const errorMessage = { type: 'error', message: 'Unable to update user record, there was an error with Entra' };
 
     if (nameDetailsChanged === true) {
       try {
@@ -82,31 +83,43 @@ const patchUser = async (req, res) => {
       }
     }
 
-    if (emailAddrressChanged === true) {
+    if (emailAddressChanged === true) {
+      // Changing the email address with Entra results in two calls;
+      // 1. to change the identity email and users email
+      // 2. to change the MFA email address.
+      // If the identity email fails (1) then all changes are reverted, however,
+      // if MFA fails (2) then the changes are not reverted.
       try {
         await req.externalAuth.changeEmail({
           userId: user.entra_oid,
           emailAddress: updatedUser.email,
         });
       } catch (error) {
+        if (error.name === 'ChangeEmailAddressAuthenticationMethodError') {
+          errorMessage.type = 'ChangeEmailAddressAuthenticationMethodError';
+          errorMessage.message = 'There was an error attempting to change the Entra MFA authentication email';
+        }
         emailChangeFailed = true;
         logger.error(`patchUser req.externalAuth.changeEmail failed for user '${user.sub}' with entraOid ${user.entra_oid} for the reason(s) ${error} (correlationId: '${correlationId}')`, { correlationId });
       }
     }
 
     if (nameChangeFailed === true || emailChangeFailed === true) {
-      await update(
-        updatedUser.sub,
-        nameChangeFailed ? user.given_name : updatedUser.given_name,
-        nameChangeFailed ? user.family_name : updatedUser.family_name,
-        emailChangeFailed ? user.email : updatedUser.email,
-        updatedUser.job_title,
-        updatedUser.phone_number,
-        updatedUser.legacyUsernames,
-        correlationId,
-      );
+      // All error types will revert the changes except for ChangeEmailAddressAuthenticationMethodError which is a failure of the MFA change.
+      if (errorMessage.type !== 'ChangeEmailAddressAuthenticationMethodError') {
+        await update(
+          updatedUser.sub,
+          nameChangeFailed ? user.given_name : updatedUser.given_name,
+          nameChangeFailed ? user.family_name : updatedUser.family_name,
+          emailChangeFailed ? user.email : updatedUser.email,
+          updatedUser.job_title,
+          updatedUser.phone_number,
+          updatedUser.legacyUsernames,
+          correlationId,
+        );
+      }
 
-      return res.status(500).send({ message: 'Unable to update user record, there was an error with Entra' });
+      return res.status(500).send(errorMessage);
     }
   }
 

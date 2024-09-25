@@ -297,4 +297,35 @@ describe('When patching a user', () => {
     expect(req.externalAuth.changeName).toHaveBeenCalledTimes(0);
     expect(res.statusCode).toBe(202);
   });
+
+  it('should handle an error raised by ChangeEmailAddressAuthenticationMethodError', async () => {
+    find.mockReturnValueOnce({
+      id: '9b543631-884c-4b39-86d5-311ad5fc6cce',
+      sub: '9b543631-884c-4b39-86d5-311ad5fc6cce',
+      given_name: 'Jennifer',
+      family_name: 'Potter',
+      email: 'jenny.weasley@dumbledores-army.test',
+      job_title: 'Manager',
+      password: 'some-hashed-data',
+      salt: 'random-salt-value',
+      status: 1,
+      is_entra: true,
+      entra_oid: 'mock-entra-oid',
+    });
+
+    req.externalAuth.changeEmail = () => {
+      const err = new Error('mock-error');
+      err.name = 'ChangeEmailAddressAuthenticationMethodError';
+      throw err;
+    };
+
+    await patchUser(req, res);
+    expect(req.externalAuth.changeName).toHaveBeenCalledTimes(0);
+    expect(res.statusCode).toBe(500);
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(logger.error).toHaveBeenCalledWith(
+      'patchUser req.externalAuth.changeEmail failed for user \'9b543631-884c-4b39-86d5-311ad5fc6cce\' with entraOid mock-entra-oid for the reason(s) ChangeEmailAddressAuthenticationMethodError: mock-error (correlationId: \'correlation-id\')',
+      { correlationId: 'correlation-id' },
+    );
+  });
 });

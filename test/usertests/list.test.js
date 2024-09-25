@@ -63,7 +63,7 @@ describe('when listing users in response to an api request', () => {
 
     listUsersCodes.mockReset().mockReturnValue([
       { code: 'ABC123', type: 'PasswordReset' },
-      { code: '123456', type: 'SmsLogin' },
+      { code: '123456', type: 'UnexpectedCodeType' },
     ]);
   });
 
@@ -219,7 +219,7 @@ describe('when listing users in response to an api request', () => {
         email: 'test@localuser.com',
         codes: [
           { code: 'ABC123', type: 'PasswordReset' },
-          { code: '123456', type: 'SmsLogin' },
+          { code: '123456', type: 'UnexpectedCodeType' },
         ],
       }],
       numberOfPages: 22,

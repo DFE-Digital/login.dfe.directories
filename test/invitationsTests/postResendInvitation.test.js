@@ -109,8 +109,6 @@ describe('When resending an invitation', () => {
 
     await post(req, res);
 
-    console.log('resget', res._getData());
-
     expect(res._getData()).toEqual({
       id: expectedInvitationId,
       email: expectedEmailAddress,

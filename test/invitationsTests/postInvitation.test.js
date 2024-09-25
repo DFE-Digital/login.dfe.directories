@@ -177,8 +177,6 @@ describe('When creating an invitation', () => {
   it('then an invitation email is sent when the record is first created', async () => {
     await post(req, res);
 
-    console.log(sendInvitationStub.mock.calls);
-
     expect(sendInvitationStub.mock.calls[0][0]).toBe(expectedEmailAddress);
     expect(sendInvitationStub.mock.calls[0][1]).toBe(expectedFirstName);
     expect(sendInvitationStub.mock.calls[0][2]).toBe(expectedLastName);

@@ -175,29 +175,6 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
   }
 };
 
-const getInvitationIdAssociatedToDevice = async (type, serialNumber, correlationId) => {
-  if (type !== 'digipass') {
-    return null;
-  }
-
-  let hasMorePages = true;
-  let pageNumber = 1;
-  while (hasMorePages) {
-    const page = await list(pageNumber, 100);
-
-    const invitation = page.invitations.find(i => i.tokenSerialNumber === serialNumber
-      || (i.oldCredentials && i.oldCredentials.tokenSerialNumber === serialNumber));
-    if (invitation && !invitation.isCompleted) {
-      return invitation.id;
-    }
-
-    pageNumber += 1;
-    hasMorePages = pageNumber <= page.numberOfPages;
-  }
-
-  return null;
-};
-
 
 module.exports = {
   list,
@@ -206,5 +183,4 @@ module.exports = {
   getUserInvitation,
   updateInvitation,
   findInvitationForEmail,
-  getInvitationIdAssociatedToDevice,
 };

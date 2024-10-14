@@ -139,8 +139,6 @@ describe('When getting a user code', () => {
 
     await put(req, res);
 
-    console.log('resgetdata', res._getData())
-
     expect(res._getData().code).toBe('ZXY789');
     expect(res._getData().uid).toBe('7654321');
   });

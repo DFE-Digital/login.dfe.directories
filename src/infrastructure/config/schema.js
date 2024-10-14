@@ -104,13 +104,41 @@ const devicesSchema = new SimpleSchema({
 const notificationsSchema = new SimpleSchema({
   connectionString: patterns.redis,
   slackWebHookUrl: String,
-  envName: String
+  envName: String,
 });
 
 const togglesSchema = new SimpleSchema({
   notificationsEnabled: {
     type: Boolean,
     optional: true,
+  },
+});
+
+const entraSchema = new SimpleSchema({
+  cloudInstance: {
+    type: String,
+    optional: true,
+    defaultValue: '',
+  },
+  tenantId: {
+    type: String,
+    optional: true,
+    defaultValue: '',
+  },
+  clientId: {
+    type: String,
+    optional: true,
+    defaultValue: '',
+  },
+  clientSecret: {
+    type: String,
+    optional: true,
+    defaultValue: '',
+  },
+  graphEndpoint: {
+    type: String,
+    optional: true,
+    defaultValue: '',
   },
 });
 
@@ -128,6 +156,7 @@ const schema = new SimpleSchema({
     type: togglesSchema,
     optional: true,
   },
+  entra: entraSchema,
 });
 
 module.exports.validate = () => {

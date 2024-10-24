@@ -297,7 +297,7 @@ const authenticate = async (username, password, correlationId) => {
   try {
     logger.info(`Authenticate user for request: ${correlationId}`, { correlationId });
 
-    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, last_login, salt, status, password_reset_required, is_entra, entra_oid, entra_linked FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
+    const userEntity = await db.user.sequelize.query('SELECT sub, policyCode, password, salt, status, password_reset_required, is_entra, entra_oid, entra_linked FROM [user] u LEFT JOIN user_password_policy upp ON u.sub = upp.uid WHERE email = :email', {
       replacements: { email: username },
       type: db.user.sequelize.QueryTypes.SELECT,
     });
@@ -306,13 +306,9 @@ const authenticate = async (username, password, correlationId) => {
 
     const derivedKey = await hashPasswordWithUserPolicy(password, userEntity[0].salt, userEntity);
     const passwordValid = derivedKey === userEntity[0].password;
-    let prevLoggin = null;
-    if (userEntity[0].last_login !== null) {
-      prevLoggin = userEntity[0].last_login.toISOString();
-    }
-
+    
     if (passwordValid) {
-      const [metadata] = await db.user.sequelize.query(`UPDATE [user] SET last_login = '${new Date().toISOString()}', prev_login = '${prevLoggin || new Date().toISOString()}' WHERE sub = '${userEntity[0].sub}'`);
+      await updateLastLogin(userEntity[0].sub, correlationId)
     }
     return {
       user: {
@@ -323,7 +319,7 @@ const authenticate = async (username, password, correlationId) => {
       passwordValid,
     };
   } catch (e) {
-    logger.error(`failed to authenticate user for request ${correlationId}. Check Audit logs for username. error: ${e}`, { correlationId });
+    logger.error(`failed to authenticate user for request ${correlationId}. Check Audit logs for username. error: ${e}`, { correlationId, stack: e.stack });
     logger.audit({
       type: 'authentication',
       subType: 'login-failed',
@@ -334,6 +330,25 @@ const authenticate = async (username, password, correlationId) => {
     throw (e);
   }
 };
+
+const updateLastLogin = async (uid, correlationId) => {
+  try {
+    await db.user.sequelize.query(
+      `UPDATE [user]
+        SET 
+          prev_login = CASE WHEN last_login is not null THEN last_login ELSE GETUTCDATE() END,
+          last_login = GETUTCDATE()
+        WHERE
+          sub = :user_id`, {
+            replacements: { user_id: uid },
+            type: db.user.sequelize.QueryTypes.UPDATE,
+          }
+    );
+  } catch (e) { 
+    logger.error(`updateLastLogin failed for request ${correlationId} error: ${e}`, { correlationId, stack: e.stack });
+    throw (e);
+  }
+}
 
 const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated, entraOid) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
@@ -510,4 +525,5 @@ module.exports = {
   getLegacyUsernames,
   findByEntraOid,
   linkUserWithEntraOid,
+  updateLastLogin
 };

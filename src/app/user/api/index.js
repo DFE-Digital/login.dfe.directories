@@ -11,9 +11,6 @@ const authenticate = require('./authenticate');
 const changePassword = require('./changePassword');
 const find = require('./find');
 const search = require('./search');
-const getDevices = require('./getDevices');
-const createDevice = require('./createDevice');
-const deleteDevice = require('./deleteDevice');
 const activateUser = require('./activateUser');
 const deactivateUser = require('./deactivateUser');
 const patchUser = require('./patchUser');
@@ -56,10 +53,6 @@ const routeExport = () => {
 
   router.post('/users/:id/deactivate', asyncWrapper(deactivateUser));
   router.post('/users/:id/activate', asyncWrapper(activateUser));
-
-  router.get('/users/:id/devices', asyncWrapper(getDevices));
-  router.post('/users/:id/devices', asyncWrapper(createDevice));
-  router.delete('/users/:id/devices', asyncWrapper(deleteDevice));
 
   router.get('/users/by-entra-oid/:entraOid', asyncWrapper(findByEntraOid));
   router.post('/users/:uid/link-entra-oid', asyncWrapper(linkDsiUserWithEntra));

@@ -306,6 +306,12 @@ const getLegacyUsernames = async (username, correlationId) => {
   throw error;
 };
 
+const updateLastLogin = async (uid, correlationId) => {
+  throw new Error('updateLastLogin is not implemented for Redis Adapter');
+  error.type = 'E_NOTIMPLEMENTED';
+  throw error;
+};
+
 module.exports = {
   getUsers,
   changePassword,
@@ -319,4 +325,5 @@ module.exports = {
   findByLegacyUsername,
   getLegacyUsernames,
   findByEntraOid,
+  updateLastLogin,
 };

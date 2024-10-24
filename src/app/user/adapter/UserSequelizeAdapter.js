@@ -339,7 +339,10 @@ const updateLastLogin = async (uid, correlationId) => {
           prev_login = CASE WHEN last_login is not null THEN last_login ELSE GETUTCDATE() END,
           last_login = GETUTCDATE()
         WHERE
-          sub = '${uid}'`
+          sub = :user_id`, {
+            replacements: { user_id: uid },
+            type: db.user.sequelize.QueryTypes.UPDATE,
+          }
     );
   } catch (e) { 
     logger.error(`updateLastLogin failed for request ${correlationId} error: ${e}`, { correlationId, stack: e.stack });

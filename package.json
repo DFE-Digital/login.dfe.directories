@@ -29,7 +29,7 @@
     "login.dfe.express-error-handling": "github:DFE-Digital/login.dfe.express-error-handling#v3.0.1",
     "login.dfe.healthcheck": "github:DFE-Digital/login.dfe.healthcheck#v3.0.1",
     "login.dfe.jwt-strategies": "github:DFE-Digital/login.dfe.jwt-strategies#v4.1.0",
-    "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#cleanup/remove-unused-devices-feature",
+    "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v5.3.0",
     "login.dfe.password-policy": "1.0.0",
     "login.dfe.public-api.jobs.client": "github:DFE-Digital/login.dfe.public-api.jobs.client#v3.0.2",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",

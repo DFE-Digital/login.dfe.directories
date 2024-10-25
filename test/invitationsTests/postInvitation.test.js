@@ -180,8 +180,7 @@ describe('When creating an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][3]).toBe(expectedInvitationId);
     expect(sendInvitationStub.mock.calls[0][4]).toBe('invite-code');
     expect(sendInvitationStub.mock.calls[0][5]).toBe('Client One');
-    expect(sendInvitationStub.mock.calls[0][6]).toBe(false);
-    expect(sendInvitationStub.mock.calls[0][7]).toBe(true);
+    expect(sendInvitationStub.mock.calls[0][6]).toBe(true);
   });
 
   it('then an invitation email is sent with migration invite template when the record is first created and source is EAS', async () => {
@@ -264,8 +263,7 @@ describe('When creating an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][3]).toBe('existing-invitation-id');
     expect(sendInvitationStub.mock.calls[0][4]).toBe('XYZ987');
     expect(sendInvitationStub.mock.calls[0][5]).toBe('Client One');
-    expect(sendInvitationStub.mock.calls[0][6]).toBe(false);
-    expect(sendInvitationStub.mock.calls[0][7]).toBe(true);
+    expect(sendInvitationStub.mock.calls[0][6]).toBe(true);
   });
 
   it('then it should send status 202', async () => {

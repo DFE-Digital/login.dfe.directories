@@ -216,7 +216,6 @@ describe('When patching an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][4]).toBe('new-code');
     expect(sendInvitationStub.mock.calls[0][5]).toBe('Client One');
     expect(sendInvitationStub.mock.calls[0][6]).toBe(false);
-    expect(sendInvitationStub.mock.calls[0][7]).toBe(false);
   });
 
   // The below two test is not needed any more after commit #3f283f0

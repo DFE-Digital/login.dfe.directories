@@ -8,7 +8,6 @@
   "version": "4.0.0",
   "description": "API to return list of users",
   "dependencies": {
-    "@xmldom/xmldom": "^0.8.10",
     "activedirectory": "^0.7.2",
     "agentkeepalive": "^4.1.4",
     "applicationinsights": "^2.9.1",
@@ -30,7 +29,7 @@
     "login.dfe.express-error-handling": "github:DFE-Digital/login.dfe.express-error-handling#v3.0.1",
     "login.dfe.healthcheck": "github:DFE-Digital/login.dfe.healthcheck#v3.0.1",
     "login.dfe.jwt-strategies": "github:DFE-Digital/login.dfe.jwt-strategies#v4.1.0",
-    "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v5.2.2",
+    "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v5.3.0",
     "login.dfe.password-policy": "1.0.0",
     "login.dfe.public-api.jobs.client": "github:DFE-Digital/login.dfe.public-api.jobs.client#v3.0.2",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
@@ -45,8 +44,7 @@
     "simpl-schema": "^3.4.1",
     "tedious": "^18.3.0",
     "uuid": "^9.0.1",
-    "winston": "^3.4.0",
-    "xpath": "^0.0.34"
+    "winston": "^3.4.0"
   },
   "devDependencies": {
     "eslint": "^8.14.0",

@@ -1,4 +1,4 @@
-const { invitation, invitationDevice, invitationCallback } = require('./../../../infrastructure/repository');
+const { invitation, invitationCallback } = require('./../../../infrastructure/repository');
 const logger = require('./../../../infrastructure/logger');
 const { Op } = require('sequelize');
 const { v4: uuid } = require('uuid');
@@ -14,7 +14,6 @@ const mapEntityToInvitation = (entity) => {
     clientId: entity.originClientId,
     redirectUri: entity.originRedirectUri,
   } : undefined;
-  let device;
   let oldCredentials;
 
 
@@ -24,13 +23,6 @@ const mapEntityToInvitation = (entity) => {
       callback: cbEntity.callbackUrl,
       clientId: cbEntity.clientId,
     }));
-  }
-
-  if (entity.devices && entity.devices.length > 0) {
-    device = {
-      type: entity.devices[0].deviceType,
-      serialNumber: entity.devices[0].serialNumber,
-    };
   }
 
   if (entity.previousUsername || entity.previousPassword || entity.previousSalt) {
@@ -51,7 +43,6 @@ const mapEntityToInvitation = (entity) => {
     selfStarted: entity.selfStarted,
     callbacks,
     overrides,
-    device,
     oldCredentials,
     code: entity.code,
     id: entity.id,
@@ -94,16 +85,6 @@ const mapInvitationToEntities = (model) => {
     codeMetaData: model.codeMetaData,
   };
 
-  const deviceEntities = [];
-  if (model.device) {
-    deviceEntities.push({
-      id: uuid(),
-      invitationId: model.id,
-      deviceType: model.device.type,
-      serialNumber: model.device.serialNumber,
-    });
-  }
-
   let callbackEntities = [];
   if (model.callbacks) {
     callbackEntities = model.callbacks.map(cb => ({
@@ -116,7 +97,6 @@ const mapInvitationToEntities = (model) => {
 
   return {
     invitationEntity,
-    deviceEntities,
     callbackEntities,
   };
 };
@@ -138,7 +118,7 @@ const list = async (pageNumber, pageSize, changedAfter, correlationId) => {
       order: [
         ['email', 'DESC'],
       ],
-      include: ['callbacks', 'devices'],
+      include: ['callbacks'],
       limit: pageSize,
       offset: pageSize * (pageNumber - 1),
     });
@@ -167,7 +147,7 @@ const getUserInvitation = async (id, correlationId) => {
           [Op.eq]: id,
         },
       },
-      include: ['callbacks', 'devices'],
+      include: ['callbacks'],
     });
 
     return entity ? mapEntityToInvitation(entity) : undefined;
@@ -184,9 +164,6 @@ const createUserInvitation = async (userInvitation, correlationId) => {
     const entities = mapInvitationToEntities(userInvitation);
 
     await db.invitation.create(entities.invitationEntity);
-    for (let i = 0; i < entities.deviceEntities.length; i++) {
-      await db.invitationDevice.create(entities.deviceEntities[i]);
-    }
     for (let i = 0; i < entities.callbackEntities.length; i++) {
       await db.invitationCallback.create(entities.callbackEntities[i]);
     }
@@ -203,14 +180,6 @@ const createUserInvitation = async (userInvitation, correlationId) => {
 
 const deleteInvitation = async (id, correlationId) => {
   try {
-    await db.invitationDevice.destroy({
-      where: {
-        invitationId: {
-          [Op.eq]: id,
-        },
-      },
-    });
-
     await db.invitationCallback.destroy({
       where: {
         invitationId: {
@@ -237,17 +206,6 @@ const updateInvitation = async (userInvitation, correlationId) => {
     const entities = mapInvitationToEntities(userInvitation);
 
     await db.invitation.upsert(entities.invitationEntity);
-
-    await db.invitationDevice.destroy({
-      where: {
-        invitationId: {
-          [Op.eq]: userInvitation.id,
-        },
-      },
-    });
-    for (let i = 0; i < entities.deviceEntities.length; i++) {
-      invitationDevice.create(entities.deviceEntities[i]);
-    }
 
     await db.invitationCallback.destroy({
       where: {
@@ -281,36 +239,12 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
     }
     const entity = await db.invitation.findOne({
       where,
-      include: ['callbacks', 'devices'],
+      include: ['callbacks'],
     });
 
     return entity ? mapEntityToInvitation(entity) : undefined;
   } catch (e) {
     logger.error(`Error finding invitation - ${e.message}`, { correlationId, stack: e.stack });
-    throw e;
-  }
-};
-
-const getInvitationIdAssociatedToDevice = async (type, serialNumber, correlationId) => {
-  try {
-    const deviceEntity = await db.invitationDevice.findOne({
-      where: {
-        deviceType: {
-          [Op.eq]: type,
-        },
-        serialNumber: {
-          [Op.eq]: serialNumber,
-        },
-      },
-      include: ['invitation'],
-    });
-
-    return deviceEntity && !deviceEntity.invitation.completed ? deviceEntity.invitation.id : null;
-  } catch (e) {
-    logger.error(`Error finding invitation associated to device ${type}/${serialNumber} - ${e.message}`, {
-      correlationId,
-      stack: e.stack,
-    });
     throw e;
   }
 };
@@ -322,5 +256,4 @@ module.exports = {
   getUserInvitation,
   updateInvitation,
   findInvitationForEmail,
-  getInvitationIdAssociatedToDevice,
 };

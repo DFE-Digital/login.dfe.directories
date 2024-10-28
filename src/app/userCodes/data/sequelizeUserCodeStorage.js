@@ -4,9 +4,7 @@ const Sequelize = require('sequelize');
 
 const Op = Sequelize.Op;
 const logger = require('./../../../infrastructure/logger');
-const { userCode } = require('./../../../infrastructure/repository');
 const generateResetCode = require('./../utils/generateResetCode');
-const generateSmsCode = require('./../utils/generateSmsCode');
 const db = require('../../../infrastructure/repository/db');
 
 
@@ -87,7 +85,7 @@ const createUserCode = async (uid, clientId, redirectUri, email, contextData, co
       return null;
     }
 
-    const code = codeType.toLowerCase() === 'smslogin' ? generateSmsCode() : generateResetCode();
+    const code = generateResetCode();
     const userResetCode = {
       uid,
       code,
@@ -135,7 +133,7 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
     }
 
     let code = codeFromFind.code;
-    if ((codeFromFind.codeType || '').toLowerCase() !== 'smslogin' && (!codeFromFind.email || codeFromFind.email.toLowerCase() !== email.toLowerCase())) {
+    if (!codeFromFind.email || codeFromFind.email.toLowerCase() !== email.toLowerCase()) {
       code = generateResetCode();
     }
 

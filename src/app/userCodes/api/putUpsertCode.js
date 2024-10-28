@@ -17,25 +17,20 @@ const sendNotification = async (user, code, req, uid) => {
   }
 
   if (code.codeType.toLowerCase() === 'passwordreset') {
-   
+
     return client.sendPasswordReset(user.email, user.given_name, user.family_name, code.code, req.body.clientId, uid);
   }
 
   if (code.codeType.toLowerCase() === 'confirmmigratedemail') {
-    
+
     return client.sendConfirmMigratedEmail(code.email, code.code, req.body.clientId, code.uid);
   }
 
   if (code.codeType.toLowerCase() === 'changeemail') {
-   
+
     const emailUid = req.body.selfInvoked ? undefined : uid;
     await client.sendVerifyChangeEmail(code.email, user.given_name, user.family_name, code.code, emailUid);
     return client.sendNotifyMigratedEmail(user.email, user.given_name, user.family_name, code.email);
-  }
-
-  if (code.codeType.toLowerCase() === 'smslogin') {
-   
-    return client.sendSecondFactorLoginCode(user.phone_number, code.code);
   }
 
   return Promise.resolve();

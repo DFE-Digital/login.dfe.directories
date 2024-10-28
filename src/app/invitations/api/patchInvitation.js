@@ -31,15 +31,13 @@ const sendInvitation = async (invitation) => {
 
   const client = invitation.origin ? await getServiceById(invitation.origin.clientId) : undefined;
   let friendlyName;
-  let digipassRequired = false;
   if (client) {
     friendlyName = client.name;
-    digipassRequired = client.relyingParty.params ? client.relyingParty.params.digipassRequired : false;
   }
 
   await notificationClient.sendInvitation(
     invitation.email, invitation.firstName, invitation.lastName, invitation.id, invitation.code,
-    friendlyName, digipassRequired, invitation.selfStarted);
+    friendlyName, invitation.selfStarted);
 };
 
 const patchInvitation = async (req, res) => {

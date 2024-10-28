@@ -88,9 +88,6 @@ describe('When patching an invitation', () => {
           post_logout_redirect_uris: [
             'https://client.one/signout/complete',
           ],
-          params: {
-            digipassRequired: true,
-          },
         },
         name: 'Client One',
       };
@@ -218,8 +215,7 @@ describe('When patching an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][3]).toBe('714d039d-92f7-4bc4-9422-63d194a7');
     expect(sendInvitationStub.mock.calls[0][4]).toBe('new-code');
     expect(sendInvitationStub.mock.calls[0][5]).toBe('Client One');
-    expect(sendInvitationStub.mock.calls[0][6]).toBe(true);
-    expect(sendInvitationStub.mock.calls[0][7]).toBe(false);
+    expect(sendInvitationStub.mock.calls[0][6]).toBe(false);
   });
 
   // The below two test is not needed any more after commit #3f283f0

@@ -64,43 +64,6 @@ const invitationsSchema = new SimpleSchema({
   },
 });
 
-const devicesSchema = new SimpleSchema({
-  type: {
-    type: String,
-    allowedValues: ['static', 'redis', 'azureblob', 'sequelize'],
-  },
-  params: {
-    type: Object,
-    optional: true,
-    blackbox: true,
-    custom: function () {
-      if (this.siblingField('type').value === 'sequelize' && !this.isSet) {
-        return SimpleSchema.ErrorTypes.REQUIRED;
-      }
-    },
-  },
-  redisUrl: {
-    type: String,
-    regEx: patterns.redis,
-    optional: true,
-    custom: function () {
-      if (this.siblingField('type').value === 'redis' && !this.isSet) {
-        return SimpleSchema.ErrorTypes.REQUIRED;
-      }
-    },
-  },
-  containerUrl: {
-    type: String,
-    optional: true,
-    regEx: /https:\/\/.*/,
-    custom: function () {
-      if (this.siblingField('type').value === 'azureblob' && !this.isSet) {
-        return SimpleSchema.ErrorTypes.REQUIRED;
-      }
-    },
-  },
-});
-
 const notificationsSchema = new SimpleSchema({
   connectionString: patterns.redis,
   slackWebHookUrl: String,
@@ -148,7 +111,6 @@ const schema = new SimpleSchema({
   adapter: adapterSchema,
   userCodes: userCodesSchema,
   invitations: invitationsSchema,
-  devices: devicesSchema,
   applications: schemas.apiClient,
   auth: schemas.apiServerAuth,
   notifications: notificationsSchema,

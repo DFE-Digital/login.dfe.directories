@@ -77,6 +77,12 @@ const getLegacyUsernames = async (username, correlationId) => {
   throw error;
 };
 
+const updateLastLogin = async (uid, correlationId) => {
+  throw new Error('updateLastLogin is not implemented for AAD');
+  error.type = 'E_NOTIMPLEMENTED';
+  throw error;
+};
+
 module.exports = {
   authenticate,
   list,
@@ -84,4 +90,5 @@ module.exports = {
   findByUsername,
   update,
   getLegacyUsernames,
+  updateLastLogin,
 };

@@ -23,6 +23,7 @@ const passwordHistory = require('./getPasswordHistory');
 const matchedPassphrase = require('./matchedPassphrase');
 const findByEntraOid = require('./findByEntraOidHandler');
 const linkDsiUserWithEntra = require('./linkDsiUserWithEntraHandler');
+const updateLastLogin = require('./updateUserLastLogin');
 
 const router = express.Router();
 
@@ -50,6 +51,7 @@ const routeExport = () => {
   router.post('/:directoryId/user/:id/changepassword', deprecateWith('/users/:id/changepassword'), asyncWrapper(changePassword));
   router.patch('/users/:id', asyncWrapper(patchUser));
   router.post('/users/:id/changepassword', asyncWrapper(changePassword));
+  router.post('/users/:uid/update-last-login', asyncWrapper(updateLastLogin));
 
   router.post('/users/:id/deactivate', asyncWrapper(deactivateUser));
   router.post('/users/:id/activate', asyncWrapper(activateUser));

@@ -6,7 +6,7 @@ resources:
       type: github
       endpoint: DfE-Digital
       name: DFE-Digital/login.dfe.devops
-      ref: feature/functionMigration
+      ref: feature/Raflab
     - repository: config
       type: github
       endpoint: DfE-Digital

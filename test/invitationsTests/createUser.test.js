@@ -1,4 +1,4 @@
-const PublicApiClient = require('login.dfe.public-api.jobs.client');
+const { PublicApiClient } = require('login.dfe.jobs-client');
 const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 const httpMocks = require('node-mocks-http');
 const createUser = require('../../src/app/invitations/api/createUser');
@@ -34,7 +34,7 @@ jest.mock('../../src/app/user/adapter');
 jest.mock('../../src/utils/index', () => ({
   safeUser: jest.fn(),
 }));
-jest.mock('login.dfe.public-api.jobs.client');
+jest.mock('login.dfe.jobs-client');
 jest.mock('login.dfe.service-notifications.jobs.client');
 jest.mock('sequelize');
 jest.mock('../../src/infrastructure/repository/db', () => ({

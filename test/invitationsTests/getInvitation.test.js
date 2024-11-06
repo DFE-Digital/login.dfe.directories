@@ -5,7 +5,7 @@ jest.mock('./../../src/infrastructure/logger', () => {
   return {
   };
 });
-jest.mock('login.dfe.notifications.client');
+jest.mock('login.dfe.jobs-client');
 jest.mock('./../../src/infrastructure/config', () => ({
   redis: {
     url: 'http://orgs.api.test',

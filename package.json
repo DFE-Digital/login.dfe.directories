@@ -30,7 +30,6 @@
     "login.dfe.healthcheck": "github:DFE-Digital/login.dfe.healthcheck#v3.0.1",
     "login.dfe.jobs-client": "github:DFE-Digital/login.dfe.jobs-client#v6.0.0",
     "login.dfe.jwt-strategies": "github:DFE-Digital/login.dfe.jwt-strategies#v4.1.0",
-    "login.dfe.notifications.client": "github:DFE-Digital/login.dfe.notifications.client#v5.3.0",
     "login.dfe.password-policy": "1.0.0",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
     "login.dfe.service-notifications.jobs.client": "github:DFE-Digital/login.dfe.service-notifications.jobs.client#v2.0.2",

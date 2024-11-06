@@ -1,6 +1,6 @@
 'use strict';
 
-const NotificatonClient = require('login.dfe.notifications.client');
+const { NotificationClient } = require('login.dfe.jobs-client');
 const { v4: uuid } = require('uuid');
 const logger = require('../../../infrastructure/logger');
 const storage = require('../data');
@@ -8,7 +8,7 @@ const userAdapter = require('../../user/adapter');
 const config = require('../../../infrastructure/config');
 
 const sendNotification = async (user, code, req, uid) => {
-  const client = new NotificatonClient({
+  const client = new NotificationClient({
     connectionString: config.notifications.connectionString,
   });
 

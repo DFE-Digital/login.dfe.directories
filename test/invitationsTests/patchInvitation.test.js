@@ -22,7 +22,7 @@ jest.mock('./../../src/app/invitations/data', () => ({
 jest.mock('./../../src/app/invitations/utils', () => ({
   generateInvitationCode: jest.fn(),
 }));
-jest.mock('login.dfe.notifications.client');
+jest.mock('login.dfe.jobs-client');
 jest.mock('./../../src/infrastructure/applications');
 
 jest.mock('./../../src/infrastructure/logger', () => ({
@@ -33,7 +33,7 @@ jest.mock('./../../src/infrastructure/logger', () => ({
 }));
 
 const httpMocks = require('node-mocks-http');
-const notificationClient = require('login.dfe.notifications.client');
+const { NotificationClient } = require('login.dfe.jobs-client');
 const { getUserInvitation, updateInvitation } = require('../../src/app/invitations/data');
 const { generateInvitationCode } = require('../../src/app/invitations/utils');
 const { getServiceById } = require('../../src/infrastructure/applications');
@@ -94,7 +94,7 @@ describe('When patching an invitation', () => {
     });
 
     sendInvitationStub = jest.fn();
-    notificationClient.mockReset().mockImplementation(() => ({
+    NotificationClient.mockReset().mockImplementation(() => ({
       sendInvitation: sendInvitationStub,
     }));
   });

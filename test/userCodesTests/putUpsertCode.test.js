@@ -18,7 +18,7 @@ jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
     updateUserCode: jest.fn().mockImplementation(updateUserCodeStub),
   };
 });
-jest.mock('login.dfe.notifications.client');
+jest.mock('login.dfe.jobs-client');
 jest.mock('./../../src/infrastructure/config', () => ({
   notifications: {
     connectionString: '',
@@ -100,7 +100,7 @@ describe('When getting a user code', () => {
       email, code, clientId, uid, type: 'migrateemail',
     });
 
-    notificationClient = require('login.dfe.notifications.client');
+    notificationClient = require('login.dfe.jobs-client').NotificationClient;
     notificationClient.mockImplementation(() => ({
       sendPasswordReset: sendPasswordResetStub,
       sendConfirmMigratedEmail: sendConfirmMigrationEmailStub,

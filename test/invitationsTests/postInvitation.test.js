@@ -9,7 +9,7 @@ jest.mock('./../../src/infrastructure/logger', () => ({
   error: jest.fn(),
   audit: jest.fn(),
 }));
-jest.mock('login.dfe.notifications.client');
+jest.mock('login.dfe.jobs-client');
 jest.mock('./../../src/infrastructure/config', () => ({
   redis: {
     url: 'http://orgs.api.test',
@@ -39,7 +39,7 @@ jest.mock('./../../src/app/user/adapter', () => ({
   findByUsername: jest.fn(),
 }));
 
-const notificationClient = require('login.dfe.notifications.client');
+const { NotificationClient } = require('login.dfe.jobs-client');
 const httpMocks = require('node-mocks-http');
 const logger = require('../../src/infrastructure/logger');
 const redisStorage = require('../../src/app/invitations/data');
@@ -116,7 +116,7 @@ describe('When creating an invitation', () => {
     sendInvitationStub = jest.fn();
     sendMigrationInvitationStub = jest.fn();
     sendRegisterExistingUserStub = jest.fn();
-    notificationClient.mockReset().mockImplementation(() => ({
+    NotificationClient.mockReset().mockImplementation(() => ({
       sendInvitation: sendInvitationStub,
       sendMigrationInvitation: sendMigrationInvitationStub,
       sendRegisterExistingUser: sendRegisterExistingUserStub,

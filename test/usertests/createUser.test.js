@@ -1,4 +1,4 @@
-jest.mock('login.dfe.service-notifications.jobs.client');
+jest.mock('login.dfe.jobs-client');
 jest.mock('./../../src/app/user/adapter', () => ({
   findByUsername: jest.fn(),
   create: jest.fn(),
@@ -22,7 +22,7 @@ jest.mock('./../../src/infrastructure/config', () => {
   };
 });
 
-const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
+const { ServiceNotificationsClient } = require('login.dfe.jobs-client');
 const { findByUsername, create, findByEntraOid } = require('../../src/app/user/adapter');
 const createUser = require('../../src/app/user/api/createUser');
 const httpMocks = require('node-mocks-http');

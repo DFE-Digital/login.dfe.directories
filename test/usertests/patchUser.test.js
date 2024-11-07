@@ -1,4 +1,4 @@
-jest.mock('login.dfe.service-notifications.jobs.client');
+jest.mock('login.dfe.jobs-client');
 jest.mock('./../../src/app/user/adapter', () => ({
   find: jest.fn(),
   update: jest.fn(),
@@ -21,7 +21,7 @@ jest.mock('./../../src/infrastructure/logger', () => ({
   info: jest.fn(),
 }));
 
-const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
+const { ServiceNotificationsClient } = require('login.dfe.jobs-client');
 const httpMocks = require('node-mocks-http');
 const { find, update } = require('../../src/app/user/adapter');
 const patchUser = require('../../src/app/user/api/patchUser');

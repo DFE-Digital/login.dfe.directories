@@ -1,7 +1,6 @@
 'use strict';
 
-const PublicApiClient = require('login.dfe.public-api.jobs.client');
-const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
+const { PublicApiClient, ServiceNotificationsClient } = require('login.dfe.jobs-client');
 const config = require('../../../infrastructure/config');
 const logger = require('../../../infrastructure/logger');
 const { getUserInvitation, updateInvitation } = require('../data');

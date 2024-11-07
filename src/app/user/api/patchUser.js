@@ -1,8 +1,8 @@
+const { ServiceNotificationsClient } = require('login.dfe.jobs-client');
 const { find, update } = require('../adapter');
 const logger = require('../../../infrastructure/logger');
 const { safeUser } = require('../../../utils');
 const config = require('../../../infrastructure/config');
-const ServiceNotificationsClient = require('login.dfe.service-notifications.jobs.client');
 
 const allowablePatchProperties = ['given_name', 'family_name', 'email', 'job_title', 'phone_number', 'legacyUsernames'];
 const allowablePropertiesMessage = allowablePatchProperties.concat();

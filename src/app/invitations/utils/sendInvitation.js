@@ -18,7 +18,7 @@ const sendInvitation = async (invitation) => {
 
     await notificationClient.sendInvitation(
       invitation.email, invitation.firstName, invitation.lastName, invitation.id, invitation.code,
-      friendlyName, invitation.selfStarted, invitation.overrides, invitation.isMigrated, invitation.approverEmail, invitation.orgName, invitation.isApprover);
+      friendlyName, invitation.selfStarted, invitation.overrides, invitation.approverEmail, invitation.orgName, invitation.isApprover);
   } catch (e) {
     logger.error(`Error while sending the invitation from directories project. Error- ${e}`);
     throw e;

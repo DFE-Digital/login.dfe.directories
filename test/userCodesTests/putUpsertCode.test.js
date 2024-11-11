@@ -68,7 +68,6 @@ describe('When getting a user code', () => {
   let emailObject;
   let notificationClient;
   let sendPasswordResetStub;
-  let sendConfirmMigrationEmailStub;
   let put;
   let uuidStub;
 
@@ -96,14 +95,10 @@ describe('When getting a user code', () => {
     sendPasswordResetStub = jest.fn().mockImplementation((email, given_name, family_name, code, clientId, uid) => emailObject = {
       email, given_name, family_name, code, clientId, uid, type: 'passwordreset',
     });
-    sendConfirmMigrationEmailStub = jest.fn().mockImplementation((email, code, clientId, uid) => emailObject = {
-      email, code, clientId, uid, type: 'migrateemail',
-    });
 
     notificationClient = require('login.dfe.jobs-client').NotificationClient;
     notificationClient.mockImplementation(() => ({
       sendPasswordReset: sendPasswordResetStub,
-      sendConfirmMigratedEmail: sendConfirmMigrationEmailStub,
     }));
 
     put = require('../../src/app/userCodes/api/putUpsertCode');
@@ -178,28 +173,10 @@ describe('When getting a user code', () => {
 
     expect(redisStorage.getUserCodeByEmail.mock.calls).toHaveLength(1);
   });
-  it('then if the code type is migration email then the correct email is shown', async () => {
-    redisStorage.getUserCode.mockReturnValue(null);
-    redisStorage.updateUserCode.mockReturnValue({
-      uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType: 'confirmmigratedemail',
-    });
-    req.body.uid = '';
-    req.body.codeType = 'confirmmigratedemail';
-
-    await put(req, res);
-
-    expect(emailObject.code).toBe('EDC345');
-    expect(emailObject.code).toBe('EDC345');
-    expect(emailObject.email).toBe(expectedEmailAddress);
-    expect(emailObject.clientId).toBe('client1');
-    expect(emailObject.uid).toBe(expectedUuid);
-    expect(emailObject.type).toBe('migrateemail');
-  });
   it('then if no code exists for the email then one is created', async () => {
     redisStorage.getUserCode.mockReturnValue(null);
     redisStorage.getUserCodeByEmail.mockReturnValue(null);
     req.body.uid = '';
-    req.body.codeType = 'ConfirmMigratedEmail';
 
     await put(req, res);
 
@@ -208,7 +185,7 @@ describe('When getting a user code', () => {
     expect(redisStorage.createUserCode.mock.calls[0][2]).toBe(expectedRedirectUri);
     expect(redisStorage.createUserCode.mock.calls[0][3]).toBe('test@unit.local');
     expect(redisStorage.createUserCode.mock.calls[0][4]).toBe(undefined);
-    expect(redisStorage.createUserCode.mock.calls[0][5]).toBe('ConfirmMigratedEmail');
+    expect(redisStorage.createUserCode.mock.calls[0][5]).toBe('PasswordReset');
     expect(redisStorage.createUserCode.mock.calls[0][6]).toBe(expectedRequestCorrelationId);
   });
 });

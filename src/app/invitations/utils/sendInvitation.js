@@ -10,12 +10,6 @@ const sendInvitation = async (invitation) => {
       connectionString: config.notifications.connectionString,
     });
 
-    if (invitation.oldCredentials) { //} && invitation.oldCredentials.source.toUpperCase() === 'EAS') {
-      await notificationClient.sendMigrationInvitation(
-        invitation.email, invitation.firstName, invitation.lastName, invitation.id, invitation.code);
-      return;
-    }
-
     const client = invitation.origin ? await getServiceById(invitation.origin.clientId) : undefined;
     let friendlyName;
     if (client) {

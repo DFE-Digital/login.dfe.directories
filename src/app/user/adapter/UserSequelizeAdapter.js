@@ -306,7 +306,7 @@ const authenticate = async (username, password, correlationId) => {
 
     const derivedKey = await hashPasswordWithUserPolicy(password, userEntity[0].salt, userEntity);
     const passwordValid = derivedKey === userEntity[0].password;
-    
+
     if (passwordValid) {
       await updateLastLogin(userEntity[0].sub, correlationId)
     }
@@ -335,7 +335,7 @@ const updateLastLogin = async (uid, correlationId) => {
   try {
     await db.user.sequelize.query(
       `UPDATE [user]
-        SET 
+        SET
           prev_login = CASE WHEN last_login is not null THEN last_login ELSE GETUTCDATE() END,
           last_login = GETUTCDATE()
         WHERE
@@ -344,13 +344,13 @@ const updateLastLogin = async (uid, correlationId) => {
             type: db.user.sequelize.QueryTypes.UPDATE,
           }
     );
-  } catch (e) { 
+  } catch (e) {
     logger.error(`updateLastLogin failed for request ${correlationId} error: ${e}`, { correlationId, stack: e.stack });
     throw (e);
   }
 }
 
-const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated, entraOid) => {
+const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, entraOid) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || (!password && !entraOid) || (password && entraOid)) {
@@ -376,7 +376,6 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     password: derivedKey,
     status: 1,
     phone_number,
-    isMigrated,
     password_reset_required: false,
     is_entra: !!entraOid,
     entra_oid: entraOid || null,

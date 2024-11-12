@@ -44,7 +44,7 @@ describe('userSequelizeAdapter.updateUserLastLogin', () => {
     await updateLastLogin('mock-uid', 'mock-correlation-id');
 
     expect(db.user.sequelize.query.mock.calls[0][0]).toBe(`UPDATE [user]
-        SET 
+        SET
           prev_login = CASE WHEN last_login is not null THEN last_login ELSE GETUTCDATE() END,
           last_login = GETUTCDATE()
         WHERE

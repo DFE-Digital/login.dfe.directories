@@ -36,7 +36,7 @@ const createUser = async (req, res) => {
       }
     }
 
-    const user = await create(email, password, firstName, lastName, legacy_username, phone_number, req.header('x-correlation-id'), false, entraOid);
+    const user = await create(email, password, firstName, lastName, legacy_username, phone_number, req.header('x-correlation-id'), entraOid);
 
     if (config.toggles && config.toggles.notificationsEnabled) {
       const serviceNotificationsClient = new ServiceNotificationsClient({

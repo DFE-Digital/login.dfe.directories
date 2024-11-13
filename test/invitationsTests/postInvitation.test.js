@@ -53,7 +53,6 @@ describe('When creating an invitation', () => {
   let req;
   let sendInvitationStub;
   let sendRegisterExistingUserStub;
-  let sendMigrationInvitationStub;
 
   const expectedEmailAddress = 'test@local.com';
   const expectedFirstName = 'Test';
@@ -114,11 +113,9 @@ describe('When creating an invitation', () => {
     userStorage.findByUsername.mockReset().mockReturnValue(null);
 
     sendInvitationStub = jest.fn();
-    sendMigrationInvitationStub = jest.fn();
     sendRegisterExistingUserStub = jest.fn();
     NotificationClient.mockReset().mockImplementation(() => ({
       sendInvitation: sendInvitationStub,
-      sendMigrationInvitation: sendMigrationInvitationStub,
       sendRegisterExistingUser: sendRegisterExistingUserStub,
     }));
   });
@@ -181,21 +178,6 @@ describe('When creating an invitation', () => {
     expect(sendInvitationStub.mock.calls[0][4]).toBe('invite-code');
     expect(sendInvitationStub.mock.calls[0][5]).toBe('Client One');
     expect(sendInvitationStub.mock.calls[0][6]).toBe(true);
-  });
-
-  it('then an invitation email is sent with migration invite template when the record is first created and source is EAS', async () => {
-    req.body.oldCredentials = {
-      source: 'EAS',
-    };
-
-    await post(req, res);
-
-    expect(sendMigrationInvitationStub.mock.calls).toHaveLength(1);
-    expect(sendMigrationInvitationStub.mock.calls[0][0]).toBe(expectedEmailAddress);
-    expect(sendMigrationInvitationStub.mock.calls[0][1]).toBe(expectedFirstName);
-    expect(sendMigrationInvitationStub.mock.calls[0][2]).toBe(expectedLastName);
-    expect(sendMigrationInvitationStub.mock.calls[0][3]).toBe(expectedInvitationId);
-    expect(sendMigrationInvitationStub.mock.calls[0][4]).toBe('invite-code');
   });
 
   it('then a 500 response is returned if there is an error', async () => {

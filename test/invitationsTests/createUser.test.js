@@ -128,7 +128,6 @@ describe('createUser', () => {
       email: 'john.doe@test.com',
       firstName: 'John',
       lastName: 'Doe',
-      isMigrated: false,
       callbacks: 'http:test/auth/cb',
     };
     const user = {
@@ -145,7 +144,7 @@ describe('createUser', () => {
 
     await createUser(req, res);
 
-    expect(userStorage.create).toHaveBeenCalledWith('john.doe@test.com', 'password', 'John', 'Doe', null, null, 'correlation-id', false, undefined);
+    expect(userStorage.create).toHaveBeenCalledWith('john.doe@test.com', 'password', 'John', 'Doe', null, null, 'correlation-id', undefined);
     expect(updateInvitation).toHaveBeenCalledWith({ ...invitation, isCompleted: true, userId: 'user-id' });
     expect(safeUser).toHaveBeenCalled();
     expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledTimes(1);

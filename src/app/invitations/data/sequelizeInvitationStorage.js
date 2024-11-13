@@ -14,8 +14,6 @@ const mapEntityToInvitation = (entity) => {
     clientId: entity.originClientId,
     redirectUri: entity.originRedirectUri,
   } : undefined;
-  let oldCredentials;
-
 
   if (entity.callbacks && entity.callbacks.length > 0) {
     callbacks = entity.callbacks.map((cbEntity) => ({
@@ -25,16 +23,6 @@ const mapEntityToInvitation = (entity) => {
     }));
   }
 
-  if (entity.previousUsername || entity.previousPassword || entity.previousSalt) {
-    oldCredentials = {
-      username: entity.previousUsername,
-      password: entity.previousPassword,
-      salt: entity.previousSalt,
-      source: 'EAS',
-    };
-  }
-
-
   return {
     firstName: entity.firstName,
     lastName: entity.lastName,
@@ -43,7 +31,6 @@ const mapEntityToInvitation = (entity) => {
     selfStarted: entity.selfStarted,
     callbacks,
     overrides,
-    oldCredentials,
     code: entity.code,
     id: entity.id,
     deactivated: entity.deactivated,
@@ -52,7 +39,6 @@ const mapEntityToInvitation = (entity) => {
     userId: entity.uid,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
-    isMigrated: entity.isMigrated,
     approverEmail: entity.approverEmail,
     orgName: entity.orgName,
     isApprover: entity.isApprover,
@@ -71,14 +57,10 @@ const mapInvitationToEntities = (model) => {
     selfStarted: model.selfStarted,
     overrideSubject: model.overrides ? model.overrides.subject : undefined,
     overrideBody: model.overrides ? model.overrides.body : undefined,
-    previousUsername: model.oldCredentials ? model.oldCredentials.username : undefined,
-    previousPassword: model.oldCredentials ? model.oldCredentials.password : undefined,
-    previousSalt: model.oldCredentials ? model.oldCredentials.salt : undefined,
     deactivated: model.deactivated,
     reason: model.reason,
     completed: model.isCompleted,
     uid: model.userId,
-    isMigrated: model.isMigrated,
     approverEmail: model.approverEmail,
     orgName: model.orgName,
     isApprover: model.isApprover,

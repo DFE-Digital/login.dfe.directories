@@ -76,11 +76,6 @@ function model(sequelize) {
       type: Sequelize.UUID,
       allowNull: true,
     },
-    isMigrated: {
-      type: Sequelize.BOOLEAN,
-      allowNull: false,
-      defaultValue: false,
-    },
     approverEmail: {
       type: Sequelize.STRING,
       allowNull: true,

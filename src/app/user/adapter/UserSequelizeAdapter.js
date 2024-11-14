@@ -306,7 +306,8 @@ const authenticate = async (username, password, correlationId) => {
 
     const derivedKey = await hashPasswordWithUserPolicy(password, userEntity[0].salt, userEntity);
     const passwordValid = derivedKey === userEntity[0].password;
-    
+    const isFlaggedForEntraMigration = userEntity[0].is_entra && !userEntity[0].entra_sub && !userEntity.entra_linked
+
     if (passwordValid) {
       await updateLastLogin(userEntity[0].sub, correlationId)
     }
@@ -315,6 +316,7 @@ const authenticate = async (username, password, correlationId) => {
         status: userEntity[0].status,
         id: userEntity[0].sub,
         passwordResetRequired: userEntity[0].password_reset_required,
+        isFlaggedForEntraMigration,
       },
       passwordValid,
     };
@@ -335,7 +337,7 @@ const updateLastLogin = async (uid, correlationId) => {
   try {
     await db.user.sequelize.query(
       `UPDATE [user]
-        SET 
+        SET
           prev_login = CASE WHEN last_login is not null THEN last_login ELSE GETUTCDATE() END,
           last_login = GETUTCDATE()
         WHERE
@@ -344,7 +346,7 @@ const updateLastLogin = async (uid, correlationId) => {
             type: db.user.sequelize.QueryTypes.UPDATE,
           }
     );
-  } catch (e) { 
+  } catch (e) {
     logger.error(`updateLastLogin failed for request ${correlationId} error: ${e}`, { correlationId, stack: e.stack });
     throw (e);
   }

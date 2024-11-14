@@ -352,7 +352,7 @@ const updateLastLogin = async (uid, correlationId) => {
   }
 }
 
-const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, isMigrated, entraOid) => {
+const create = async (username, password, firstName, lastName, legacyUsername, phone_number, correlationId, entraOid) => {
   logger.info(`Create user called for request ${correlationId}`, { correlationId });
 
   if (!username || (!password && !entraOid) || (password && entraOid)) {
@@ -378,7 +378,6 @@ const create = async (username, password, firstName, lastName, legacyUsername, p
     password: derivedKey,
     status: 1,
     phone_number,
-    isMigrated,
     password_reset_required: false,
     is_entra: !!entraOid,
     entra_oid: entraOid || null,

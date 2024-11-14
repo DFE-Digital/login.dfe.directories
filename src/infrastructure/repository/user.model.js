@@ -50,7 +50,7 @@ function model(sequelize) {
     isMigrated: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: Sequelize.BOOLEAN,
+      defaultValue: false,
     },
     password_reset_required: {
       type: Sequelize.BOOLEAN,

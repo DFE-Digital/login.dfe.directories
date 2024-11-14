@@ -5,7 +5,7 @@
     "collectCoverage": false,
     "clearMocks": true
   },
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "API to return list of users",
   "dependencies": {
     "activedirectory": "^0.7.2",
@@ -28,8 +28,8 @@
     "login.dfe.entra-auth-extensions": "^1.0.15",
     "login.dfe.express-error-handling": "github:DFE-Digital/login.dfe.express-error-handling#v3.0.1",
     "login.dfe.healthcheck": "github:DFE-Digital/login.dfe.healthcheck#v3.0.1",
-    "login.dfe.jobs-client": "github:DFE-Digital/login.dfe.jobs-client#v6.0.0",
     "login.dfe.jwt-strategies": "github:DFE-Digital/login.dfe.jwt-strategies#v4.1.1",
+    "login.dfe.jobs-client": "github:DFE-Digital/login.dfe.jobs-client#v6.0.1",
     "login.dfe.password-policy": "1.0.0",
     "login.dfe.request-verification": "github:DFE-Digital/login.dfe.request-verification#v1.0.0",
     "login.dfe.winston-appinsights": "github:DFE-Digital/login.dfe.winston-appinsights#v5.0.3",

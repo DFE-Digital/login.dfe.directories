@@ -205,7 +205,6 @@ describe('When creating a user', () => {
       undefined,
       req.body.phone_number,
       expectedRequestCorrelationId,
-      false,
       'd0c342aa-549f-4992-ae00-e8fdc47592a9',
     ]);
   });

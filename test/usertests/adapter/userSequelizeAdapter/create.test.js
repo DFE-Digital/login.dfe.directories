@@ -56,22 +56,22 @@ describe('userSequelizeAdapter.create', () => {
   });
 
   it('should return null if username is missing', async () => {
-    const result = await create(null, 'password', 'John', 'Doe', null, null, 'correlationId', false, null);
+    const result = await create(null, 'password', 'John', 'Doe', null, null, 'correlationId', null);
     expect(result).toBeNull();
   });
 
   it('should return null if username and password and entraOid are missing', async () => {
-    const result = await create(null, null, 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', false, null);
+    const result = await create(null, null, 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', null);
     expect(result).toBeNull();
   });
 
   it('should return null if username is present but password and entrOid are missing', async () => {
-    const result = await create('john.doe@test.com', null, 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', false, null);
+    const result = await create('john.doe@test.com', null, 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', null);
     expect(result).toBeNull();
   });
 
   it('should return null if username, password and entraOid are all present', async () => {
-    const result = await create('john.doe@test.com', 'password', 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', false, 'entraOid');
+    const result = await create('john.doe@test.com', 'password', 'John', 'Doe', 'legacyUsername', '1234567890', 'correlationId', 'entraOid');
     expect(result).toBeNull();
   });
 
@@ -81,7 +81,7 @@ describe('userSequelizeAdapter.create', () => {
       family_name: 'User',
     };
     findByUsernameHelper.mockResolvedValue(existingUserRecord);
-    const result = await create('john.doe@test.com', 'password', 'John', 'Doe', null, null, 'correlationId', false, undefined);
+    const result = await create('john.doe@test.com', 'password', 'John', 'Doe', null, null, 'correlationId', undefined);
     expect(result).toBe(existingUserRecord);
   });
 
@@ -96,7 +96,6 @@ describe('userSequelizeAdapter.create', () => {
       password: 'hashedPassword',
       status: 1,
       phone_number: null,
-      isMigrated: false,
       password_reset_required: false,
       is_entra: false,
       entra_oid: null,
@@ -126,7 +125,6 @@ describe('userSequelizeAdapter.create', () => {
       password: 'none',
       status: 1,
       phone_number: null,
-      isMigrated: false,
       password_reset_required: false,
       is_entra: true,
       entra_oid: 'entraId',
@@ -135,7 +133,7 @@ describe('userSequelizeAdapter.create', () => {
 
     db.user.create.mockResolvedValue(newUser);
 
-    const result = await create('john.doe@test.com', undefined, 'John', 'Doe', undefined, null, 'correlationId', false, 'entraId');
+    const result = await create('john.doe@test.com', undefined, 'John', 'Doe', undefined, null, 'correlationId', 'entraId');
 
     expect(generateSalt).toHaveBeenCalled();
     expect(hashPassword).not.toHaveBeenCalled();
@@ -147,7 +145,7 @@ describe('userSequelizeAdapter.create', () => {
   });
 
   it('should create a ne entry into the `user_legacy_username` table if legacy username is provided', async () => {
-    await create('john.doe@test.com', 'password', 'John', 'Doe', 'johnDoeLegacyUsername', null, 'correlationId', false, undefined);
+    await create('john.doe@test.com', 'password', 'John', 'Doe', 'johnDoeLegacyUsername', null, 'correlationId', undefined);
 
     expect(db.userLegacyUsername.create).toHaveBeenCalledWith({ legacy_username: 'johnDoeLegacyUsername', uid: 'newId' });
   });

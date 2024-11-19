@@ -1,4 +1,3 @@
-jest.mock('login.dfe.request-verification');
 jest.mock('./../../src/infrastructure/config', () => (
   {
     adapter: {

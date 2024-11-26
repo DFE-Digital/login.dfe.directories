@@ -306,6 +306,7 @@ const authenticate = async (username, password, correlationId) => {
 
     const derivedKey = await hashPasswordWithUserPolicy(password, userEntity[0].salt, userEntity);
     const passwordValid = derivedKey === userEntity[0].password;
+    const isFlaggedForEntraMigration = userEntity[0].is_entra && !userEntity[0].entra_sub && !userEntity.entra_linked
 
     if (passwordValid) {
       await updateLastLogin(userEntity[0].sub, correlationId)
@@ -315,6 +316,7 @@ const authenticate = async (username, password, correlationId) => {
         status: userEntity[0].status,
         id: userEntity[0].sub,
         passwordResetRequired: userEntity[0].password_reset_required,
+        isFlaggedForEntraMigration,
       },
       passwordValid,
     };

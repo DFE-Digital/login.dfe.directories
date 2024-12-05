@@ -129,8 +129,6 @@ describe("When using redis storage service", () => {
     });
   });
   describe("then when I call change password", () => {
-    let userStorage;
-
     beforeEach(() => {
       jest.resetModules();
     });
@@ -337,8 +335,6 @@ describe("When using redis storage service", () => {
     });
   });
   describe("then when i call change status", () => {
-    let userStorage;
-
     beforeEach(() => {
       jest.resetModules();
     });

@@ -8,23 +8,12 @@ jest.mock("./../../src/infrastructure/logger", () => {
 });
 const httpMocks = require("node-mocks-http");
 const userAdapter = require("./../../src/app/user/adapter");
-const isMatched = require("./../../src/app/user/api/matchedPassphrase");
 
 describe("When amending passowrd", () => {
-  let req;
   let res;
 
   beforeEach(() => {
     userAdapter.isMatched.mockReset();
-
-    req = {
-      header: () => "correlation-id",
-      body: {
-        uid: "user1",
-        newPass: "password1234",
-      },
-    };
-
     res = httpMocks.createResponse();
   });
 

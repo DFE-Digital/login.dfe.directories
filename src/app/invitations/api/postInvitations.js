@@ -1,19 +1,21 @@
-'use strict';
+"use strict";
 
-const { NotificationClient } = require('login.dfe.jobs-client');
-const config = require('../../../infrastructure/config');
-const logger = require('../../../infrastructure/logger');
-const storage = require('../data');
-const userStorage = require('../../user/adapter');
-const { generateInvitationCode } = require('../utils');
-const { getServiceById } = require('../../../infrastructure/applications');
-const sendInvitation = require('../utils/sendInvitation');
+const { NotificationClient } = require("login.dfe.jobs-client");
+const config = require("../../../infrastructure/config");
+const logger = require("../../../infrastructure/logger");
+const storage = require("../data");
+const userStorage = require("../../user/adapter");
+const { generateInvitationCode } = require("../utils");
+const { getServiceById } = require("../../../infrastructure/applications");
+const sendInvitation = require("../utils/sendInvitation");
 
 const checkIfExistingUserAndNotifyIfIs = async (invitation) => {
   const account = await userStorage.findByUsername(invitation.email);
   if (account) {
     let friendlyName;
-    const client = invitation.origin ? await getServiceById(invitation.origin.clientId) : undefined;
+    const client = invitation.origin
+      ? await getServiceById(invitation.origin.clientId)
+      : undefined;
     if (client) {
       friendlyName = client.name;
     }
@@ -21,8 +23,13 @@ const checkIfExistingUserAndNotifyIfIs = async (invitation) => {
     const notificationClient = new NotificationClient({
       connectionString: config.notifications.connectionString,
     });
-    await notificationClient.sendRegisterExistingUser(invitation.email, invitation.firstName, invitation.lastName,
-      friendlyName, invitation.origin.redirectUri);
+    await notificationClient.sendRegisterExistingUser(
+      invitation.email,
+      invitation.firstName,
+      invitation.lastName,
+      friendlyName,
+      invitation.origin.redirectUri,
+    );
 
     return true;
   }
@@ -43,7 +50,11 @@ const post = async (req, res) => {
       return;
     }
 
-    let invitation = await storage.findInvitationForEmail(requestedInvite.email, true, req.header('x-correlation-id'));
+    let invitation = await storage.findInvitationForEmail(
+      requestedInvite.email,
+      true,
+      req.header("x-correlation-id"),
+    );
     let statusCode = 202;
     if (!invitation) {
       requestedInvite.code = generateInvitationCode();
@@ -51,7 +62,10 @@ const post = async (req, res) => {
         codeExpiry: new Date().toISOString(),
       });
 
-      invitation = await storage.createUserInvitation(requestedInvite, req.header('x-correlation-id'));
+      invitation = await storage.createUserInvitation(
+        requestedInvite,
+        req.header("x-correlation-id"),
+      );
       statusCode = 201;
     } else if (invitation) {
       invitation.code = generateInvitationCode();
@@ -59,18 +73,20 @@ const post = async (req, res) => {
         codeExpiry: new Date().toISOString(),
       });
 
-      invitation = await storage.updateInvitation(invitation, req.header('x-correlation-id'));
+      invitation = await storage.updateInvitation(
+        invitation,
+        req.header("x-correlation-id"),
+      );
       statusCode = 201;
     }
 
     logger.audit({
-      type: 'invitation-code',
-      subType: 'post-invitation',
+      type: "invitation-code",
+      subType: "post-invitation",
       env: config.hostingEnvironment.env,
       application: config.loggerSettings.applicationName,
       message: `Post verify code ${invitation.code} for invitation id ${invitation.id}`,
     });
-
 
     await sendInvitation(invitation);
 

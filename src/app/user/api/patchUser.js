@@ -1,10 +1,17 @@
-const { ServiceNotificationsClient } = require('login.dfe.jobs-client');
-const { find, update } = require('../adapter');
-const logger = require('../../../infrastructure/logger');
-const { safeUser } = require('../../../utils');
-const config = require('../../../infrastructure/config');
+const { ServiceNotificationsClient } = require("login.dfe.jobs-client");
+const { find, update } = require("../adapter");
+const logger = require("../../../infrastructure/logger");
+const { safeUser } = require("../../../utils");
+const config = require("../../../infrastructure/config");
 
-const allowablePatchProperties = ['given_name', 'family_name', 'email', 'job_title', 'phone_number', 'legacyUsernames'];
+const allowablePatchProperties = [
+  "given_name",
+  "family_name",
+  "email",
+  "job_title",
+  "phone_number",
+  "legacyUsernames",
+];
 const allowablePropertiesMessage = allowablePatchProperties.concat();
 
 const validateRequestData = (req) => {
@@ -27,13 +34,18 @@ const sendNotification = async (user, updatedUser, correlationId) => {
     const serviceNotificationsClient = new ServiceNotificationsClient({
       connectionString: config.notifications.connectionString,
     });
-    const jobId = await serviceNotificationsClient.notifyUserUpdated(safeUser(updatedUser));
-    logger.info(`Send user updated notification for ${user.sub} with job id ${jobId} (reason: patch)`, { correlationId });
+    const jobId = await serviceNotificationsClient.notifyUserUpdated(
+      safeUser(updatedUser),
+    );
+    logger.info(
+      `Send user updated notification for ${user.sub} with job id ${jobId} (reason: patch)`,
+      { correlationId },
+    );
   }
 };
 
 const patchUser = async (req, res) => {
-  const correlationId = req.header('x-correlation-id');
+  const correlationId = req.header("x-correlation-id");
 
   // Get user
   const user = await find(req.params.id, correlationId);
@@ -49,8 +61,15 @@ const patchUser = async (req, res) => {
     return res.status(400).send(validationErrorMessage);
   }
 
-  const nameDetailsChanged = ['given_name', 'family_name'].some((property) => property in req.body && req.body[property].trim().toLowerCase() !== user[property].trim().toLowerCase());
-  const emailAddressChanged = !!req.body.email && req.body.email.trim().toLowerCase() !== user.email.trim().toLowerCase();
+  const nameDetailsChanged = ["given_name", "family_name"].some(
+    (property) =>
+      property in req.body &&
+      req.body[property].trim().toLowerCase() !==
+        user[property].trim().toLowerCase(),
+  );
+  const emailAddressChanged =
+    !!req.body.email &&
+    req.body.email.trim().toLowerCase() !== user.email.trim().toLowerCase();
 
   // Patch user
   const updatedUser = Object.assign(userModel, req.body);
@@ -68,7 +87,10 @@ const patchUser = async (req, res) => {
   if (!!user.is_entra && !!user.entra_oid) {
     let nameChangeFailed = false;
     let emailChangeFailed = false;
-    const errorMessage = { type: 'error', message: 'Unable to update user record, there was an error with Entra' };
+    const errorMessage = {
+      type: "error",
+      message: "Unable to update user record, there was an error with Entra",
+    };
 
     if (nameDetailsChanged === true) {
       try {
@@ -79,7 +101,10 @@ const patchUser = async (req, res) => {
         });
       } catch (error) {
         nameChangeFailed = true;
-        logger.error(`patchUser req.externalAuth.changeName failed for user '${user.sub}' with entraOid ${user.entra_oid} for the reason(s) ${error} (correlationId: '${correlationId}')`, { correlationId });
+        logger.error(
+          `patchUser req.externalAuth.changeName failed for user '${user.sub}' with entraOid ${user.entra_oid} for the reason(s) ${error} (correlationId: '${correlationId}')`,
+          { correlationId },
+        );
       }
     }
 
@@ -95,18 +120,22 @@ const patchUser = async (req, res) => {
           emailAddress: updatedUser.email,
         });
       } catch (error) {
-        if (error.name === 'ChangeEmailAddressAuthenticationMethodError') {
-          errorMessage.type = 'ChangeEmailAddressAuthenticationMethodError';
-          errorMessage.message = 'There was an error attempting to change the Entra MFA authentication email';
+        if (error.name === "ChangeEmailAddressAuthenticationMethodError") {
+          errorMessage.type = "ChangeEmailAddressAuthenticationMethodError";
+          errorMessage.message =
+            "There was an error attempting to change the Entra MFA authentication email";
         }
         emailChangeFailed = true;
-        logger.error(`patchUser req.externalAuth.changeEmail failed for user '${user.sub}' with entraOid ${user.entra_oid} for the reason(s) ${error} (correlationId: '${correlationId}')`, { correlationId });
+        logger.error(
+          `patchUser req.externalAuth.changeEmail failed for user '${user.sub}' with entraOid ${user.entra_oid} for the reason(s) ${error} (correlationId: '${correlationId}')`,
+          { correlationId },
+        );
       }
     }
 
     if (nameChangeFailed === true || emailChangeFailed === true) {
       // All error types will revert the changes except for ChangeEmailAddressAuthenticationMethodError which is a failure of the MFA change.
-      if (errorMessage.type !== 'ChangeEmailAddressAuthenticationMethodError') {
+      if (errorMessage.type !== "ChangeEmailAddressAuthenticationMethodError") {
         await update(
           updatedUser.sub,
           nameChangeFailed ? user.given_name : updatedUser.given_name,

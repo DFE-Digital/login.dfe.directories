@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-const logger = require('./../../../infrastructure/logger');
-const storage = require('./../data');
+const logger = require("./../../../infrastructure/logger");
+const storage = require("./../data");
 
 const validate = async (req, res) => {
   try {
@@ -11,12 +11,16 @@ const validate = async (req, res) => {
     }
     const uid = req.params.uid;
 
-    let codeType = 'PasswordReset';
+    let codeType = "PasswordReset";
     if (req.params.codeType) {
       codeType = req.params.codeType;
     }
 
-    const code = await storage.getUserCode(uid, codeType, req.header('x-correlation-id'));
+    const code = await storage.getUserCode(
+      uid,
+      codeType,
+      req.header("x-correlation-id"),
+    );
 
     if (!code) {
       res.status(404).send();

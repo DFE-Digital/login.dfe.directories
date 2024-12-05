@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 module.exports = model;
 
@@ -10,27 +10,27 @@ function model(sequelize) {
       allowNull: false,
     },
     email: {
-      type: 'VARCHAR(255)',
+      type: "VARCHAR(255)",
       allowNull: false,
     },
     given_name: {
-      type: 'VARCHAR(255)',
+      type: "VARCHAR(255)",
       allowNull: false,
     },
     job_title: {
-      type: 'VARCHAR(255)',
+      type: "VARCHAR(255)",
       allowNull: true,
     },
     family_name: {
-      type: 'VARCHAR(255)',
+      type: "VARCHAR(255)",
       allowNull: false,
     },
     password: {
-      type: 'VARCHAR(5000)',
+      type: "VARCHAR(5000)",
       allowNull: false,
     },
     salt: {
-      type: 'VARCHAR(255)',
+      type: "VARCHAR(255)",
       allowNull: false,
     },
     status: {
@@ -39,13 +39,13 @@ function model(sequelize) {
       defaultValue: Sequelize.SMALLINT,
     },
     phone_number: {
-      type: 'VARCHAR(50)',
+      type: "VARCHAR(50)",
     },
     last_login: {
-      type: 'DateTime',
+      type: "DateTime",
     },
     prev_login: {
-      type: 'DateTime',
+      type: "DateTime",
     },
     isMigrated: {
       type: Sequelize.BOOLEAN,
@@ -67,7 +67,7 @@ function model(sequelize) {
       allowNull: true,
     },
     entra_linked: {
-      type: 'DateTime',
+      type: "DateTime",
       allowNull: true,
     },
   };
@@ -77,7 +77,7 @@ function model(sequelize) {
     timestamps: true,
     defaultScope: {
       // exclude password hash by default
-      attributes: { exclude: ['passwordHash'] },
+      attributes: { exclude: ["passwordHash"] },
     },
     scopes: {
       // include hash with this scope
@@ -85,5 +85,5 @@ function model(sequelize) {
     },
   };
 
-  return sequelize.define('user', attributes, options);
+  return sequelize.define("user", attributes, options);
 }

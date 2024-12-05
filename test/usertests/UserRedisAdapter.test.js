@@ -1,5 +1,3 @@
-"use strict";
-
 jest.mock("./../../src/infrastructure/config", () => ({
   adapter: {
     params: {

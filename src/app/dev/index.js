@@ -1,5 +1,3 @@
-"use strict";
-
 const listEndpoints = require("express-list-endpoints");
 const express = require("express");
 const { asyncWrapper } = require("login.dfe.express-error-handling");

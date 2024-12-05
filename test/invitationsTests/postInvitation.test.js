@@ -1,5 +1,3 @@
-"use strict";
-
 jest.mock("./../../src/app/invitations/data");
 jest.mock("./../../src/app/invitations/utils", () => ({
   generateInvitationCode: jest.fn().mockReturnValue("invite-code"),

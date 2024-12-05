@@ -1,5 +1,3 @@
-"use strict";
-
 const Redis = require("ioredis");
 const crypto = require("crypto");
 const { promisify } = require("util");

@@ -1,7 +1,6 @@
 const listEndpoints = require("express-list-endpoints");
 const express = require("express");
 const { asyncWrapper } = require("login.dfe.express-error-handling");
-const config = require("./../../infrastructure/config");
 
 const usersAdapter = require("./../user/adapter");
 const codesAdapter = require("./../userCodes/data");
@@ -23,7 +22,7 @@ const routes = () => {
     asyncWrapper(async (req, res) => {
       try {
         let page = 1;
-        if (req.query.page && parseInt(req.query.page, 10) !== NaN) {
+        if (req.query.page && !Number.isNaN(parseInt(req.query.page, 10))) {
           page = parseInt(req.query.page, 10);
         }
         const pageOfUsers = await usersAdapter.list(page);

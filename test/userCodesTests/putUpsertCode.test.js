@@ -23,14 +23,12 @@ jest.mock("./../../src/app/userCodes/data/redisUserCodeStorage", () => {
       email: "test@unit.local",
       codeType,
     }));
-  const updateUserCodeStub = jest
-    .fn()
-    .mockImplementation((uid, email, data, ruri, cid) => ({
-      uid: "7654321",
-      code: "EDC345",
-      redirectUri: "http://local.test",
-      email: "test@unit.local",
-    }));
+  const updateUserCodeStub = jest.fn().mockImplementation(() => ({
+    uid: "7654321",
+    code: "EDC345",
+    redirectUri: "http://local.test",
+    email: "test@unit.local",
+  }));
   return {
     createUserCode: jest.fn().mockImplementation(createUserCodeStub),
     getUserCode: jest.fn().mockImplementation(getUserCodeStub),

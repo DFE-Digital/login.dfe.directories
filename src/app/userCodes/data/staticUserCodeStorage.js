@@ -1,10 +1,10 @@
 const logger = require("./../../../infrastructure/logger");
 
-const listUsersCodes = async (uid, correlationId) => {
+const listUsersCodes = async () => {
   return Promise.resolve([{ code: "ABC123", type: "PasswordReset" }]);
 };
 
-const getUserCode = async (uid, correlationId) => {
+const getUserCode = async (correlationId) => {
   try {
     logger.info(
       `Static - Find User Password Reset Code for request: ${correlationId}`,

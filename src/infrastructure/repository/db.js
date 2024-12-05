@@ -1,14 +1,9 @@
-const tedious = require("tedious");
 const { Sequelize } = require("sequelize");
 const assert = require("assert");
 
 const config = require("../config");
 
-const { Op } = Sequelize;
-
-module.exports = db = {};
-
-initialize();
+let db = {};
 
 async function initialize() {
   const databaseName = config.adapter.params.name || "mssql";
@@ -112,3 +107,6 @@ async function initialize() {
   // sync all models with database
   await sequelize.sync({ alter: false, force: false });
 }
+
+initialize();
+module.exports = db;

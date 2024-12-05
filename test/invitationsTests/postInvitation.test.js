@@ -44,7 +44,6 @@ const redisStorage = require("../../src/app/invitations/data");
 const userStorage = require("../../src/app/user/adapter");
 const { getServiceById } = require("../../src/infrastructure/applications");
 const post = require("../../src/app/invitations/api/postInvitations");
-const { default: redisMock } = require("ioredis-mock");
 
 describe("When creating an invitation", () => {
   let res;

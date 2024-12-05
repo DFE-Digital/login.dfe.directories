@@ -36,10 +36,8 @@ const findByUsername = async (username) =>
       return resolve(userModel);
     });
   });
-const list = async (page = 1, pageSize = 10) => {
+const list = async () => {
   throw new Error("List method is not implemented for AAD");
-  error.type = "E_NOTIMPLEMENTED";
-  throw error;
 };
 
 const authenticate = (username, password) =>
@@ -62,36 +60,16 @@ const authenticate = (username, password) =>
     });
   });
 
-const update = async (
-  uid,
-  given_name,
-  family_name,
-  email,
-  phone_number,
-  prev_login,
-  correlationId,
-) => {
+const update = async () => {
   throw new Error("Update method is not implemented for AAD");
-  error.type = "E_NOTIMPLEMENTED";
-  throw error;
 };
 
-const findByLegacyUsername = async (username, correlationId) => {
-  throw new Error("Find by legacy username is not implemented for AAD");
-  error.type = "E_NOTIMPLEMENTED";
-  throw error;
-};
-
-const getLegacyUsernames = async (username, correlationId) => {
+const getLegacyUsernames = async () => {
   throw new Error("Get legacy usernames is not implemented for AAD");
-  error.type = "E_NOTIMPLEMENTED";
-  throw error;
 };
 
-const updateLastLogin = async (uid, correlationId) => {
+const updateLastLogin = async () => {
   throw new Error("updateLastLogin is not implemented for AAD");
-  error.type = "E_NOTIMPLEMENTED";
-  throw error;
 };
 
 module.exports = {

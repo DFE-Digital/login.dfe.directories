@@ -22,9 +22,9 @@ const safeUser = (user) => {
 
   return {
     ...rest,
-    isEntra: rawSafeUser.is_entra,
-    entraOid: rawSafeUser.entra_oid,
-    entraLinked: rawSafeUser.entra_linked,
+    isEntra: is_entra,
+    entraOid: entra_oid,
+    entraLinked: entra_linked,
   };
 };
 

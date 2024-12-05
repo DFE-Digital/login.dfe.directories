@@ -234,12 +234,7 @@ const findAllKeys = async () => {
   });
 };
 
-const list = async (
-  page = 1,
-  pageSize = 10,
-  changedAfter = undefined,
-  correlationId,
-) => {
+const list = async (page = 1, pageSize = 10, correlationId) => {
   logger.info(`Get user list for request: ${correlationId}`, { correlationId });
 
   const userList = await findAllKeys();
@@ -389,24 +384,18 @@ const update = async (
   }
 };
 
-const findByLegacyUsername = async (username, correlationId) => {
+const findByLegacyUsername = async () => {
   throw new Error(
     "Find by legacy username is not implemented for Redis Adapter",
   );
-  error.type = "E_NOTIMPLEMENTED";
-  throw error;
 };
 
-const getLegacyUsernames = async (username, correlationId) => {
+const getLegacyUsernames = async () => {
   throw new Error("Get legacy usernames is not implemented for Redis Adapter");
-  error.type = "E_NOTIMPLEMENTED";
-  throw error;
 };
 
-const updateLastLogin = async (uid, correlationId) => {
+const updateLastLogin = async () => {
   throw new Error("updateLastLogin is not implemented for Redis Adapter");
-  error.type = "E_NOTIMPLEMENTED";
-  throw error;
 };
 
 module.exports = {

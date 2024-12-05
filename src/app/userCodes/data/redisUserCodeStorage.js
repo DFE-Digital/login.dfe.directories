@@ -6,7 +6,7 @@ const logger = require("./../../../infrastructure/logger");
 const tls = config.userCodes.params.redisUrl.includes("6380");
 const client = new Redis(config.userCodes.params.redisUrl, { tls });
 
-const listUsersCodes = async (uid, correlationId) => {
+const listUsersCodes = async () => {
   throw new Error("listUsersCodes not implemented in redis adapter");
 };
 const find = async (uid, codeType) => {

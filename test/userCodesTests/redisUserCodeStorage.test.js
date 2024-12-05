@@ -347,7 +347,7 @@ describe("When using redis user code storage", () => {
       );
       expect(record).not.toBeNull();
       expect(record.code).toBe("ZXY123");
-      expect(record.contextData).toBe('{\"something\":\"test\"}');
+      expect(record.contextData).toBe('{"something":"test"}');
     });
 
     it("then if the email is different a new code is generated", async () => {

@@ -1,14 +1,9 @@
-const tedious = require("tedious");
 const { Sequelize } = require("sequelize");
 const assert = require("assert");
 
 const config = require("../config");
 
-const { Op } = Sequelize;
-
-module.exports = db = {};
-
-initialize();
+const db = {};
 
 async function initialize() {
   const databaseName = config.adapter.params.name || "mssql";
@@ -66,7 +61,6 @@ async function initialize() {
       idle: config.adapter.params.pool.idle,
     };
   }
-  // db = new Sequelize(databaseName, config.adapter.params.username, config.adapter.params.password, dbOpts);
   // connect to db
   const sequelize = new Sequelize(
     databaseName,
@@ -76,34 +70,31 @@ async function initialize() {
   );
 
   // init models and add them to the exported db object
-  this.db.user = require("./user.model")(sequelize);
-  this.db.userCode = require("./userCode.model")(sequelize);
-  this.db.userPasswordPolicy = require("./userPasswordPolicy.model")(sequelize);
-  this.db.userLegacyUsername = require("./userLegacyUsername.model")(sequelize);
-  this.db.passwordHistory = require("./passwordHistory.model")(sequelize);
-  this.db.userPasswordHistory = require("./userPasswordHistory.model")(
-    sequelize,
-  );
-  this.db.invitation = require("./invitation.model")(sequelize);
-  this.db.invitationCallback = require("./invitationCallback.model")(sequelize);
-  // define associations?
-  // db.user.belongsTo(db.userPasswordPolicy, { sourceKey: 'sub' });
-  this.db.userPasswordPolicy.belongsTo(this.db.user, {
+  db.user = require("./user.model")(sequelize);
+  db.userCode = require("./userCode.model")(sequelize);
+  db.userPasswordPolicy = require("./userPasswordPolicy.model")(sequelize);
+  db.userLegacyUsername = require("./userLegacyUsername.model")(sequelize);
+  db.passwordHistory = require("./passwordHistory.model")(sequelize);
+  db.userPasswordHistory = require("./userPasswordHistory.model")(sequelize);
+  db.invitation = require("./invitation.model")(sequelize);
+  db.invitationCallback = require("./invitationCallback.model")(sequelize);
+  // define associations
+  db.userPasswordPolicy.belongsTo(db.user, {
     foreignKey: "uid",
     sourceKey: "sub",
     as: "user",
   });
-  this.db.user.hasMany(this.db.userLegacyUsername, {
+  db.user.hasMany(db.userLegacyUsername, {
     foreignKey: "uid",
     sourceKey: "sub",
   });
-  this.db.user.belongsToMany(this.db.passwordHistory, {
-    through: this.db.userPasswordHistory,
+  db.user.belongsToMany(db.passwordHistory, {
+    through: db.userPasswordHistory,
   });
-  this.db.passwordHistory.belongsToMany(this.db.user, {
-    through: this.db.userPasswordHistory,
+  db.passwordHistory.belongsToMany(db.user, {
+    through: db.userPasswordHistory,
   });
-  this.db.invitation.hasMany(this.db.invitationCallback, {
+  db.invitation.hasMany(db.invitationCallback, {
     foreignKey: "invitationId",
     sourceKey: "id",
     as: "callbacks",
@@ -112,3 +103,6 @@ async function initialize() {
   // sync all models with database
   await sequelize.sync({ alter: false, force: false });
 }
+
+initialize();
+module.exports = db;

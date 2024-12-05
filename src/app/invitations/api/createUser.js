@@ -1,5 +1,3 @@
-"use strict";
-
 const {
   PublicApiClient,
   ServiceNotificationsClient,
@@ -19,12 +17,9 @@ const createUser = async (req, res) => {
       return res.status(400).send();
     }
     if ((password && entraOid) || (!password && !entraOid)) {
-      return res
-        .status(400)
-        .send({
-          message:
-            "Provide either password or entraOid, but not both or neither",
-        });
+      return res.status(400).send({
+        message: "Provide either password or entraOid, but not both or neither",
+      });
     }
 
     const invitation = await getUserInvitation(

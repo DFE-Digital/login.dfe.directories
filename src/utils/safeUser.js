@@ -1,6 +1,3 @@
-/* eslint-disable camelcase */
-"use strict";
-
 const { pick } = require("lodash");
 
 const safeUser = (user) => {

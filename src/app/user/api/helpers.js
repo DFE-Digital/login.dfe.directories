@@ -14,7 +14,6 @@ const addLegacyUsernames = async (user, correlationId) => {
     (lun) => lun.uid.toLowerCase() === user.sub.toLowerCase(),
   );
   if (userLegacyUsernames && userLegacyUsernames.length > 0) {
-    // eslint-disable-next-line no-param-reassign
     user.legacyUsernames = userLegacyUsernames.map(
       (lun) => lun.legacy_username,
     );

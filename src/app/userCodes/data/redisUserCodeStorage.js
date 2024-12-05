@@ -1,5 +1,3 @@
-"use strict";
-
 const Redis = require("ioredis");
 const config = require("./../../../infrastructure/config");
 const resetCode = require("./../utils/generateResetCode");

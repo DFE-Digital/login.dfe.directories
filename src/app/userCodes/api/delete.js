@@ -1,5 +1,3 @@
-"use strict";
-
 const storage = require("./../data");
 const logger = require("./../../../infrastructure/logger");
 

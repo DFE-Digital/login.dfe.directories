@@ -1,5 +1,3 @@
-"use strict";
-
 const alwaysOnFilter = require("./middleware/alwaysOnFilter");
 const config = require("./infrastructure/config");
 const logger = require("./infrastructure/logger");

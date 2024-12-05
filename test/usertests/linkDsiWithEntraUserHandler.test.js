@@ -93,7 +93,7 @@ describe("When calling the linkDsiUserWithEntra endpoint", () => {
     await linkDsiUserWithEntra(req, res);
 
     expect(res.statusCode).toBe(200);
-    // eslint-disable-next-line no-underscore-dangle
+
     expect(res._getData()).toMatchObject({
       sub: "78071717-4247-480d-90a3-3d531379ebf8",
       entraOid: "78071717-4247-480d-90a3-3d531379ebf8",
@@ -111,7 +111,7 @@ describe("When calling the linkDsiUserWithEntra endpoint", () => {
     await linkDsiUserWithEntra(req, res);
 
     expect(res.statusCode).toBe(200);
-    // eslint-disable-next-line no-underscore-dangle
+
     expect(res._getData()).toMatchObject({
       sub: "78071717-4247-480d-90a3-3d531379ebf8",
       entraOid: "78071717-4247-480d-90a3-3d531379ebf8",
@@ -128,7 +128,7 @@ describe("When calling the linkDsiUserWithEntra endpoint", () => {
     await linkDsiUserWithEntra(req, res);
 
     expect(res.statusCode).toBe(200);
-    // eslint-disable-next-line no-underscore-dangle
+
     expect(res._getData()).toMatchObject({
       sub: "78071717-4247-480d-90a3-3d531379ebf8",
       entraOid: "78071717-4247-480d-90a3-3d531379ebf8",
@@ -146,7 +146,7 @@ describe("When calling the linkDsiUserWithEntra endpoint", () => {
     await linkDsiUserWithEntra(req, res);
 
     expect(res.statusCode).toBe(200);
-    // eslint-disable-next-line no-underscore-dangle
+
     expect(res._getData()).toMatchObject({
       sub: "78071717-4247-480d-90a3-3d531379ebf8",
       entraOid: "78071717-4247-480d-90a3-3d531379ebf8",
@@ -164,7 +164,7 @@ describe("When calling the linkDsiUserWithEntra endpoint", () => {
     await linkDsiUserWithEntra(req, res);
 
     expect(res.statusCode).toBe(200);
-    // eslint-disable-next-line no-underscore-dangle
+
     expect(res._getData()).toMatchObject({
       sub: "78071717-4247-480d-90a3-3d531379ebf8",
       entraOid: "78071717-4247-480d-90a3-3d531379ebf8",

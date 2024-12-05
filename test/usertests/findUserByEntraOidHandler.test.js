@@ -89,7 +89,6 @@ describe("When calling the findByEntraOid endpoint", () => {
 
     expect(res.statusCode).toBe(200);
 
-    // eslint-disable-next-line no-underscore-dangle
     expect(res._getData()).toMatchObject(fakeUser);
   });
 

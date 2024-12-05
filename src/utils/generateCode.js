@@ -1,5 +1,3 @@
-"use strict";
-
 const crypto = require("crypto");
 
 const NUMERIC_CHARSET = "123456789";

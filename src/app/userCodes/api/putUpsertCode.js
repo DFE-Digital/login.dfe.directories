@@ -1,5 +1,3 @@
-"use strict";
-
 const { NotificationClient } = require("login.dfe.jobs-client");
 const { v4: uuid } = require("uuid");
 const logger = require("../../../infrastructure/logger");

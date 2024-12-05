@@ -1,20 +1,21 @@
-jest.mock('login.dfe.jobs-client');
-jest.mock('./../../src/app/user/adapter', () => ({
+jest.mock("login.dfe.jobs-client");
+jest.mock("./../../src/app/user/adapter", () => ({
   findByUsername: jest.fn(),
   create: jest.fn(),
   findByEntraOid: jest.fn(),
 }));
 
-jest.mock('./../../src/infrastructure/logger', () => {
+jest.mock("./../../src/infrastructure/logger", () => {
   return {
     error: jest.fn(),
-    info: jest.fn(),};
+    info: jest.fn(),
+  };
 });
 
-jest.mock('./../../src/infrastructure/config', () => {
+jest.mock("./../../src/infrastructure/config", () => {
   return {
     notifications: {
-      connectionString: 'notifications-connection-string',
+      connectionString: "notifications-connection-string",
     },
     toggles: {
       notificationsEnabled: true,
@@ -22,15 +23,19 @@ jest.mock('./../../src/infrastructure/config', () => {
   };
 });
 
-const { ServiceNotificationsClient } = require('login.dfe.jobs-client');
-const { findByUsername, create, findByEntraOid } = require('../../src/app/user/adapter');
-const createUser = require('../../src/app/user/api/createUser');
-const httpMocks = require('node-mocks-http');
-const logger = require('../../src/infrastructure/logger');
+const { ServiceNotificationsClient } = require("login.dfe.jobs-client");
+const {
+  findByUsername,
+  create,
+  findByEntraOid,
+} = require("../../src/app/user/adapter");
+const createUser = require("../../src/app/user/api/createUser");
+const httpMocks = require("node-mocks-http");
+const logger = require("../../src/infrastructure/logger");
 
 const newUser = {
-  sub: 'some-new-id',
-  password: 'somepassword',
+  sub: "some-new-id",
+  password: "somepassword",
   status: 1,
 };
 
@@ -38,25 +43,25 @@ const serviceNotificationsClient = {
   notifyUserUpdated: jest.fn(),
 };
 
-describe('When creating a user', () => {
+describe("When creating a user", () => {
   let req;
   let res;
-  const expectedRequestCorrelationId = 'some-correlation-id';
+  const expectedRequestCorrelationId = "some-correlation-id";
 
   beforeEach(() => {
     req = {
       params: {
-        id: 'a516696c-168c-4680-8dfb-1512d6fc234c',
+        id: "a516696c-168c-4680-8dfb-1512d6fc234c",
       },
       body: {
-        email: 'test@local',
-        password: 'password-test',
-        firstName: 'Test',
-        lastName: 'Tester',
-        phone_number: '07700 900000',
+        email: "test@local",
+        password: "password-test",
+        firstName: "Test",
+        lastName: "Tester",
+        phone_number: "07700 900000",
       },
       headers: {
-        'x-correlation-id': expectedRequestCorrelationId,
+        "x-correlation-id": expectedRequestCorrelationId,
       },
       header(header) {
         return this.headers[header];
@@ -69,23 +74,25 @@ describe('When creating a user', () => {
     create.mockReset().mockReturnValue(newUser);
 
     serviceNotificationsClient.notifyUserUpdated.mockReset();
-    ServiceNotificationsClient.mockReset().mockImplementation(() => serviceNotificationsClient);
+    ServiceNotificationsClient.mockReset().mockImplementation(
+      () => serviceNotificationsClient,
+    );
   });
 
   afterEach(() => {
     expect(res._isEndCalled()).toBe(true);
   });
 
-  it('then if the params are missing a bad request is returned', async () => {
-    req.body.email = '';
+  it("then if the params are missing a bad request is returned", async () => {
+    req.body.email = "";
 
     await createUser(req, res);
 
     expect(res.statusCode).toBe(400);
   });
 
-  it('then if a user already exists with that user a conflict error is returned', async () => {
-    findByUsername.mockReturnValue({ email: 'some@local' });
+  it("then if a user already exists with that user a conflict error is returned", async () => {
+    findByUsername.mockReturnValue({ email: "some@local" });
 
     await createUser(req, res);
 
@@ -95,7 +102,7 @@ describe('When creating a user', () => {
     expect(res.statusCode).toBe(409);
   });
 
-  it('then if the request is valid then the call is made to the repository to create the user', async () => {
+  it("then if the request is valid then the call is made to the repository to create the user", async () => {
     await createUser(req, res);
 
     expect(create.mock.calls).toHaveLength(1);
@@ -107,8 +114,8 @@ describe('When creating a user', () => {
     expect(create.mock.calls[0][6]).toBe(expectedRequestCorrelationId);
   });
 
-  it('then if the legacy_username is provided in the body it is passed to the repository', async () => {
-    req.body.legacy_username = '123asd';
+  it("then if the legacy_username is provided in the body it is passed to the repository", async () => {
+    req.body.legacy_username = "123asd";
 
     await createUser(req, res);
 
@@ -116,23 +123,32 @@ describe('When creating a user', () => {
     expect(create.mock.calls[0][4]).toBe(req.body.legacy_username);
   });
 
-  it('then the user is returned in the response', async () => {
+  it("then the user is returned in the response", async () => {
     await createUser(req, res);
 
-    expect(res._getData().sub).toBe('some-new-id');
+    expect(res._getData().sub).toBe("some-new-id");
     expect(res._getData().password).toBe(undefined);
   });
 
-  it('then a user updated notification is sent', async () => {
+  it("then a user updated notification is sent", async () => {
     await createUser(req, res);
 
     expect(ServiceNotificationsClient).toHaveBeenCalledTimes(1);
-    expect(ServiceNotificationsClient).toHaveBeenCalledWith({ connectionString: 'notifications-connection-string' });
-    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledTimes(1);
-    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledWith(Object.assign({}, newUser, { status: newUser.status, password: undefined }));
+    expect(ServiceNotificationsClient).toHaveBeenCalledWith({
+      connectionString: "notifications-connection-string",
+    });
+    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledTimes(
+      1,
+    );
+    expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledWith(
+      Object.assign({}, newUser, {
+        status: newUser.status,
+        password: undefined,
+      }),
+    );
   });
 
-  it('should return 400 if no firstName is provided', async () => {
+  it("should return 400 if no firstName is provided", async () => {
     req.body.firstName = null;
 
     await createUser(req, res);
@@ -140,7 +156,7 @@ describe('When creating a user', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  it('should return 400 if no lastName is provided', async () => {
+  it("should return 400 if no lastName is provided", async () => {
     req.body.lastName = null;
 
     await createUser(req, res);
@@ -148,15 +164,15 @@ describe('When creating a user', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  it('should return 400 if the request contains both password and entraOid', async () => {
-    req.body.entraOid = '01913788-ab6a-705e-b861-de8a60edfdb8';
+  it("should return 400 if the request contains both password and entraOid", async () => {
+    req.body.entraOid = "01913788-ab6a-705e-b861-de8a60edfdb8";
 
     await createUser(req, res);
 
     expect(res.statusCode).toBe(400);
   });
 
-  it('should return 400 if no password or entraOid is provided', async () => {
+  it("should return 400 if no password or entraOid is provided", async () => {
     req.body.entraOid = null;
     req.body.password = null;
 
@@ -165,11 +181,14 @@ describe('When creating a user', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  it('should return 409 if an existing user has been assigned the entraOid', async () => {
+  it("should return 409 if an existing user has been assigned the entraOid", async () => {
     req.body.password = null;
-    req.body.entraOid = '01913788-ab6a-705e-b861-de8a60edfdb8';
+    req.body.entraOid = "01913788-ab6a-705e-b861-de8a60edfdb8";
 
-    findByEntraOid.mockReturnValue({ sub: '8b6141a6-294c-4bde-ba9b-2e6e68c87af8', entra_oid: '01913788-ab6a-705e-b861-de8a60edfdb8' });
+    findByEntraOid.mockReturnValue({
+      sub: "8b6141a6-294c-4bde-ba9b-2e6e68c87af8",
+      entra_oid: "01913788-ab6a-705e-b861-de8a60edfdb8",
+    });
 
     await createUser(req, res);
 
@@ -177,20 +196,22 @@ describe('When creating a user', () => {
     expect(res.statusCode).toBe(409);
   });
 
-  it('should return 500 in the event of an exception being thrown', async () => {
+  it("should return 500 in the event of an exception being thrown", async () => {
     req.body.password = null;
-    req.body.entraOid = '01913788-ab6a-705e-b861-de8a60edfdb8';
+    req.body.entraOid = "01913788-ab6a-705e-b861-de8a60edfdb8";
 
-    findByEntraOid.mockImplementation(() => { throw new Error(); });
+    findByEntraOid.mockImplementation(() => {
+      throw new Error();
+    });
 
     await createUser(req, res);
 
     expect(res.statusCode).toBe(500);
   });
 
-  it('should create a user assigned to entraOid', async () => {
+  it("should create a user assigned to entraOid", async () => {
     req.body.password = null;
-    req.body.entraOid = 'd0c342aa-549f-4992-ae00-e8fdc47592a9';
+    req.body.entraOid = "d0c342aa-549f-4992-ae00-e8fdc47592a9";
 
     findByEntraOid.mockReturnValue(undefined);
 
@@ -205,7 +226,7 @@ describe('When creating a user', () => {
       undefined,
       req.body.phone_number,
       expectedRequestCorrelationId,
-      'd0c342aa-549f-4992-ae00-e8fdc47592a9',
+      "d0c342aa-549f-4992-ae00-e8fdc47592a9",
     ]);
   });
 });

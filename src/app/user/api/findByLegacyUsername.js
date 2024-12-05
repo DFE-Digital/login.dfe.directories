@@ -1,6 +1,6 @@
-const userAdapter = require('./../adapter');
-const logger = require('./../../../infrastructure/logger');
-const { safeUser } = require('./../../../utils');
+const userAdapter = require("./../adapter");
+const logger = require("./../../../infrastructure/logger");
+const { safeUser } = require("./../../../utils");
 
 const find = async (req, res) => {
   try {
@@ -8,7 +8,10 @@ const find = async (req, res) => {
       return res.status(400).send();
     }
 
-    const user = await userAdapter.findByLegacyUsername(req.params.id, req.header('x-correlation-id'));
+    const user = await userAdapter.findByLegacyUsername(
+      req.params.id,
+      req.header("x-correlation-id"),
+    );
 
     if (!user) {
       return res.status(404).send();

@@ -1,8 +1,8 @@
-const Sequelize = require('sequelize');
+const Sequelize = require("sequelize");
 
 const { Op, TableHints } = Sequelize;
-const logger = require('../../../../infrastructure/logger');
-const db = require('../../../../infrastructure/repository/db');
+const logger = require("../../../../infrastructure/logger");
+const db = require("../../../../infrastructure/repository/db");
 
 const findUserById = async (id, correlationId) => {
   try {
@@ -21,7 +21,10 @@ const findUserById = async (id, correlationId) => {
 
     return userEntity;
   } catch (e) {
-    logger.error(`error getting user id:${id} - ${e.message} for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(
+      `error getting user id:${id} - ${e.message} for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
     throw e;
   }
 };

@@ -1,6 +1,6 @@
-const generate = require('./generateCode');
-const deprecateWith = require('./deprecateMiddleware');
-const safeUser = require('./safeUser');
+const generate = require("./generateCode");
+const deprecateWith = require("./deprecateMiddleware");
+const safeUser = require("./safeUser");
 
 module.exports = {
   NUMERIC_CHARSET: generate.NUMERIC_CHARSET,

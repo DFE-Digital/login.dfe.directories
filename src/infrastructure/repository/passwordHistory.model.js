@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 module.exports = model;
 
@@ -10,7 +10,7 @@ function model(sequelize) {
       allowNull: false,
     },
     password: {
-      type: 'VARCHAR(5000)',
+      type: "VARCHAR(5000)",
       allowNull: false,
     },
     salt: {
@@ -24,5 +24,5 @@ function model(sequelize) {
     timestamps: true,
   };
 
-  return sequelize.define('password_history', attributes, options);
+  return sequelize.define("password_history", attributes, options);
 }

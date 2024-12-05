@@ -1,8 +1,14 @@
-const logger = require('../../../../infrastructure/logger');
-const findUserById = require('./findUserByIdHelper');
-const findUserByEntraOidHelper = require('./findUserByEntraOidHelper');
+const logger = require("../../../../infrastructure/logger");
+const findUserById = require("./findUserByIdHelper");
+const findUserByEntraOidHelper = require("./findUserByEntraOidHelper");
 
-const linkUserWithEntraOid = async (uid, entraOid, firstName, lastName, correlationId) => {
+const linkUserWithEntraOid = async (
+  uid,
+  entraOid,
+  firstName,
+  lastName,
+  correlationId,
+) => {
   try {
     const userEntity = await findUserById(uid, correlationId);
 
@@ -10,9 +16,15 @@ const linkUserWithEntraOid = async (uid, entraOid, firstName, lastName, correlat
       return null;
     }
 
-    const alreadyLinkedUserEntity = await findUserByEntraOidHelper(entraOid, correlationId);
+    const alreadyLinkedUserEntity = await findUserByEntraOidHelper(
+      entraOid,
+      correlationId,
+    );
     if (alreadyLinkedUserEntity) {
-      logger.error(`Cannot link entra oid '${entraOid}' with DSI user '${userEntity.sub}' because it has already been linked to a DSI user '${alreadyLinkedUserEntity.sub}' (correlation id: ${correlationId})`, { correlationId });
+      logger.error(
+        `Cannot link entra oid '${entraOid}' with DSI user '${userEntity.sub}' because it has already been linked to a DSI user '${alreadyLinkedUserEntity.sub}' (correlation id: ${correlationId})`,
+        { correlationId },
+      );
       return null;
     }
 
@@ -33,8 +45,11 @@ const linkUserWithEntraOid = async (uid, entraOid, firstName, lastName, correlat
 
     return updatedUser;
   } catch (e) {
-    logger.error(`linkUserWithEntra failed for request ${correlationId} error: ${e}`, { correlationId });
-    throw (e);
+    logger.error(
+      `linkUserWithEntra failed for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
+    throw e;
   }
 };
 

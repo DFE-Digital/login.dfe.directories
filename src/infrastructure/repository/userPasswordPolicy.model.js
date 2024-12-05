@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 module.exports = model;
 
@@ -28,5 +28,5 @@ function model(sequelize) {
     timestamps: true,
   };
 
-  return sequelize.define('user_password_policy', attributes, options);
+  return sequelize.define("user_password_policy", attributes, options);
 }

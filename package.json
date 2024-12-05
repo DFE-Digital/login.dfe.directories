@@ -48,9 +48,11 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.23.0",
     "eslint-plugin-jest": "^27.6.0",
+    "husky": "^9.1.7",
     "ioredis-mock": "^8.9.0",
     "jest": "^29.6.3",
     "jest-cli": "^29.6.3",
+    "lint-staged": "^15.2.10",
     "node-mocks-http": "^1.10.1",
     "nodemon": "^3.0.1",
     "prettier": "^3.4.2"
@@ -70,7 +72,11 @@
     "dev": "settings='./config/login.dfe.directories.dev.json' PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
     "start_live": "node src/index.js",
     "format": "prettier . --write",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   },
   "engines": {
     "node": "20.x.x"

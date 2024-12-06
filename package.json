@@ -1,12 +1,32 @@
 {
   "name": "login.dfe.directories",
-  "jest": {
-    "testEnvironment": "node",
-    "collectCoverage": false,
-    "clearMocks": true
-  },
   "version": "9.0.0",
-  "description": "API to return list of users",
+  "engines": {
+    "node": "20.x.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DFE-Digital/login.dfe.directories.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "setup": "./generate-certs.sh",
+    "dev": "settings='./config/login.dfe.directories.dev.json' PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
+    "dev:checks": "npm run lint && npm run test",
+    "format": "prettier . --write",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:report": "eslint . -f junit -o eslint-results.xml",
+    "test": "jest --coverage --detectOpenHandles --forceExit",
+    "test:report": "jest --coverage --reporters=default --reporters jest-junit --coverageReporters=clover",
+    "start": "node src/index.js",
+    "start_live": "node src/index.js",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
+  },
   "dependencies": {
     "activedirectory": "^0.7.2",
     "agentkeepalive": "^4.1.4",
@@ -59,34 +79,9 @@
     "nodemon": "^3.0.1",
     "prettier": "^3.4.2"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DFE-Digital/login.dfe.directories.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/DFE-Digital/login.dfe.directories/issues"
-  },
-  "scripts": {
-    "test": "jest --coverage --detectOpenHandles --forceExit",
-    "test:report": "jest --coverage --reporters=default --reporters jest-junit --coverageReporters=clover",
-    "setup": "./generate-certs.sh",
-    "dev": "settings='./config/login.dfe.directories.dev.json' PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
-    "start_live": "node src/index.js",
-    "format": "prettier . --write",
-    "start": "node src/index.js",
-    "dev:checks": "npm run lint && npm run test",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "lint:report": "eslint . -f junit -o eslint-results.xml",
-    "prepare": "husky"
-  },
-  "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
-  },
-  "engines": {
-    "node": "20.x.x"
-  },
-  "homepage": "https://github.com/DFE-Digital/login.dfe.directories#readme"
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": false,
+    "clearMocks": true
+  }
 }

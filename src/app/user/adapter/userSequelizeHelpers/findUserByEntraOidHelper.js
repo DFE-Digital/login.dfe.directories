@@ -1,12 +1,12 @@
-const Sequelize = require('sequelize');
+const Sequelize = require("sequelize");
 
 const { Op, TableHints } = Sequelize;
-const logger = require('../../../../infrastructure/logger');
-const db = require('../../../../infrastructure/repository/db');
+const logger = require("../../../../infrastructure/logger");
+const db = require("../../../../infrastructure/repository/db");
 
 const findUserByEntraOidHelper = async (entraOid, correlationId) => {
   try {
-    logger.info('Get user by entraOid for request', { correlationId });
+    logger.info("Get user by entraOid for request", { correlationId });
 
     const userEntity = await db.user.findOne({
       tableHint: TableHints.NOLOCK,

@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 module.exports = model;
 
@@ -17,7 +17,7 @@ function model(sequelize) {
     callbackUrl: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: '',
+      defaultValue: "",
     },
     clientId: {
       type: Sequelize.STRING,
@@ -30,5 +30,5 @@ function model(sequelize) {
     timestamps: true,
   };
 
-  return sequelize.define('invitation_callback', attributes, options);
+  return sequelize.define("invitation_callback", attributes, options);
 }

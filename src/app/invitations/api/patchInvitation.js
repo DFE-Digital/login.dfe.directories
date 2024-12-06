@@ -1,25 +1,33 @@
-const { NotificationClient } = require('login.dfe.jobs-client');
-const config = require('./../../../infrastructure/config');
-const { getUserInvitation, updateInvitation } = require('./../data');
-const { generateInvitationCode } = require('./../utils');
-const { getServiceById } = require('./../../../infrastructure/applications');
-const logger = require('../../../infrastructure/logger');
+const { NotificationClient } = require("login.dfe.jobs-client");
+const config = require("./../../../infrastructure/config");
+const { getUserInvitation, updateInvitation } = require("./../data");
+const { generateInvitationCode } = require("./../utils");
+const { getServiceById } = require("./../../../infrastructure/applications");
+const logger = require("../../../infrastructure/logger");
 
-const patchableProperties = ['email', 'isCompleted', 'deactivated', 'reason', 'callbacks'];
+const patchableProperties = [
+  "email",
+  "isCompleted",
+  "deactivated",
+  "reason",
+  "callbacks",
+];
 const patchablePropertiesMessage = patchableProperties.concat();
 
 const validatePatchProperties = (req) => {
   const patchProperties = req.body ? Object.keys(req.body) : [];
   if (patchProperties.length === 0) {
-    return 'No properties specified for patching';
+    return "No properties specified for patching";
   }
 
-  const propertyError = patchProperties.map((property) => {
-    if (!patchableProperties.find(x => x === property)) {
-      return `Invalid property patched - ${property}. Patchable properties are ${patchablePropertiesMessage}`;
-    }
-    return null;
-  }).find(x => x !== null);
+  const propertyError = patchProperties
+    .map((property) => {
+      if (!patchableProperties.find((x) => x === property)) {
+        return `Invalid property patched - ${property}. Patchable properties are ${patchablePropertiesMessage}`;
+      }
+      return null;
+    })
+    .find((x) => x !== null);
   if (propertyError) {
     return propertyError;
   }
@@ -29,19 +37,30 @@ const sendInvitation = async (invitation) => {
     connectionString: config.notifications.connectionString,
   });
 
-  const client = invitation.origin ? await getServiceById(invitation.origin.clientId) : undefined;
+  const client = invitation.origin
+    ? await getServiceById(invitation.origin.clientId)
+    : undefined;
   let friendlyName;
   if (client) {
     friendlyName = client.name;
   }
 
   await notificationClient.sendInvitation(
-    invitation.email, invitation.firstName, invitation.lastName, invitation.id, invitation.code,
-    friendlyName, invitation.selfStarted);
+    invitation.email,
+    invitation.firstName,
+    invitation.lastName,
+    invitation.id,
+    invitation.code,
+    friendlyName,
+    invitation.selfStarted,
+  );
 };
 
 const patchInvitation = async (req, res) => {
-  const invitation = await getUserInvitation(req.params.id, req.header('x-correlation-id'));
+  const invitation = await getUserInvitation(
+    req.params.id,
+    req.header("x-correlation-id"),
+  );
   if (!invitation) {
     return res.status(404).send();
   }
@@ -51,7 +70,10 @@ const patchInvitation = async (req, res) => {
     return res.status(400).send(requestError);
   }
 
-  const patchedInvitation = Object.assign(Object.assign({}, invitation), req.body);
+  const patchedInvitation = Object.assign(
+    Object.assign({}, invitation),
+    req.body,
+  );
 
   patchedInvitation.code = generateInvitationCode();
   patchedInvitation.codeMetaData = JSON.stringify({
@@ -59,13 +81,12 @@ const patchInvitation = async (req, res) => {
   });
 
   logger.audit({
-    type: 'invitation-code',
-    subType: 'patch-invitation',
+    type: "invitation-code",
+    subType: "patch-invitation",
     env: config.hostingEnvironment.env,
     application: config.loggerSettings.applicationName,
     message: `Update verify code ${patchedInvitation.code} for invitation id ${patchedInvitation.id}`,
   });
-
 
   await updateInvitation(patchedInvitation);
 

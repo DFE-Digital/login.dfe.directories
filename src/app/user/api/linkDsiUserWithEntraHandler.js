@@ -1,16 +1,16 @@
-const { ServiceNotificationsClient } = require('login.dfe.jobs-client');
-const { linkUserWithEntraOid } = require('../adapter');
-const logger = require('../../../infrastructure/logger');
-const { isUuid } = require('./helpers');
-const config = require('../../../infrastructure/config');
-const { safeUser } = require('../../../utils');
+const { ServiceNotificationsClient } = require("login.dfe.jobs-client");
+const { linkUserWithEntraOid } = require("../adapter");
+const logger = require("../../../infrastructure/logger");
+const { isUuid } = require("./helpers");
+const config = require("../../../infrastructure/config");
+const { safeUser } = require("../../../utils");
 
 /**
  * POST body with {"entraOid" : "", lastName": "", "firstName": ""}
  * lastName & firstName optional.
  */
 const linkDsiUserWithEntra = async (req, res) => {
-  const correlationId = req.header('x-correlation-id');
+  const correlationId = req.header("x-correlation-id");
   const { uid } = req.params;
   const { firstName, lastName, entraOid } = req.body || {};
 
@@ -22,7 +22,13 @@ const linkDsiUserWithEntra = async (req, res) => {
     return res.status(404).send();
   }
 
-  const updatedEntity = await linkUserWithEntraOid(uid, entraOid, firstName, lastName, correlationId);
+  const updatedEntity = await linkUserWithEntraOid(
+    uid,
+    entraOid,
+    firstName,
+    lastName,
+    correlationId,
+  );
 
   if (!updatedEntity) {
     return res.status(404).send();
@@ -36,8 +42,12 @@ const linkDsiUserWithEntra = async (req, res) => {
     const serviceNotificationsClient = new ServiceNotificationsClient({
       connectionString: config.notifications.connectionString,
     });
-    const jobId = await serviceNotificationsClient.notifyUserUpdated(safeEntity);
-    logger.info(`Send user updated notification for ${updatedEntity.sub} with job id ${jobId} (reason: linkDsiUserWithEntra)`, { correlationId });
+    const jobId =
+      await serviceNotificationsClient.notifyUserUpdated(safeEntity);
+    logger.info(
+      `Send user updated notification for ${updatedEntity.sub} with job id ${jobId} (reason: linkDsiUserWithEntra)`,
+      { correlationId },
+    );
   }
 
   res.send(safeEntity);

@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 module.exports = model;
 
@@ -21,5 +21,5 @@ function model(sequelize) {
     timestamps: true,
   };
 
-  return sequelize.define('user_legacy_username', attributes, options);
+  return sequelize.define("user_legacy_username", attributes, options);
 }

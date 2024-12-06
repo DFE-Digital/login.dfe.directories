@@ -1,10 +1,10 @@
-const config = require('./../../../infrastructure/config');
+const config = require("./../../../infrastructure/config");
 
 let adapter;
-if (config.invitations.type === 'sequelize') {
-  adapter = require('./sequelizeInvitationStorage');
+if (config.invitations.type === "sequelize") {
+  adapter = require("./sequelizeInvitationStorage");
 } else {
-  adapter = require('./redisInvitationStorage');
+  adapter = require("./redisInvitationStorage");
 }
 
 module.exports = adapter;

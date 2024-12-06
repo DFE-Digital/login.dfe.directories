@@ -1,7 +1,5 @@
-'use strict';
-
-const logger = require('./../../../infrastructure/logger');
-const storage = require('./../data');
+const logger = require("./../../../infrastructure/logger");
+const storage = require("./../data");
 
 const extractPageNumber = (req) => {
   if (!req.query || req.query.page === undefined) {
@@ -40,19 +38,23 @@ const listInvitations = async (req, res) => {
 
     const pageSize = extractPageSize(req);
     if (pageSize < 1) {
-      return res.status(400).send('pageSize must be greater than 0');
+      return res.status(400).send("pageSize must be greater than 0");
     } else if (pageSize > 500) {
-      return res.status(400).send('pageSize must not be greater than 500');
+      return res.status(400).send("pageSize must not be greater than 500");
     }
 
     const changedAfter = extractChangedAfter(req);
     if (changedAfter === null) {
-      return res.status(400).send('changedAfter must be a valid date. (Use format YYYY-MM-DDTHH:MM:SSZ)');
+      return res
+        .status(400)
+        .send(
+          "changedAfter must be a valid date. (Use format YYYY-MM-DDTHH:MM:SSZ)",
+        );
     }
 
     const invitations = await storage.list(pageNumber, pageSize, changedAfter);
 
-    res.contentType('json').send(invitations);
+    res.contentType("json").send(invitations);
   } catch (e) {
     logger.error(e);
     res.status(500).send();

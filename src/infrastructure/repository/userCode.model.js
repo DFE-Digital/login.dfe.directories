@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 module.exports = model;
 
@@ -22,11 +22,11 @@ function model(sequelize) {
       allowNull: false,
     },
     contextData: {
-        type: 'VARCHAR(5000)',
+      type: "VARCHAR(5000)",
       allowNull: true,
     },
     email: {
-      type: 'VARCHAR(255)',
+      type: "VARCHAR(255)",
       allowNull: true,
     },
     codeType: {
@@ -41,5 +41,5 @@ function model(sequelize) {
     timestamps: true,
   };
 
-  return sequelize.define('user_code', attributes, options);
+  return sequelize.define("user_code", attributes, options);
 }

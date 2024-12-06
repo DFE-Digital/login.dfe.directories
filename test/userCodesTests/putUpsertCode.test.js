@@ -1,15 +1,33 @@
-jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
+jest.mock("./../../src/app/userCodes/data/redisUserCodeStorage", () => {
   const getUserCodeStub = jest.fn().mockImplementation((uid, codeType) => ({
-    uid: '7654321', code: 'ABC123', redirectUri: 'http://local.test', codeType,
+    uid: "7654321",
+    code: "ABC123",
+    redirectUri: "http://local.test",
+    codeType,
   }));
-  const getUserCodeByEmailStub = jest.fn().mockImplementation((email, codeType) => ({
-    uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local', codeType,
-  }));
-  const createUserCodeStub = jest.fn().mockImplementation((uid, cid, ruri, email, data, codeType) => ({
-    uid: '7654321', code: 'ZXY789', redirectUri: 'http://local.test', email: 'test@unit.local', codeType,
-  }));
-  const updateUserCodeStub = jest.fn().mockImplementation((uid, email, data, ruri, cid) => ({
-    uid: '7654321', code: 'EDC345', redirectUri: 'http://local.test', email: 'test@unit.local',
+  const getUserCodeByEmailStub = jest
+    .fn()
+    .mockImplementation((email, codeType) => ({
+      uid: "7654321",
+      code: "EDC345",
+      redirectUri: "http://local.test",
+      email: "test@unit.local",
+      codeType,
+    }));
+  const createUserCodeStub = jest
+    .fn()
+    .mockImplementation((uid, cid, ruri, email, data, codeType) => ({
+      uid: "7654321",
+      code: "ZXY789",
+      redirectUri: "http://local.test",
+      email: "test@unit.local",
+      codeType,
+    }));
+  const updateUserCodeStub = jest.fn().mockImplementation(() => ({
+    uid: "7654321",
+    code: "EDC345",
+    redirectUri: "http://local.test",
+    email: "test@unit.local",
   }));
   return {
     createUserCode: jest.fn().mockImplementation(createUserCodeStub),
@@ -18,51 +36,53 @@ jest.mock('./../../src/app/userCodes/data/redisUserCodeStorage', () => {
     updateUserCode: jest.fn().mockImplementation(updateUserCodeStub),
   };
 });
-jest.mock('login.dfe.jobs-client');
-jest.mock('./../../src/infrastructure/config', () => ({
+jest.mock("login.dfe.jobs-client");
+jest.mock("./../../src/infrastructure/config", () => ({
   notifications: {
-    connectionString: '',
+    connectionString: "",
   },
   userCodes: {
-    type: 'redis',
+    type: "redis",
     params: {
-      redisUrl: 'http://orgs.api.test',
+      redisUrl: "http://orgs.api.test",
     },
   },
   adapter: {
-    type: 'redis',
+    type: "redis",
     params: {
-      redisurl: 'http://orgs.api.test',
+      redisurl: "http://orgs.api.test",
     },
   },
   loggerSettings: {
-    applicationName: 'Directories-API',
+    applicationName: "Directories-API",
   },
   hostingEnvironment: {
-    env: 'dev',
+    env: "dev",
   },
 }));
-jest.mock('./../../src/infrastructure/logger', () => ({
+jest.mock("./../../src/infrastructure/logger", () => ({
   error: console.error,
   audit: jest.fn(),
 }));
-jest.mock('./../../src/app/user/adapter', () => {
-  const findStub = jest.fn().mockReturnValue({ email: 'test@unit.local', phone_number: '07700900000' });
+jest.mock("./../../src/app/user/adapter", () => {
+  const findStub = jest
+    .fn()
+    .mockReturnValue({ email: "test@unit.local", phone_number: "07700900000" });
   return {
     find: jest.fn().mockImplementation(findStub),
   };
 });
-jest.mock('uuid');
+jest.mock("uuid");
 
-const httpMocks = require('node-mocks-http');
-const redisStorage = require('../../src/app/userCodes/data/redisUserCodeStorage');
+const httpMocks = require("node-mocks-http");
+const redisStorage = require("../../src/app/userCodes/data/redisUserCodeStorage");
 
-describe('When getting a user code', () => {
-  const expectedEmailAddress = 'test@unit.local';
-  const expectedUuid = '7654321';
-  const expectedClientId = 'client1';
-  const expectedRedirectUri = 'http://localhost.test';
-  const expectedRequestCorrelationId = 'abf934b4-0876-40cb-ae5c-fa5e6a3607f0';
+describe("When getting a user code", () => {
+  const expectedEmailAddress = "test@unit.local";
+  const expectedUuid = "7654321";
+  const expectedClientId = "client1";
+  const expectedRedirectUri = "http://localhost.test";
+  const expectedRequestCorrelationId = "abf934b4-0876-40cb-ae5c-fa5e6a3607f0";
   let req;
   let res;
   let emailObject;
@@ -81,78 +101,97 @@ describe('When getting a user code', () => {
         redirectUri: expectedRedirectUri,
       },
       headers: {
-        'x-correlation-id': expectedRequestCorrelationId,
+        "x-correlation-id": expectedRequestCorrelationId,
       },
       header(header) {
         return this.headers[header];
       },
     };
 
-    uuidStub = jest.fn().mockReturnValue('1dcf73dd-1613-470e-a35e-378a3375a6fe');
-    const { v4: uuid } = require('uuid');
+    uuidStub = jest
+      .fn()
+      .mockReturnValue("1dcf73dd-1613-470e-a35e-378a3375a6fe");
+    const { v4: uuid } = require("uuid");
     uuid.mockImplementation(uuidStub);
 
-    sendPasswordResetStub = jest.fn().mockImplementation((email, given_name, family_name, code, clientId, uid) => emailObject = {
-      email, given_name, family_name, code, clientId, uid, type: 'passwordreset',
-    });
+    sendPasswordResetStub = jest.fn().mockImplementation(
+      (email, given_name, family_name, code, clientId, uid) =>
+        (emailObject = {
+          email,
+          given_name,
+          family_name,
+          code,
+          clientId,
+          uid,
+          type: "passwordreset",
+        }),
+    );
 
-    notificationClient = require('login.dfe.jobs-client').NotificationClient;
+    notificationClient = require("login.dfe.jobs-client").NotificationClient;
     notificationClient.mockImplementation(() => ({
       sendPasswordReset: sendPasswordResetStub,
     }));
 
-    put = require('../../src/app/userCodes/api/putUpsertCode');
+    put = require("../../src/app/userCodes/api/putUpsertCode");
   });
-  it('then a bad request is returned if the uid and email is not passed and the status code set to bad request', async () => {
-    req.body.uid = '';
-    req.body.email = '';
+  it("then a bad request is returned if the uid and email is not passed and the status code set to bad request", async () => {
+    req.body.uid = "";
+    req.body.email = "";
 
     await put(req, res);
 
     expect(res.statusCode).toBe(400);
   });
-  it('then a bad request is returned if the client is not passed and the status code set to bad request', async () => {
-    req.body.clientId = '';
+  it("then a bad request is returned if the client is not passed and the status code set to bad request", async () => {
+    req.body.clientId = "";
 
     await put(req, res);
 
     expect(res.statusCode).toBe(400);
   });
-  it('then a bad request is returned if the redirectUri is not passed', async () => {
-    req.body.redirectUri = '';
+  it("then a bad request is returned if the redirectUri is not passed", async () => {
+    req.body.redirectUri = "";
 
     await put(req, res);
 
     expect(res.statusCode).toBe(400);
   });
-  it('then a code is generated if the uid is supplied', async () => {
-    req.body.email = '';
+  it("then a code is generated if the uid is supplied", async () => {
+    req.body.email = "";
     redisStorage.getUserCode.mockReturnValue(null);
 
     await put(req, res);
 
-    expect(res._getData().code).toBe('ZXY789');
-    expect(res._getData().uid).toBe('7654321');
+    expect(res._getData().code).toBe("ZXY789");
+    expect(res._getData().uid).toBe("7654321");
   });
-  it('then if a code exists for a uid the same one is returned', async () => {
-    redisStorage.getUserCode.mockImplementation((uid, codeType) => ({ uid: '7654321', code: 'ABC123', codeType }));
-    redisStorage.updateUserCode.mockImplementation((uid, codeType) => ({ uid: '7654321', code: 'ABC123', codeType }));
+  it("then if a code exists for a uid the same one is returned", async () => {
+    redisStorage.getUserCode.mockImplementation((uid, codeType) => ({
+      uid: "7654321",
+      code: "ABC123",
+      codeType,
+    }));
+    redisStorage.updateUserCode.mockImplementation((uid, codeType) => ({
+      uid: "7654321",
+      code: "ABC123",
+      codeType,
+    }));
 
     await put(req, res);
 
-    expect(res._getData().code).toBe('ABC123');
-    expect(res._getData().uid).toBe('7654321');
+    expect(res._getData().code).toBe("ABC123");
+    expect(res._getData().uid).toBe("7654321");
   });
-  it('then an email is sent with the code', async () => {
+  it("then an email is sent with the code", async () => {
     await put(req, res);
 
-    expect(emailObject.code).toBe('ZXY789');
+    expect(emailObject.code).toBe("ZXY789");
     expect(emailObject.email).toBe(expectedEmailAddress);
-    expect(emailObject.clientId).toBe('client1');
+    expect(emailObject.clientId).toBe("client1");
     expect(emailObject.uid).toBe(expectedUuid);
-    expect(emailObject.type).toBe('passwordreset');
+    expect(emailObject.type).toBe("passwordreset");
   });
-  it('then the code is generated with the passed in parameters', async () => {
+  it("then the code is generated with the passed in parameters", async () => {
     req.body.email = undefined;
     redisStorage.getUserCode.mockReturnValue(null);
 
@@ -160,32 +199,44 @@ describe('When getting a user code', () => {
 
     expect(redisStorage.createUserCode.mock.calls[0][0]).toBe(expectedUuid);
     expect(redisStorage.createUserCode.mock.calls[0][1]).toBe(expectedClientId);
-    expect(redisStorage.createUserCode.mock.calls[0][2]).toBe(expectedRedirectUri);
+    expect(redisStorage.createUserCode.mock.calls[0][2]).toBe(
+      expectedRedirectUri,
+    );
     expect(redisStorage.createUserCode.mock.calls[0][3]).toBe(undefined);
     expect(redisStorage.createUserCode.mock.calls[0][4]).toBe(undefined);
-    expect(redisStorage.createUserCode.mock.calls[0][5]).toBe('PasswordReset');
-    expect(redisStorage.createUserCode.mock.calls[0][6]).toBe(expectedRequestCorrelationId);
+    expect(redisStorage.createUserCode.mock.calls[0][5]).toBe("PasswordReset");
+    expect(redisStorage.createUserCode.mock.calls[0][6]).toBe(
+      expectedRequestCorrelationId,
+    );
   });
-  it('then if an email is passed that is checked to see if a code exists', async () => {
-    req.body.uid = '';
+  it("then if an email is passed that is checked to see if a code exists", async () => {
+    req.body.uid = "";
 
     await put(req, res);
 
     expect(redisStorage.getUserCodeByEmail.mock.calls).toHaveLength(1);
   });
-  it('then if no code exists for the email then one is created', async () => {
+  it("then if no code exists for the email then one is created", async () => {
     redisStorage.getUserCode.mockReturnValue(null);
     redisStorage.getUserCodeByEmail.mockReturnValue(null);
-    req.body.uid = '';
+    req.body.uid = "";
 
     await put(req, res);
 
-    expect(redisStorage.createUserCode.mock.calls[0][0]).toBe('1dcf73dd-1613-470e-a35e-378a3375a6fe');
+    expect(redisStorage.createUserCode.mock.calls[0][0]).toBe(
+      "1dcf73dd-1613-470e-a35e-378a3375a6fe",
+    );
     expect(redisStorage.createUserCode.mock.calls[0][1]).toBe(expectedClientId);
-    expect(redisStorage.createUserCode.mock.calls[0][2]).toBe(expectedRedirectUri);
-    expect(redisStorage.createUserCode.mock.calls[0][3]).toBe('test@unit.local');
+    expect(redisStorage.createUserCode.mock.calls[0][2]).toBe(
+      expectedRedirectUri,
+    );
+    expect(redisStorage.createUserCode.mock.calls[0][3]).toBe(
+      "test@unit.local",
+    );
     expect(redisStorage.createUserCode.mock.calls[0][4]).toBe(undefined);
-    expect(redisStorage.createUserCode.mock.calls[0][5]).toBe('PasswordReset');
-    expect(redisStorage.createUserCode.mock.calls[0][6]).toBe(expectedRequestCorrelationId);
+    expect(redisStorage.createUserCode.mock.calls[0][5]).toBe("PasswordReset");
+    expect(redisStorage.createUserCode.mock.calls[0][6]).toBe(
+      expectedRequestCorrelationId,
+    );
   });
 });

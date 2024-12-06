@@ -1,19 +1,28 @@
-const { invitation, invitationCallback } = require('./../../../infrastructure/repository');
-const logger = require('./../../../infrastructure/logger');
-const { Op } = require('sequelize');
-const { v4: uuid } = require('uuid');
-const db = require('../../../infrastructure/repository/db');
+const {
+  invitation,
+  invitationCallback,
+} = require("./../../../infrastructure/repository");
+const logger = require("./../../../infrastructure/logger");
+const { Op } = require("sequelize");
+const { v4: uuid } = require("uuid");
+const db = require("../../../infrastructure/repository/db");
 
 const mapEntityToInvitation = (entity) => {
-  const overrides = entity.overrideSubject || entity.overrideBody ? {
-    subject: entity.overrideSubject,
-    body: entity.overrideBody,
-  } : undefined;
+  const overrides =
+    entity.overrideSubject || entity.overrideBody
+      ? {
+          subject: entity.overrideSubject,
+          body: entity.overrideBody,
+        }
+      : undefined;
   let callbacks;
-  const origin = entity.originClientId || entity.originRedirectUri ? {
-    clientId: entity.originClientId,
-    redirectUri: entity.originRedirectUri,
-  } : undefined;
+  const origin =
+    entity.originClientId || entity.originRedirectUri
+      ? {
+          clientId: entity.originClientId,
+          redirectUri: entity.originRedirectUri,
+        }
+      : undefined;
 
   if (entity.callbacks && entity.callbacks.length > 0) {
     callbacks = entity.callbacks.map((cbEntity) => ({
@@ -69,7 +78,7 @@ const mapInvitationToEntities = (model) => {
 
   let callbackEntities = [];
   if (model.callbacks) {
-    callbackEntities = model.callbacks.map(cb => ({
+    callbackEntities = model.callbacks.map((cb) => ({
       invitationId: model.id,
       sourceId: cb.sourceId,
       callbackUrl: cb.callback,
@@ -82,7 +91,6 @@ const mapInvitationToEntities = (model) => {
     callbackEntities,
   };
 };
-
 
 const list = async (pageNumber, pageSize, changedAfter, correlationId) => {
   try {
@@ -97,10 +105,8 @@ const list = async (pageNumber, pageSize, changedAfter, correlationId) => {
 
     const resultset = await db.invitation.findAndCountAll({
       where,
-      order: [
-        ['email', 'DESC'],
-      ],
-      include: ['callbacks'],
+      order: [["email", "DESC"]],
+      include: ["callbacks"],
       limit: pageSize,
       offset: pageSize * (pageNumber - 1),
     });
@@ -109,17 +115,20 @@ const list = async (pageNumber, pageSize, changedAfter, correlationId) => {
     return {
       invitations,
       page: pageNumber,
-      numberOfPages: resultset.count < pageSize ? 1 : Math.ceil(resultset.count / pageSize),
+      numberOfPages:
+        resultset.count < pageSize ? 1 : Math.ceil(resultset.count / pageSize),
     };
   } catch (e) {
-    logger.error(`Error listing page ${pageNumber} of size ${pageSize} of invitations changed after ${changedAfter} - ${e.message}`, {
-      correlationId,
-      stack: e.stack
-    });
+    logger.error(
+      `Error listing page ${pageNumber} of size ${pageSize} of invitations changed after ${changedAfter} - ${e.message}`,
+      {
+        correlationId,
+        stack: e.stack,
+      },
+    );
     throw e;
   }
 };
-
 
 const getUserInvitation = async (id, correlationId) => {
   try {
@@ -129,12 +138,15 @@ const getUserInvitation = async (id, correlationId) => {
           [Op.eq]: id,
         },
       },
-      include: ['callbacks'],
+      include: ["callbacks"],
     });
 
     return entity ? mapEntityToInvitation(entity) : undefined;
   } catch (e) {
-    logger.error(`Error getting invitation with id ${id} - ${e.message}`, { correlationId, stack: e.stack });
+    logger.error(`Error getting invitation with id ${id} - ${e.message}`, {
+      correlationId,
+      stack: e.stack,
+    });
     throw e;
   }
 };
@@ -152,10 +164,13 @@ const createUserInvitation = async (userInvitation, correlationId) => {
 
     return await getUserInvitation(userInvitation.id);
   } catch (e) {
-    logger.error(`Error creating invitation for (id: ${userInvitation.id}) - ${e.message}`, {
-      correlationId,
-      stack: e.stack,
-    });
+    logger.error(
+      `Error creating invitation for (id: ${userInvitation.id}) - ${e.message}`,
+      {
+        correlationId,
+        stack: e.stack,
+      },
+    );
     throw e;
   }
 };
@@ -178,7 +193,10 @@ const deleteInvitation = async (id, correlationId) => {
       },
     });
   } catch (e) {
-    logger.error(`Error deleting invitation ${invitation.id} - ${e.message}`, { correlationId, stack: e.stack });
+    logger.error(`Error deleting invitation ${invitation.id} - ${e.message}`, {
+      correlationId,
+      stack: e.stack,
+    });
     throw e;
   }
 };
@@ -202,12 +220,19 @@ const updateInvitation = async (userInvitation, correlationId) => {
 
     return await getUserInvitation(userInvitation.id);
   } catch (e) {
-    logger.error(`Error updating ${invitation.id} - ${e.message}`, { correlationId, stack: e.stack, });
+    logger.error(`Error updating ${invitation.id} - ${e.message}`, {
+      correlationId,
+      stack: e.stack,
+    });
     throw e;
   }
 };
 
-const findInvitationForEmail = async (email, excludeComplete, correlationId) => {
+const findInvitationForEmail = async (
+  email,
+  excludeComplete,
+  correlationId,
+) => {
   try {
     const where = {
       email: {
@@ -221,12 +246,15 @@ const findInvitationForEmail = async (email, excludeComplete, correlationId) => 
     }
     const entity = await db.invitation.findOne({
       where,
-      include: ['callbacks'],
+      include: ["callbacks"],
     });
 
     return entity ? mapEntityToInvitation(entity) : undefined;
   } catch (e) {
-    logger.error(`Error finding invitation - ${e.message}`, { correlationId, stack: e.stack });
+    logger.error(`Error finding invitation - ${e.message}`, {
+      correlationId,
+      stack: e.stack,
+    });
     throw e;
   }
 };

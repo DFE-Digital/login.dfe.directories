@@ -1,4 +1,4 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 module.exports = model;
 
@@ -100,5 +100,5 @@ function model(sequelize) {
     timestamps: true,
   };
 
-  return sequelize.define('invitation', attributes, options);
+  return sequelize.define("invitation", attributes, options);
 }

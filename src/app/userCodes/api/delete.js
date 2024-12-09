@@ -1,7 +1,5 @@
-'use strict';
-
-const storage = require('./../data');
-const logger = require('./../../../infrastructure/logger');
+const storage = require("./../data");
+const logger = require("./../../../infrastructure/logger");
 
 const deleteCode = async (req, res) => {
   try {
@@ -11,12 +9,16 @@ const deleteCode = async (req, res) => {
     }
     const uid = req.params.uid;
 
-    let codeType = 'PasswordReset';
+    let codeType = "PasswordReset";
     if (req.params.codeType) {
       codeType = req.params.codeType;
     }
 
-    const code = await storage.deleteUserCode(uid, codeType, req.header('x-correlation-id'));
+    const code = await storage.deleteUserCode(
+      uid,
+      codeType,
+      req.header("x-correlation-id"),
+    );
     res.status(200).send(code);
   } catch (e) {
     logger.error(e);

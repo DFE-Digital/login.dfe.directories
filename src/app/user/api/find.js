@@ -1,7 +1,7 @@
-const userAdapter = require('./../adapter');
-const logger = require('./../../../infrastructure/logger');
-const { safeUser } = require('./../../../utils');
-const { isUuid, addLegacyUsernames } = require('./helpers');
+const userAdapter = require("./../adapter");
+const logger = require("./../../../infrastructure/logger");
+const { safeUser } = require("./../../../utils");
+const { isUuid, addLegacyUsernames } = require("./helpers");
 
 const find = async (req, res) => {
   try {
@@ -11,9 +11,15 @@ const find = async (req, res) => {
 
     let userEntity;
     if (isUuid(req.params.id.toLowerCase())) {
-      userEntity = await userAdapter.find(req.params.id, req.header('x-correlation-id'));
+      userEntity = await userAdapter.find(
+        req.params.id,
+        req.header("x-correlation-id"),
+      );
     } else {
-      userEntity = await userAdapter.findByUsername(req.params.id, req.header('x-correlation-id'));
+      userEntity = await userAdapter.findByUsername(
+        req.params.id,
+        req.header("x-correlation-id"),
+      );
     }
 
     if (!userEntity) {
@@ -22,7 +28,7 @@ const find = async (req, res) => {
 
     const user = safeUser(userEntity);
 
-    await addLegacyUsernames(user, req.header('x-correlation-id'));
+    await addLegacyUsernames(user, req.header("x-correlation-id"));
 
     return res.send(user);
   } catch (e) {

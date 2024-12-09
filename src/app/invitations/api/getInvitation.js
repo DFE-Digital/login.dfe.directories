@@ -1,7 +1,5 @@
-'use strict';
-
-const logger = require('./../../../infrastructure/logger');
-const storage = require('./../data');
+const logger = require("./../../../infrastructure/logger");
+const storage = require("./../data");
 
 const get = async (req, res) => {
   try {
@@ -10,7 +8,10 @@ const get = async (req, res) => {
       return;
     }
 
-    const invitation = await storage.getUserInvitation(req.params.id, req.header('x-correlation-id'));
+    const invitation = await storage.getUserInvitation(
+      req.params.id,
+      req.header("x-correlation-id"),
+    );
 
     if (!invitation) {
       res.status(404).send();

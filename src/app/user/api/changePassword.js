@@ -1,5 +1,5 @@
-const userAdapter = require('./../adapter');
-const logger = require('./../../../infrastructure/logger');
+const userAdapter = require("./../adapter");
+const logger = require("./../../../infrastructure/logger");
 
 const changePassword = async (req, res) => {
   try {
@@ -7,7 +7,11 @@ const changePassword = async (req, res) => {
       return res.status(400).send();
     }
 
-    const user = await userAdapter.changePassword(req.params.id, req.body.password, req.header('x-correlation-id'));
+    const user = await userAdapter.changePassword(
+      req.params.id,
+      req.body.password,
+      req.header("x-correlation-id"),
+    );
     if (!user) {
       return res.status(404).send();
     }
@@ -19,4 +23,3 @@ const changePassword = async (req, res) => {
 };
 
 module.exports = changePassword;
-

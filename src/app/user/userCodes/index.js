@@ -1,1 +1,1 @@
-module.exports = require('./../../userCodes/data');
+module.exports = require("./../../userCodes/data");

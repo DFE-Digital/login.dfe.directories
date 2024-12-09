@@ -1,16 +1,15 @@
-'use strict';
-
-const Sequelize = require('sequelize');
+const Sequelize = require("sequelize");
 
 const Op = Sequelize.Op;
-const logger = require('./../../../infrastructure/logger');
-const generateResetCode = require('./../utils/generateResetCode');
-const db = require('../../../infrastructure/repository/db');
-
+const logger = require("./../../../infrastructure/logger");
+const generateResetCode = require("./../utils/generateResetCode");
+const db = require("../../../infrastructure/repository/db");
 
 const listUsersCodes = async (uid, correlationId) => {
   try {
-    logger.info(`List user ${uid}'s codes for request ${correlationId}`, { correlationId });
+    logger.info(`List user ${uid}'s codes for request ${correlationId}`, {
+      correlationId,
+    });
 
     const codes = await db.userCode.findAll({
       where: {
@@ -19,20 +18,25 @@ const listUsersCodes = async (uid, correlationId) => {
         },
       },
     });
-    return codes.map(code => ({
+    return codes.map((code) => ({
       code: code.code,
       type: code.codeType,
       email: code.email,
     }));
   } catch (e) {
-    logger.error(`List user ${uid}'s codes for request ${correlationId} failed - ${e.message}`, { correlationId });
+    logger.error(
+      `List user ${uid}'s codes for request ${correlationId} failed - ${e.message}`,
+      { correlationId },
+    );
     throw e;
   }
 };
 
 const getUserCode = async (uid, codeType, correlationId) => {
   try {
-    logger.info(`Find User Code for request: ${correlationId}`, { correlationId });
+    logger.info(`Find User Code for request: ${correlationId}`, {
+      correlationId,
+    });
 
     const code = await db.userCode.findOne({
       where: {
@@ -49,14 +53,19 @@ const getUserCode = async (uid, codeType, correlationId) => {
     }
     return code;
   } catch (e) {
-    logger.error(`Create User Password Reset Code failed for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(
+      `Create User Password Reset Code failed for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
     throw e;
   }
 };
 
 const getUserCodeByEmail = async (email, codeType, correlationId) => {
   try {
-    logger.info(`Find User Code by email for request: ${correlationId}`, { correlationId });
+    logger.info(`Find User Code by email for request: ${correlationId}`, {
+      correlationId,
+    });
     const code = await db.userCode.findOne({
       where: {
         email: {
@@ -72,14 +81,28 @@ const getUserCodeByEmail = async (email, codeType, correlationId) => {
     }
     return code;
   } catch (e) {
-    logger.error(`Find User Password Reset Code by email for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(
+      `Find User Password Reset Code by email for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
     throw e;
   }
 };
 
-const createUserCode = async (uid, clientId, redirectUri, email, contextData, codeType, correlationId) => {
+const createUserCode = async (
+  uid,
+  clientId,
+  redirectUri,
+  email,
+  contextData,
+  codeType,
+  correlationId,
+) => {
   try {
-    logger.info(`Create User Password Reset Code for request: ${correlationId}`, { correlationId });
+    logger.info(
+      `Create User Password Reset Code for request: ${correlationId}`,
+      { correlationId },
+    );
 
     if (!uid || !clientId || !redirectUri) {
       return null;
@@ -101,14 +124,19 @@ const createUserCode = async (uid, clientId, redirectUri, email, contextData, co
     userResetCode.createdAt = result.createdAt;
     return userResetCode;
   } catch (e) {
-    logger.error(`Create User Password Reset Code for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(
+      `Create User Password Reset Code for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
     throw e;
   }
 };
 
 const deleteUserCode = async (uid, correlationId) => {
   try {
-    logger.info(`Delete User Code for request: ${correlationId}`, { correlationId });
+    logger.info(`Delete User Code for request: ${correlationId}`, {
+      correlationId,
+    });
     if (!uid) {
       return;
     }
@@ -118,14 +146,27 @@ const deleteUserCode = async (uid, correlationId) => {
       await code.destroy();
     }
   } catch (e) {
-    logger.error(`Delete User Code failed for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(
+      `Delete User Code failed for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
     throw e;
   }
 };
 
-const updateUserCode = async (uid, email, contextData, redirectUri, clientId, codeType, correlationId) => {
+const updateUserCode = async (
+  uid,
+  email,
+  contextData,
+  redirectUri,
+  clientId,
+  codeType,
+  correlationId,
+) => {
   try {
-    logger.info(`Update User Code for request: ${correlationId}`, { correlationId });
+    logger.info(`Update User Code for request: ${correlationId}`, {
+      correlationId,
+    });
     const codeFromFind = await getUserCode(uid, codeType, correlationId);
 
     if (!codeFromFind) {
@@ -133,7 +174,10 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
     }
 
     let code = codeFromFind.code;
-    if (!codeFromFind.email || codeFromFind.email.toLowerCase() !== email.toLowerCase()) {
+    if (
+      !codeFromFind.email ||
+      codeFromFind.email.toLowerCase() !== email.toLowerCase()
+    ) {
       code = generateResetCode();
     }
 
@@ -146,7 +190,10 @@ const updateUserCode = async (uid, email, contextData, redirectUri, clientId, co
     });
     return await getUserCode(uid, codeType, correlationId);
   } catch (e) {
-    logger.error(`Update User Code failed for request ${correlationId} error: ${e}`, { correlationId });
+    logger.error(
+      `Update User Code failed for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
     throw e;
   }
 };

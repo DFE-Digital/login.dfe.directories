@@ -11,16 +11,19 @@
 ## Getting Started
 
 Install deps
+
 ```
 npm i
 ```
 
 Setup Keystore & development ssl certs
+
 ```
 npm run setup
 ```
 
 Run
+
 ```
 npm run dev
 ```
@@ -29,7 +32,7 @@ npm run dev
 
 To use the mongo user adapter you must specify an adapter configuration with mongo connection as shown below:
 
-``` 
+```
 "adapter":
   {
     "id": "ff080eff-b525-4215-a11f-f5b37eefad45",
@@ -37,11 +40,10 @@ To use the mongo user adapter you must specify an adapter configuration with mon
     "params": {
       "mongoConnection": ""
     }
-  
+
 ```
- 
- 
- the ``` mongoConnection ``` is the connection to your mongo instance
+
+the `mongoConnection` is the connection to your mongo instance
 
 A collection call Users must be created.
 
@@ -61,29 +63,29 @@ The document for user must have a "email" field as shown below
 ### Azure Active Directory Adapter
 
 To use the azure active directory adapter you must specify:
- 1) ``` LDAP_URL ``` the ldaps:// url for your active directory.
- 1) ``` LDAP_BASE_DN ``` the base DN for the active directory
- 1) ``` LDAP_USERNAME ``` the username used for authentication when connecting to the active directory
- 1) ``` LDAP_PASSWORD ``` the password for the above user used for authentication when connecting to the active directory
- 
- 
- ### Redis User Adapter
- 
- To use the redis user adapter you must specify the following adapter configuration
- 
- ``` 
- "adapter":
-   {
-     "id": "9af9f8a2-ceec-461f-8db4-ff37073903df",
-     "type": "redis",
-     "params": {
-       "redisurl": ""
-     }
-   
- ```
-  
- The redis url is the connection to your repository. Within this a collection called Users should be created with the following keys
- 
+
+1.  `LDAP_URL` the ldaps:// url for your active directory.
+1.  `LDAP_BASE_DN` the base DN for the active directory
+1.  `LDAP_USERNAME` the username used for authentication when connecting to the active directory
+1.  `LDAP_PASSWORD` the password for the above user used for authentication when connecting to the active directory
+
+### Redis User Adapter
+
+To use the redis user adapter you must specify the following adapter configuration
+
+```
+"adapter":
+  {
+    "id": "9af9f8a2-ceec-461f-8db4-ff37073903df",
+    "type": "redis",
+    "params": {
+      "redisurl": ""
+    }
+
+```
+
+The redis url is the connection to your repository. Within this a collection called Users should be created with the following keys
+
 ```
 [
 	{
@@ -97,7 +99,7 @@ To use the azure active directory adapter you must specify:
 ]
 ```
 
-Then a corresponding User_[Sub] record should be created as shown
+Then a corresponding User\_[Sub] record should be created as shown
 
 ```
 {
@@ -116,7 +118,7 @@ Then a corresponding User_[Sub] record should be created as shown
 ```
 
 In this instance the document would be called **User_11d62132-6570-4e63-9dcb-137cc35e7543**
- 
+
 To use the password reset functionality the user codes configuration needs adding as shown
 
 ```
@@ -125,17 +127,17 @@ To use the password reset functionality the user codes configuration needs addin
     "staticCode" : false
   },
 ```
+
 This will then store a code to be used for actions like password reset. If the staticCode param is set to true, then every code
-will return as ABC123. 
- 
- 
- ### Available API methods
- 
+will return as ABC123.
+
+### Available API methods
+
 To determine which user adapter to use, an adapter type must be added of one of the following supported types:
 
-1) sequelize
-2) redis
-3) azure
+1. sequelize
+2. redis
+3. azure
 
 This can then be in the following format for each type
 
@@ -154,7 +156,7 @@ adapter: {
         "max": ,
         "min": ,
         "acquire": ,
-        "idle": 
+        "idle":
       }
   }
 }
@@ -183,32 +185,32 @@ adapter: {
 
 the api calls then follow the pattern of:
 
-``` GET: /users/:username ```
+`GET: /users/:username`
 
 or
 
-``` GET: /users/:uid ```
+`GET: /users/:uid`
 
 or
 
-``` GET: /users/by-id?id=uid ```
+`GET: /users/by-id?id=uid`
 
 eg
 
-``` /users/test@user.com ``` to find a user by username using redis db.
+`/users/test@user.com` to find a user by username using redis db.
 
 or
 
-``` 
-/users/by-id?id=12345,54321,98765 
+```
+/users/by-id?id=12345,54321,98765
 
-``` 
+```
 
 passing in a comma separated list of ids will return an array of users.
 
-or 
+or
 
-``` POST: /users/authenticate ```
+`POST: /users/authenticate`
 
 where the body should be
 
@@ -221,7 +223,7 @@ where the body should be
 
 For change password
 
-``` POST: /users/:id/changepassword ```
+`POST: /users/:id/changepassword`
 
 where the body should be
 
@@ -233,12 +235,11 @@ where the body should be
 
 Where uid is the users id, and password is the value you wish to change the users password to
 
-
 #### User codes API
 
 There is also an endpoint available for requesting and validating user codes
 
-``` PUT: /upsert  ```
+`PUT: /upsert `
 
 Where the body should be:
 
@@ -249,26 +250,27 @@ Where the body should be:
 }
 ```
 
-This will then return back a code in the body. The client relates to the directory store for 
+This will then return back a code in the body. The client relates to the directory store for
 the user and application they are accessing
 
-
-``` GET: /validate/:uid/:code  ```
+`GET: /validate/:uid/:code `
 
 This will return true or false depending on whether the code is valid or not
 
-``` DELETE: /:uid  ```
+`DELETE: /:uid `
 
 This will delete a code associated to the uid
 
 ## Prerequisite
+
 ---
+
 1. Add audit sql host name to keyvault with name `auditSqlHostName` - added
 2. Add audit sql db name to keyvault with name `auditSqlDbName` - added
 3. Add Directories host name to keyvault with name `standaloneDirectoriesHostName` - added
 4. Add app insights instrumentation Key to keyvault with name `appInsightsInstrumentationKey` - added
-5.  Add tenant Url to keyvault with name `tenantUrl` - added
-6.  Add aad shd app id to keyvault with name `aadshdappid` - added
-7.  Add platform Global Slack Feed in the keyvault with name `platformGlobalSlackFeed` 
-8.  Add aad shd client id to keyvault with name `aadshdclientid` - added
-9.  Add aad shd client secret to keyvault with name `aadshdclientsecret` - added
+5. Add tenant Url to keyvault with name `tenantUrl` - added
+6. Add aad shd app id to keyvault with name `aadshdappid` - added
+7. Add platform Global Slack Feed in the keyvault with name `platformGlobalSlackFeed`
+8. Add aad shd client id to keyvault with name `aadshdclientid` - added
+9. Add aad shd client secret to keyvault with name `aadshdclientsecret` - added

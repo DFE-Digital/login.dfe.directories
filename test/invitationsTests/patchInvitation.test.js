@@ -178,7 +178,22 @@ describe("When patching an invitation", () => {
     expect(res._isEndCalled()).toBe(true);
   });
 
-  it("then it should update email if email has changed", async () => {
+  it("should update name if name has changed", async () => {
+    req.body = {
+      firstName: "Albus",
+      lastName: "Dumbledore"
+    };
+
+    await patchInvitation(req, res);
+
+    expect(updateInvitation.mock.calls).toHaveLength(1);
+    expect(updateInvitation.mock.calls[0][0]).toMatchObject({
+      firstName: "Albus",
+      lastName: "Dumbledore"
+    });
+  });
+
+  it("should update email if email has changed", async () => {
     req.body = {
       email: "new.email@unit.test",
     };

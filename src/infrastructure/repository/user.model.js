@@ -70,6 +70,11 @@ function model(sequelize) {
       type: "DateTime",
       allowNull: true,
     },
+    is_internal_user: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   };
 
   const options = {

@@ -7,6 +7,8 @@ const logger = require("../../../infrastructure/logger");
 
 const patchableProperties = [
   "email",
+  "firstName",
+  "lastName",
   "isCompleted",
   "deactivated",
   "reason",

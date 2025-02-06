@@ -155,6 +155,7 @@ describe("userSequelizeAdapter.create", () => {
       is_entra: false,
       entra_oid: null,
       entra_linked: null,
+      is_internal_user: false,
     };
 
     db.user.create.mockResolvedValue({ sub: "newId", entra_linked: null });
@@ -192,6 +193,7 @@ describe("userSequelizeAdapter.create", () => {
       phone_number: null,
       password_reset_required: false,
       is_entra: true,
+      is_internal_user: false,
       entra_oid: "entraId",
       entra_linked: new Date("2024-08-02T09:56:39.890Z"),
     };

@@ -487,6 +487,7 @@ const create = async (
     is_entra: !!entraOid,
     entra_oid: entraOid || null,
     entra_linked: entraOid ? Sequelize.fn("GETDATE") : null,
+    is_internal_user: false,
   };
 
   const createdUser = await db.user.create(newUser);

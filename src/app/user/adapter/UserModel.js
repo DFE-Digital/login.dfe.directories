@@ -86,6 +86,14 @@ class UserModel {
   set entra_linked(value) {
     this._entra_linked = value;
   }
+
+  get is_internal_user() {
+    return this._is_internal_user;
+  }
+
+  set is_internal_user(value) {
+    this._is_internal_user = value;
+  }
 }
 
 module.exports = UserModel;

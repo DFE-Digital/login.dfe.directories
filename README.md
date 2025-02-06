@@ -113,7 +113,8 @@ Then a corresponding User\_[Sub] record should be created as shown
   "password_reset_required": false,
   "is_entra": false,
   "entra_oid": null,
-  "entra_linked": null
+  "entra_linked": null,
+  "is_internal_user: false,
 }
 ```
 

@@ -1,3 +1,4 @@
+const moment = require("moment");
 const userAdapter = require("../adapter");
 
 const isUuid = (value) =>
@@ -20,7 +21,13 @@ const addLegacyUsernames = async (user, correlationId) => {
   }
 };
 
+const isValidDate = (date) => {
+  // Check if date is a string in ISO 8601 format
+  return moment(date, moment.ISO_8601, true).isValid();
+};
+
 module.exports = {
   isUuid,
   addLegacyUsernames,
+  isValidDate,
 };

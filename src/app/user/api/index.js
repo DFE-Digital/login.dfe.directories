@@ -22,6 +22,7 @@ const matchedPassphrase = require("./matchedPassphrase");
 const findByEntraOid = require("./findByEntraOidHandler");
 const linkDsiUserWithEntra = require("./linkDsiUserWithEntraHandler");
 const updateLastLogin = require("./updateUserLastLogin");
+const deferEntraMigration = require("./deferEntraMigration");
 
 const router = express.Router();
 
@@ -77,6 +78,10 @@ const routeExport = () => {
 
   router.get("/users/by-entra-oid/:entraOid", asyncWrapper(findByEntraOid));
   router.post("/users/:uid/link-entra-oid", asyncWrapper(linkDsiUserWithEntra));
+  router.post(
+    "/users/:uid/defer-entra-migration",
+    asyncWrapper(deferEntraMigration),
+  );
 
   return router;
 };

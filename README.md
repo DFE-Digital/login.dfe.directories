@@ -115,6 +115,7 @@ Then a corresponding User\_[Sub] record should be created as shown
   "entra_oid": null,
   "entra_linked": null,
   "is_internal_user: false,
+  "entra_defer_until": null
 }
 ```
 

@@ -94,6 +94,14 @@ class UserModel {
   set is_internal_user(value) {
     this._is_internal_user = value;
   }
+
+  get entra_defer_until() {
+    return this._entra_defer_until;
+  }
+
+  set entra_defer_until(value) {
+    this._entra_defer_until = value;
+  }
 }
 
 module.exports = UserModel;

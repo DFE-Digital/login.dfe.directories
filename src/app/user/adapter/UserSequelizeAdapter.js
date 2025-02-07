@@ -634,6 +634,39 @@ const getLegacyUsernames = async (uids, correlationId) => {
   }
 };
 
+const updateEntraDeferUntilDate = async (uid, deferDate, correlationId) => {
+  try {
+    const result = await db.user.update(
+      {
+        entra_defer_until: deferDate,
+      },
+      {
+        where: {
+          sub: uid,
+        },
+      },
+    );
+    if (result[0] === 0) {
+      const message = `No user found with the given UID: ${uid}`;
+      throw new Error(message);
+    }
+    logger.info(
+      `Successfully updated [entra_defer_until] field for given UID: ${uid}`,
+      {
+        correlationId,
+      },
+    );
+
+    return result;
+  } catch (e) {
+    logger.error(
+      `Error updating [entra_defer_until] field: ${e.message} (Correlation ID: ${correlationId}). Stack trace: ${e.stack}`,
+      { correlationId },
+    );
+    throw e;
+  }
+};
+
 module.exports = {
   find,
   getUsers,
@@ -653,4 +686,5 @@ module.exports = {
   findByEntraOid,
   linkUserWithEntraOid,
   updateLastLogin,
+  updateEntraDeferUntilDate,
 };

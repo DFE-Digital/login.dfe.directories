@@ -3,6 +3,7 @@ const {
 } = require("../../../../src/app/user/adapter/UserSequelizeAdapter");
 const db = require("../../../../src/infrastructure/repository/db");
 const logger = require("../../../../src/infrastructure/logger");
+const { Op } = require("sequelize");
 
 jest.mock("../../../../src/infrastructure/repository/db", () => ({
   user: {
@@ -35,7 +36,7 @@ describe("updateEntraDeferUntilDate function", () => {
 
     expect(db.user.update).toHaveBeenCalledWith(
       { entra_defer_until: deferDate },
-      { where: { sub: uid } },
+      { where: { [Op.and]: [{ sub: uid }, { is_entra: 1 }] } },
     );
     expect(result).toEqual([1]);
     expect(logger.info).toHaveBeenCalledWith(
@@ -49,11 +50,13 @@ describe("updateEntraDeferUntilDate function", () => {
 
     await expect(
       updateEntraDeferUntilDate(uid, deferDate, correlationId),
-    ).rejects.toThrow(`No user found with the given UID: ${uid}`);
+    ).rejects.toThrow(
+      `No matching user found with UID: ${uid} and [is_entra] set to true. Update operation not performed.`,
+    );
 
     expect(logger.error).toHaveBeenCalledWith(
       expect.stringContaining(
-        `Error updating [entra_defer_until] field: No user found with the given UID: ${uid} (Correlation ID: ${correlationId}). Stack trace: `,
+        `Error updating [entra_defer_until] field: No matching user found with UID: ${uid} and [is_entra] set to true. Update operation not performed. (Correlation ID: ${correlationId}). Stack trace: `,
       ),
       { correlationId },
     );

@@ -75,6 +75,10 @@ function model(sequelize) {
       allowNull: false,
       defaultValue: false,
     },
+    entra_defer_until: {
+      type: "DateTime",
+      allowNull: true,
+    },
   };
 
   const options = {

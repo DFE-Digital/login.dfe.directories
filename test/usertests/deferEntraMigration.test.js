@@ -15,6 +15,8 @@ jest.mock("../../src/app/user/api/helpers", () => ({
 describe("deferEntraMigration function", () => {
   let req;
   let res;
+  const futureDate = new Date();
+  futureDate.setDate(futureDate.getDate() + 7);
 
   beforeEach(() => {
     userAdapter.updateEntraDeferUntilDate.mockReset();
@@ -27,7 +29,7 @@ describe("deferEntraMigration function", () => {
         uid: "mock-user-uid",
       },
       body: {
-        deferExpiryDate: "2025-02-17T16:10:10.000Z",
+        deferExpiryDate: futureDate,
       },
     };
     res = httpMocks.createResponse();
@@ -49,7 +51,17 @@ describe("deferEntraMigration function", () => {
 
     expect(res.statusCode).toBe(400);
     expect(res._getData()).toBe(
-      "Invalid date format. ISO 8601 format is required ('YYYY-MM-DDTHH:mm:ss.sssZ').",
+      "Invalid date format: Expected ISO 8601 ('YYYY-MM-DDTHH:mm:ss.sssZ').",
+    );
+  });
+
+  it("should return 400 if 'deferExpiryDate' is not a future date", async () => {
+    req.body.deferExpiryDate = "2025-02-17T16:10:10.000Z";
+    await deferEntraMigration(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res._getData()).toBe(
+      "Invalid date: the 'deferExpiryDate' must be a future date.",
     );
   });
 
@@ -58,7 +70,7 @@ describe("deferEntraMigration function", () => {
 
     expect(userAdapter.updateEntraDeferUntilDate).toHaveBeenCalledWith(
       "mock-user-uid",
-      "2025-02-17T16:10:10.000Z",
+      futureDate,
       "mock-correlation-id",
     );
   });

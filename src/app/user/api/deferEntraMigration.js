@@ -16,18 +16,24 @@ const deferEntraMigration = async (req, res) => {
   }
 
   if (!deferExpiryDate) {
-    return res.status(400).json({
-      error: "The 'deferExpiryDate' field is required in the request body.",
-    });
+    return res
+      .status(400)
+      .send("The 'deferExpiryDate' field is required in the request body.");
   }
 
   if (!isValidDate(deferExpiryDate)) {
     return res
       .status(400)
       .send(
-        "Invalid date format. ISO 8601 format is required ('YYYY-MM-DDTHH:mm:ss.sssZ').",
+        "Invalid date format: Expected ISO 8601 ('YYYY-MM-DDTHH:mm:ss.sssZ').",
       );
   }
+  if (Date.parse(deferExpiryDate) <= Date.now()) {
+    return res
+      .status(400)
+      .send("Invalid date: the 'deferExpiryDate' must be a future date.");
+  }
+
   try {
     await userAdapter.updateEntraDeferUntilDate(
       uid,

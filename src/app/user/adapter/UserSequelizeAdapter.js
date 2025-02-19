@@ -642,12 +642,12 @@ const updateEntraDeferUntilDate = async (uid, deferDate, correlationId) => {
       },
       {
         where: {
-          sub: uid,
+          [Op.and]: [{ sub: uid }, { is_entra: 1 }],
         },
       },
     );
     if (result[0] === 0) {
-      const message = `No user found with the given UID: ${uid}`;
+      const message = `No matching user found with UID: ${uid} and [is_entra] set to true. Update operation not performed.`;
       throw new Error(message);
     }
     logger.info(

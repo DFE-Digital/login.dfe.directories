@@ -17,10 +17,17 @@ const safeUser = (user) => {
     "entra_oid",
     "entra_linked",
     "is_internal_user",
+    "entra_defer_until",
   ];
   const rawSafeUser = pick(user, safeUserFields);
-  const { is_entra, entra_oid, entra_linked, is_internal_user, ...rest } =
-    rawSafeUser;
+  const {
+    is_entra,
+    entra_oid,
+    entra_linked,
+    is_internal_user,
+    entra_defer_until,
+    ...rest
+  } = rawSafeUser;
 
   return {
     ...rest,
@@ -28,6 +35,7 @@ const safeUser = (user) => {
     entraOid: entra_oid,
     entraLinked: entra_linked,
     isInternalUser: is_internal_user,
+    entraDeferUntil: entra_defer_until,
   };
 };
 

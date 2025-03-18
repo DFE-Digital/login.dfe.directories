@@ -57,6 +57,32 @@ const removePasswordHistory = async (recid, uid, correlationId) => {
   }
 };
 
+const findUserDeactivation = async (user_id, correlationId) => {
+  try {
+    logger.info(`Get user deactivation by user id [${user_id}]`, {
+      correlationId,
+    });
+    const userDeactivation = await db.userDeactivation.findAll({
+      tableHint: TableHints.NOLOCK,
+      where: {
+        user_id: {
+          [Op.eq]: user_id,
+        },
+      },
+    });
+    if (!userDeactivation) {
+      return null;
+    }
+    return userDeactivation;
+  } catch (e) {
+    logger.error(
+      `error getting user deactivation for user [${user_id}] - ${e.message} for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
+    throw e;
+  }
+};
+
 const findUserPasswordPolicies = async (uid, correlationId) => {
   try {
     logger.info(`Get user pasword policies by user uid for request ${uid}`, {
@@ -82,6 +108,7 @@ const findUserPasswordPolicies = async (uid, correlationId) => {
     throw e;
   }
 };
+
 const addPasswordHistory = async (uid, correlationId, password, salt) => {
   try {
     logger.info(`Add a password history for user ${uid}`, { correlationId });
@@ -670,6 +697,7 @@ const updateEntraDeferUntilDate = async (uid, deferDate, correlationId) => {
 module.exports = {
   find,
   getUsers,
+  findUserDeactivation,
   findUserPasswordPolicies,
   fetchPasswordHistory,
   addPasswordHistory,

@@ -59,7 +59,8 @@
     "simpl-schema": "^3.4.6",
     "tedious": "^18.3.0",
     "uuid": "^9.0.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

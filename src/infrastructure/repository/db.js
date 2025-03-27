@@ -73,12 +73,18 @@ async function initialize() {
   db.user = require("./user.model")(sequelize);
   db.userCode = require("./userCode.model")(sequelize);
   db.userPasswordPolicy = require("./userPasswordPolicy.model")(sequelize);
+  db.userDeactivation = require("./userPasswordPolicy.model")(sequelize);
   db.userLegacyUsername = require("./userLegacyUsername.model")(sequelize);
   db.passwordHistory = require("./passwordHistory.model")(sequelize);
   db.userPasswordHistory = require("./userPasswordHistory.model")(sequelize);
   db.invitation = require("./invitation.model")(sequelize);
   db.invitationCallback = require("./invitationCallback.model")(sequelize);
   // define associations
+  db.userDeactivation.belongsTo(db.user, {
+    foreignKey: "user_id",
+    sourceKey: "sub",
+    as: "user",
+  });
   db.userPasswordPolicy.belongsTo(db.user, {
     foreignKey: "uid",
     sourceKey: "sub",

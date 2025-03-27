@@ -23,6 +23,7 @@ const findByEntraOid = require("./findByEntraOidHandler");
 const linkDsiUserWithEntra = require("./linkDsiUserWithEntraHandler");
 const updateLastLogin = require("./updateUserLastLogin");
 const deferEntraMigration = require("./deferEntraMigration");
+const getUserStatus = require("./getUserStatus");
 
 const router = express.Router();
 
@@ -57,6 +58,7 @@ const routeExport = () => {
     asyncWrapper(getUserPasswordPolicies),
   );
   router.get("/users/:uid/password-history", asyncWrapper(passwordHistory));
+  router.get("/users/:id/status", asyncWrapper(getUserStatus));
   router.post(
     "/:directoryId/user/authenticate",
     deprecateWith("/users/authenticate"),

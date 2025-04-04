@@ -37,7 +37,7 @@
     "fs": "^0.0.2",
     "ioredis": "^5.5.0",
     "lodash": "^4.17.21",
-    "login.dfe.api.auth": "github:DFE-Digital/login.dfe.api.auth#v2.3.3",
+    "login.dfe.api.auth": "^2.3.4",
     "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.3",
     "login.dfe.audit.transporter": "^4.0.2",
     "login.dfe.audit.winston-sequelize-transport": "github:DFE-Digital/login.dfe.audit.winston-sequelize-transport#v3.2.4",

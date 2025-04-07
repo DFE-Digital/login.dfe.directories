@@ -40,7 +40,7 @@
     "login.dfe.api.auth": "^2.3.4",
     "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.3",
     "login.dfe.audit.transporter": "^4.0.3",
-    "login.dfe.audit.winston-sequelize-transport": "github:DFE-Digital/login.dfe.audit.winston-sequelize-transport#v3.2.4",
+    "login.dfe.audit.winston-sequelize-transport": "^3.2.6",
     "login.dfe.config.schema.common": "github:DFE-Digital/login.dfe.config.schema.common#v2.1.6",
     "login.dfe.entra-auth-extensions": "^1.0.16",
     "login.dfe.express-error-handling": "github:DFE-Digital/login.dfe.express-error-handling#v3.0.2",

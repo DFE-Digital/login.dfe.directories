@@ -57,12 +57,12 @@ const removePasswordHistory = async (recid, uid, correlationId) => {
   }
 };
 
-const findUserDeactivation = async (user_id, correlationId) => {
+const findUserStatusChangeReasons = async (user_id, correlationId) => {
   try {
-    logger.info(`Get user deactivation by user id [${user_id}]`, {
+    logger.info(`Get user status change reasons by user id [${user_id}]`, {
       correlationId,
     });
-    const userDeactivation = await db.userDeactivation.findAll({
+    const userStatusChangeReasons = await db.userStatusChangeReasons.findAll({
       tableHint: TableHints.NOLOCK,
       where: {
         user_id: {
@@ -70,13 +70,13 @@ const findUserDeactivation = async (user_id, correlationId) => {
         },
       },
     });
-    if (!userDeactivation) {
+    if (!userStatusChangeReasons) {
       return null;
     }
-    return userDeactivation;
+    return userStatusChangeReasons;
   } catch (e) {
     logger.error(
-      `error getting user deactivation for user [${user_id}] - ${e.message} for request ${correlationId} error: ${e}`,
+      `error getting user status change reasons for user [${user_id}] - ${e.message} for request ${correlationId} error: ${e}`,
       { correlationId },
     );
     throw e;
@@ -697,7 +697,7 @@ const updateEntraDeferUntilDate = async (uid, deferDate, correlationId) => {
 module.exports = {
   find,
   getUsers,
-  findUserDeactivation,
+  findUserStatusChangeReasons,
   findUserPasswordPolicies,
   fetchPasswordHistory,
   addPasswordHistory,

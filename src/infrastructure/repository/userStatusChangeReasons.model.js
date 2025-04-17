@@ -14,15 +14,17 @@ function model(sequelize) {
       type: Sequelize.UUID,
       allowNull: false,
     },
+    old_status: {
+      type: "VARCHAR(5000)",
+      allowNull: false,
+    },
+    new_status: {
+      type: "VARCHAR(5000)",
+      allowNull: false,
+    },
     reason: {
       type: Sequelize.STRING,
       allowNull: false,
-    },
-    created_at: {
-      type: "DateTime",
-    },
-    updated_at: {
-      type: "DateTime",
     },
   };
 
@@ -31,5 +33,5 @@ function model(sequelize) {
     timestamps: true,
   };
 
-  return sequelize.define("user_deactivation", attributes, options);
+  return sequelize.define("user_status_change_reasons", attributes, options);
 }

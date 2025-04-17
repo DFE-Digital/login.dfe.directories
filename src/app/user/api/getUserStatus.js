@@ -1,26 +1,30 @@
 const userAdapter = require("../adapter");
 const logger = require("../../../infrastructure/logger");
+const { isUuid } = require("./helpers");
 
 const getUserStatus = async (req, res) => {
   const user_id = req.params.id;
   const correlation_id = req.header("x-correlation-id");
+  if (!req.params.id || isUuid(req.params.id.toLowerCase()) === false) {
+    return res.status(400).send();
+  }
   try {
     const user = await userAdapter.find(user_id, correlation_id);
     if (!user) {
       return res.status(404).send();
     }
-    const userDeactivation = userAdapter.findUserDeactivation(
+    const userStatusChangeReasons = userAdapter.findUserStatusChangeReasons(
       user_id,
       correlation_id,
     );
     const result = {
       id: user.id,
       status: user.status,
-      deactivation: [],
+      statusChangeReasons: [],
     };
 
-    if (userDeactivation) {
-      result.deactivation = userDeactivation;
+    if (userStatusChangeReasons) {
+      result.statusChangeReasons = userStatusChangeReasons;
     }
     return res.send(result);
   } catch (e) {

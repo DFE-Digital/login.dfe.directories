@@ -97,8 +97,6 @@ describe("When calling the getStatus endpoint", () => {
     await getUserStatus(req, res);
 
     expect(res.statusCode).toBe(200);
-
-    console.log(res._getData());
     expect(res._getData()).toMatchObject(expectedResult);
   });
 
@@ -117,8 +115,6 @@ describe("When calling the getStatus endpoint", () => {
     await getUserStatus(req, res);
 
     expect(res.statusCode).toBe(200);
-
-    console.log(res._getData());
     expect(res._getData()).toMatchObject(expectedResult);
   });
 

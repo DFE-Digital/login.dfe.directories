@@ -15,11 +15,11 @@ function model(sequelize) {
       allowNull: false,
     },
     old_status: {
-      type: "VARCHAR(5000)",
+      type: Sequelize.SMALLINT,
       allowNull: false,
     },
     new_status: {
-      type: "VARCHAR(5000)",
+      type: Sequelize.SMALLINT,
       allowNull: false,
     },
     reason: {

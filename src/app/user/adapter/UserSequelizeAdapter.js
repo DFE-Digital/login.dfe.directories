@@ -636,6 +636,42 @@ const update = async (
   }
 };
 
+const createUserStatusChangeReason = async (
+  user_id,
+  old_status,
+  new_status,
+  reason,
+  correlationId,
+) => {
+  try {
+    logger.info(`Creating user status change reason row for user [${user_id}`, {
+      correlationId,
+    });
+    const userEntity = await find(user_id, correlationId);
+
+    if (!userEntity) {
+      logger.info(
+        `User with id [${user_id}] not found for request ${correlationId}`,
+        { correlationId },
+      );
+      return null;
+    }
+    const result = await db.userStatusChangeReasons.create({
+      user_id,
+      old_status,
+      new_status,
+      reason,
+    });
+    return result;
+  } catch (e) {
+    logger.error(
+      `Create user status change reason row failed - ${e.message} for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
+    throw e;
+  }
+};
+
 const getLegacyUsernames = async (uids, correlationId) => {
   try {
     logger.info("Get legacy user names", { correlationId });
@@ -706,6 +742,7 @@ module.exports = {
   isMatched,
   findByUsername,
   create,
+  createUserStatusChangeReason,
   authenticate,
   changeStatus,
   update,

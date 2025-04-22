@@ -20,8 +20,8 @@ const changeStatus = async (req, res) => {
     if (reason) {
       await userAdapter.createUserStatusChangeReason(
         req.params.id,
-        0,
         1,
+        0,
         reason,
         correlation_id,
       );

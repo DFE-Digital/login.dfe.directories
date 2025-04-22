@@ -644,9 +644,12 @@ const createUserStatusChangeReason = async (
   correlationId,
 ) => {
   try {
-    logger.info(`Creating user status change reason row for user [${user_id}`, {
-      correlationId,
-    });
+    logger.info(
+      `Creating user status change reason row for user [${user_id}]`,
+      {
+        correlationId,
+      },
+    );
     const userEntity = await find(user_id, correlationId);
 
     if (!userEntity) {
@@ -657,6 +660,7 @@ const createUserStatusChangeReason = async (
       return null;
     }
     const result = await db.userStatusChangeReasons.create({
+      id: uuid(),
       user_id,
       old_status,
       new_status,

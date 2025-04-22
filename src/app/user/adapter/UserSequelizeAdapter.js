@@ -69,6 +69,7 @@ const findUserStatusChangeReasons = async (user_id, correlationId) => {
           [Op.eq]: user_id,
         },
       },
+      order: [["createdAt", "DESC"]],
     });
     if (!userStatusChangeReasons) {
       return null;

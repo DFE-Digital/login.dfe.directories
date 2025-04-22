@@ -13,12 +13,10 @@ const getUserStatus = async (req, res) => {
     if (!user) {
       return res.status(404).send();
     }
-    const userStatusChangeReasons = userAdapter.findUserStatusChangeReasons(
-      user_id,
-      correlation_id,
-    );
+    const userStatusChangeReasons =
+      await userAdapter.findUserStatusChangeReasons(user_id, correlation_id);
     const result = {
-      id: user.id,
+      id: user.sub,
       status: user.status,
       statusChangeReasons: [],
     };

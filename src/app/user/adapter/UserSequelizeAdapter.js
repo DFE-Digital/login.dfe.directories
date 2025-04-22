@@ -660,14 +660,15 @@ const createUserStatusChangeReason = async (
       );
       return null;
     }
-    const result = await db.userStatusChangeReasons.create({
+    const userStatusChangeReasons = {
       id: uuid(),
       user_id,
       old_status,
       new_status,
       reason,
-    });
-    return result;
+    };
+    await db.userStatusChangeReasons.create(userStatusChangeReasons);
+    return userStatusChangeReasons;
   } catch (e) {
     logger.error(
       `Create user status change reason row failed - ${e.message} for request ${correlationId} error: ${e}`,

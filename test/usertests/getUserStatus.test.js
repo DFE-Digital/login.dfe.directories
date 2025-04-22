@@ -21,7 +21,7 @@ jest.mock("./../../src/app/user/adapter", () => {
 
 const adapter = require("../../src/app/user/adapter");
 const user = {
-  id: "78071717-4247-480d-90a3-3d531379ebf8",
+  sub: "78071717-4247-480d-90a3-3d531379ebf8",
   email: "bob@bob.com",
   status: 0,
 };

@@ -5,7 +5,7 @@ const { isUuid } = require("./helpers");
 const getUserStatus = async (req, res) => {
   const user_id = req.params.id;
   const correlation_id = req.header("x-correlation-id");
-  if (!req.params.id || isUuid(req.params.id.toLowerCase()) === false) {
+  if (!req.params.id || !isUuid(req.params.id.toLowerCase())) {
     return res.status(400).send();
   }
   try {
@@ -18,12 +18,9 @@ const getUserStatus = async (req, res) => {
     const result = {
       id: user.sub,
       status: user.status,
-      statusChangeReasons: [],
+      statusChangeReasons: userStatusChangeReasons ?? [],
     };
 
-    if (userStatusChangeReasons) {
-      result.statusChangeReasons = userStatusChangeReasons;
-    }
     return res.send(result);
   } catch (e) {
     logger.error(e);

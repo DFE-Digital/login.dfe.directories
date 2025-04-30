@@ -57,6 +57,33 @@ const removePasswordHistory = async (recid, uid, correlationId) => {
   }
 };
 
+const findUserStatusChangeReasons = async (user_id, correlationId) => {
+  try {
+    logger.info(`Get user status change reasons by user id [${user_id}]`, {
+      correlationId,
+    });
+    const userStatusChangeReasons = await db.userStatusChangeReasons.findAll({
+      tableHint: TableHints.NOLOCK,
+      where: {
+        user_id: {
+          [Op.eq]: user_id,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    if (!userStatusChangeReasons) {
+      return null;
+    }
+    return userStatusChangeReasons;
+  } catch (e) {
+    logger.error(
+      `error getting user status change reasons for user [${user_id}] - ${e.message} for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
+    throw e;
+  }
+};
+
 const findUserPasswordPolicies = async (uid, correlationId) => {
   try {
     logger.info(`Get user pasword policies by user uid for request ${uid}`, {
@@ -82,6 +109,7 @@ const findUserPasswordPolicies = async (uid, correlationId) => {
     throw e;
   }
 };
+
 const addPasswordHistory = async (uid, correlationId, password, salt) => {
   try {
     logger.info(`Add a password history for user ${uid}`, { correlationId });
@@ -609,6 +637,47 @@ const update = async (
   }
 };
 
+const createUserStatusChangeReason = async (
+  user_id,
+  old_status,
+  new_status,
+  reason,
+  correlationId,
+) => {
+  try {
+    logger.info(
+      `Creating user status change reason row for user [${user_id}]`,
+      {
+        correlationId,
+      },
+    );
+    const userEntity = await find(user_id, correlationId);
+
+    if (!userEntity) {
+      logger.info(
+        `User with id [${user_id}] not found for request ${correlationId}`,
+        { correlationId },
+      );
+      return null;
+    }
+    const userStatusChangeReasons = {
+      id: uuid(),
+      user_id,
+      old_status,
+      new_status,
+      reason,
+    };
+    await db.userStatusChangeReasons.create(userStatusChangeReasons);
+    return userStatusChangeReasons;
+  } catch (e) {
+    logger.error(
+      `Create user status change reason row failed - ${e.message} for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
+    throw e;
+  }
+};
+
 const getLegacyUsernames = async (uids, correlationId) => {
   try {
     logger.info("Get legacy user names", { correlationId });
@@ -670,6 +739,7 @@ const updateEntraDeferUntilDate = async (uid, deferDate, correlationId) => {
 module.exports = {
   find,
   getUsers,
+  findUserStatusChangeReasons,
   findUserPasswordPolicies,
   fetchPasswordHistory,
   addPasswordHistory,
@@ -678,6 +748,7 @@ module.exports = {
   isMatched,
   findByUsername,
   create,
+  createUserStatusChangeReason,
   authenticate,
   changeStatus,
   update,

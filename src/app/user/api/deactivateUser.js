@@ -6,14 +6,25 @@ const changeStatus = async (req, res) => {
     if (!req.params.id) {
       return res.status(400).send();
     }
+    const correlation_id = req.header("x-correlation-id");
 
     const user = await userAdapter.changeStatus(
       req.params.id,
       0,
-      req.header("x-correlation-id"),
+      correlation_id,
     );
     if (!user) {
       return res.status(404).send();
+    }
+    const reason = req.body.reason;
+    if (reason) {
+      await userAdapter.createUserStatusChangeReason(
+        req.params.id,
+        1,
+        0,
+        reason,
+        correlation_id,
+      );
     }
     return res.send(true);
   } catch (e) {

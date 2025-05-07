@@ -23,7 +23,9 @@ jest.mock("./../../src/app/invitations/utils", () => ({
   generateInvitationCode: jest.fn(),
 }));
 jest.mock("login.dfe.jobs-client");
-jest.mock("./../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceRaw: jest.fn(),
+}));
 
 jest.mock("./../../src/infrastructure/logger", () => ({
   info: jest.fn(),
@@ -39,7 +41,7 @@ const {
   updateInvitation,
 } = require("../../src/app/invitations/data");
 const { generateInvitationCode } = require("../../src/app/invitations/utils");
-const { getServiceById } = require("../../src/infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const patchInvitation = require("../../src/app/invitations/api/patchInvitation");
 
 describe("When patching an invitation", () => {
@@ -76,8 +78,9 @@ describe("When patching an invitation", () => {
 
     generateInvitationCode.mockReset().mockReturnValue("new-code");
 
-    getServiceById.mockReset().mockImplementation((id) => {
-      if (id !== "client1") {
+    getServiceRaw.mockReset().mockImplementation((params) => {
+      const { clientId } = params.by;
+      if (clientId !== "client1") {
         return undefined;
       }
       return {
@@ -181,7 +184,7 @@ describe("When patching an invitation", () => {
   it("should update name if name has changed", async () => {
     req.body = {
       firstName: "Albus",
-      lastName: "Dumbledore"
+      lastName: "Dumbledore",
     };
 
     await patchInvitation(req, res);
@@ -189,7 +192,7 @@ describe("When patching an invitation", () => {
     expect(updateInvitation.mock.calls).toHaveLength(1);
     expect(updateInvitation.mock.calls[0][0]).toMatchObject({
       firstName: "Albus",
-      lastName: "Dumbledore"
+      lastName: "Dumbledore",
     });
   });
 

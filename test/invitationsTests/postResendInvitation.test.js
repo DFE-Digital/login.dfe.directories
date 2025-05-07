@@ -23,7 +23,7 @@ jest.mock("./../../src/infrastructure/config", () => ({
   },
 }));
 
-jest.mock("./../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/services");
 
 jest.mock("./../../src/app/invitations/data", () => ({
   getUserInvitation: jest.fn(),

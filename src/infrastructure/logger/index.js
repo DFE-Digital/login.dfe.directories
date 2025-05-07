@@ -1,79 +1,33 @@
-const { createLogger, transports, format } = require("winston");
-const appInsights = require("applicationinsights");
-const AppInsightsTransport = require("login.dfe.winston-appinsights");
-const AuditTransporter = require("login.dfe.audit.transporter");
+const WinstonSequelizeTransport = require("login.dfe.audit.winston-sequelize-transport");
+const {
+  setupApplicationInsights,
+  setupLogging,
+} = require("login.dfe.api-client/logging");
 const config = require("../config");
+const AuditTransporter = require("login.dfe.audit.transporter");
 
-const logLevel =
-  config && config.loggerSettings && config.loggerSettings.logLevel
-    ? config.loggerSettings.logLevel
-    : "info";
-// Formatter to hide audit records from other loggers.
-const hideAudit = format((info) =>
-  info.level.toLowerCase() === "audit" ? false : info,
-);
+const additionalTransports = [];
 
-const customLevels = {
-  levels: {
-    audit: 0,
-    error: 1,
-    warn: 2,
-    info: 3,
-    verbose: 4,
-    debug: 5,
-    silly: 6,
-  },
-  colors: {
-    info: "yellow",
-    ok: "green",
-    error: "red",
-    audit: "magenta",
-  },
-};
-
-const loggerConfig = {
-  levels: customLevels.levels,
-  transports: [],
-};
-
-loggerConfig.transports.push(
-  new transports.Console({
-    level: logLevel,
-    format: format.combine(hideAudit()),
-  }),
-);
-
-const opts = {
-  application: config.loggerSettings.applicationName,
-  level: "audit",
-};
-const auditTransport = AuditTransporter(opts);
-
-if (auditTransport) {
-  loggerConfig.transports.push(auditTransport);
+const sequelizeTransport = WinstonSequelizeTransport(config);
+if (sequelizeTransport) {
+  additionalTransports.push(sequelizeTransport);
 }
 
 if (config.hostingEnvironment.applicationInsights) {
-  appInsights
-    .setup(config.hostingEnvironment.applicationInsights)
-    .setAutoCollectConsole(false, false)
-    .setSendLiveMetrics(config.loggerSettings.aiSendLiveMetrics || false)
-    .start();
-  loggerConfig.transports.push(
-    new AppInsightsTransport({
-      client: appInsights.defaultClient,
-      applicationName: config.loggerSettings.applicationName || "Directories",
-      type: "event",
-      treatErrorsAsExceptions: true,
-      format: format.combine(hideAudit()),
-    }),
-  );
+  setupApplicationInsights(config.hostingEnvironment.applicationInsights);
 }
 
-const logger = createLogger(loggerConfig);
+const applicationName = config.loggerSettings.applicationName || "Directories";
 
-process.on("unhandledRejection", (reason, p) => {
-  logger.error("Error occurred processing: ", p, "reason: ", reason);
+additionalTransports.push(
+  AuditTransporter({
+    application: applicationName,
+    level: "audit",
+  }),
+);
+
+module.exports = setupLogging({
+  applicationName: applicationName,
+  logLevel: config.loggerSettings?.logLevel,
+  additionalTransports,
 });
-
-module.exports = logger;

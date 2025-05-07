@@ -4,7 +4,8 @@ const logger = require("../../../infrastructure/logger");
 const storage = require("../data");
 const userStorage = require("../../user/adapter");
 const { generateInvitationCode } = require("../utils");
-const { getServiceById } = require("../../../infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
+
 const sendInvitation = require("../utils/sendInvitation");
 
 const checkIfExistingUserAndNotifyIfIs = async (invitation) => {
@@ -12,7 +13,7 @@ const checkIfExistingUserAndNotifyIfIs = async (invitation) => {
   if (account) {
     let friendlyName;
     const client = invitation.origin
-      ? await getServiceById(invitation.origin.clientId)
+      ? await getServiceRaw({ by: { clientId: invitation.origin.clientId } })
       : undefined;
     if (client) {
       friendlyName = client.name;

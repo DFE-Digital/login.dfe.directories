@@ -19,10 +19,27 @@ const {
   entraExternalAuthProvider,
 } = require("login.dfe.entra-auth-extensions/provider");
 
+const { setupApi } = require("login.dfe.api-client/api/setup");
+
 https.globalAgent.maxSockets = http.globalAgent.maxSockets =
   config.hostingEnvironment.agentKeepAlive.maxSockets || 50;
 
 configSchema.validate();
+
+setupApi({
+  auth: {
+    tenant: config.applications.service.auth.tenant,
+    authorityHostUrl: config.applications.service.auth.authorityHostUrl,
+    clientId: config.applications.service.auth.clientId,
+    clientSecret: config.applications.service.auth.clientSecret,
+    resource: config.applications.service.auth.resource,
+  },
+  api: {
+    applications: {
+      baseUri: config.applications.service.url,
+    },
+  },
+});
 
 const app = express();
 

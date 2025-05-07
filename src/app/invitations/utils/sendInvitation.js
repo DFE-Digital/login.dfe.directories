@@ -1,6 +1,6 @@
 const { NotificationClient } = require("login.dfe.jobs-client");
 const config = require("./../../../infrastructure/config");
-const { getServiceById } = require("./../../../infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const logger = require("./../../../infrastructure/logger");
 
 const sendInvitation = async (invitation) => {
@@ -10,7 +10,7 @@ const sendInvitation = async (invitation) => {
     });
 
     const client = invitation.origin
-      ? await getServiceById(invitation.origin.clientId)
+      ? await getServiceRaw({ by: { clientId: invitation.origin.clientId } })
       : undefined;
     let friendlyName;
     if (client) {

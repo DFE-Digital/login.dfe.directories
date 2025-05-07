@@ -8,21 +8,17 @@ jest.mock("./../../src/infrastructure/config", () => ({
 }));
 
 jest.mock("./../../src/app/userCodes/data/redisUserCodeStorage", () => {
-  const getUserCodeStub = jest
-    .fn()
-    .mockReturnValue({
-      uid: "8332e8c9-d665-4ca8-8eed-379ce773e0f6",
-      code: "ABC123",
-      redirectUri: "http://local.test",
-    });
-  const getUserCodeByEmailStub = jest
-    .fn()
-    .mockReturnValue({
-      uid: "7332e8c9-d665-4ca8-8eed-379ce773e0f6",
-      email: "test@test.local",
-      code: "XYZ123",
-      redirectUri: "http://local.test",
-    });
+  const getUserCodeStub = jest.fn().mockReturnValue({
+    uid: "8332e8c9-d665-4ca8-8eed-379ce773e0f6",
+    code: "ABC123",
+    redirectUri: "http://local.test",
+  });
+  const getUserCodeByEmailStub = jest.fn().mockReturnValue({
+    uid: "7332e8c9-d665-4ca8-8eed-379ce773e0f6",
+    email: "test@test.local",
+    code: "XYZ123",
+    redirectUri: "http://local.test",
+  });
   return {
     getUserCode: jest.fn().mockImplementation(getUserCodeStub),
     getUserCodeByEmail: jest.fn().mockImplementation(getUserCodeByEmailStub),

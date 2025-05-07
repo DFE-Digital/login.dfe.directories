@@ -1,11 +1,9 @@
 jest.mock("./../../src/app/userCodes/data/redisUserCodeStorage", () => {
-  const getUserCodeStub = jest
-    .fn()
-    .mockReturnValue({
-      uid: "7654321",
-      code: "ABC123",
-      redirectUri: "http://local.test",
-    });
+  const getUserCodeStub = jest.fn().mockReturnValue({
+    uid: "7654321",
+    code: "ABC123",
+    redirectUri: "http://local.test",
+  });
   return {
     getUserCode: jest.fn().mockImplementation(getUserCodeStub),
   };

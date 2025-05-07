@@ -42,7 +42,7 @@
     "login.dfe.audit.transporter": "^4.0.3",
     "login.dfe.audit.winston-sequelize-transport": "^3.2.6",
     "login.dfe.config.schema.common": "^2.1.7",
-    "login.dfe.entra-auth-extensions": "^1.0.16",
+    "login.dfe.entra-auth-extensions": "^1.0.17",
     "login.dfe.express-error-handling": "^3.0.3",
     "login.dfe.healthcheck": "^3.0.3",
     "login.dfe.jobs-client": "^6.1.2",

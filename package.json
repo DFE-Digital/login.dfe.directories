@@ -30,6 +30,7 @@
     "applicationinsights": "^2.9.1",
     "body-parser": "^1.20.3",
     "debug": "^4.3.4",
+    "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "express-ejs-layouts": "^2.5.1",
@@ -37,6 +38,7 @@
     "fs": "^0.0.2",
     "ioredis": "^5.6.1",
     "lodash": "^4.17.21",
+    "login.dfe.api-client": "^1.0.5",
     "login.dfe.api.auth": "^2.3.4",
     "login.dfe.async-retry": "github:DFE-Digital/login.dfe.async-retry#v2.0.3",
     "login.dfe.audit.transporter": "^4.0.3",
@@ -56,8 +58,7 @@
     "simpl-schema": "^3.4.6",
     "tedious": "^18.3.0",
     "uuid": "^9.0.1",
-    "winston": "^3.17.0",
-    "dotenv": "^16.5.0"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.1",

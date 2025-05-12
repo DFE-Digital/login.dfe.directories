@@ -26,7 +26,10 @@ jest.mock("./../../src/infrastructure/config", () => ({
   },
 }));
 
-jest.mock("./../../src/infrastructure/applications");
+jest.mock("login.dfe.api-client/services", () => ({
+  getServiceRaw: jest.fn(),
+}));
+
 jest.mock("./../../src/app/invitations/data", () => ({
   createUserInvitation: jest.fn(),
   findInvitationForEmail: jest.fn(),
@@ -42,7 +45,7 @@ const httpMocks = require("node-mocks-http");
 const logger = require("../../src/infrastructure/logger");
 const redisStorage = require("../../src/app/invitations/data");
 const userStorage = require("../../src/app/user/adapter");
-const { getServiceById } = require("../../src/infrastructure/applications");
+const { getServiceRaw } = require("login.dfe.api-client/services");
 const post = require("../../src/app/invitations/api/postInvitations");
 
 describe("When creating an invitation", () => {
@@ -81,8 +84,9 @@ describe("When creating an invitation", () => {
       },
     };
 
-    getServiceById.mockReset().mockImplementation((id) => {
-      if (id !== "client1") {
+    getServiceRaw.mockReset().mockImplementation((params) => {
+      const { clientId } = params.by;
+      if (clientId !== "client1") {
         return undefined;
       }
       return {

@@ -72,12 +72,10 @@ describe("linkUserWithEntraOid function", () => {
 
   it("should create a new user entity with given_name changed", async () => {
     findUserById.mockResolvedValue({
-      update: jest
-        .fn()
-        .mockImplementation((updatedFields) => ({
-          ...fakeExistingUser,
-          ...updatedFields,
-        })),
+      update: jest.fn().mockImplementation((updatedFields) => ({
+        ...fakeExistingUser,
+        ...updatedFields,
+      })),
     });
 
     const entraOid = "78071717-4247-480d-90a3-3d531379ebf8";
@@ -104,12 +102,10 @@ describe("linkUserWithEntraOid function", () => {
 
   it("should create a new user entity with family_name changed", async () => {
     findUserById.mockResolvedValue({
-      update: jest
-        .fn()
-        .mockImplementation((updatedFields) => ({
-          ...fakeExistingUser,
-          ...updatedFields,
-        })),
+      update: jest.fn().mockImplementation((updatedFields) => ({
+        ...fakeExistingUser,
+        ...updatedFields,
+      })),
     });
 
     const entraOid = "78071717-4247-480d-90a3-3d531379ebf8";

@@ -28,6 +28,6 @@ additionalTransports.push(
 
 module.exports = setupLogging({
   applicationName: applicationName,
-  logLevel: config.loggerSettings?.logLevel,
+  logLevel: process.env.LOG_LEVEL,
   additionalTransports,
 });

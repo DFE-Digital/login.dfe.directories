@@ -29,8 +29,8 @@ const config = {
     env: process.env.LOCAL_ENV || "azure",
     host: process.env.LOCAL_HOST || process.env.STANDALONE_DIRECTORIES_HOST_NAME,
     port: process.env.LOCAL_PORT_DIRECTRORIES || 443,
-    sslCert: process.env.LOCAL_SSL_CERT || "",
-    sslKey: process.env.LOCAL_SSL_KEY || "",
+    sslCert: process.env.LOCAL_SSL_CERT ? process.env.LOCAL_SSL_CERT.replace(/\\n/g, '\n') : "",
+    sslKey: process.env.LOCAL_SSL_KEY ? process.env.LOCAL_SSL_KEY.replace(/\\n/g, '\n') : "",
     protocol: "https",
     applicationInsights: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
     agentKeepAlive: {
@@ -93,7 +93,7 @@ const config = {
         idle: 10000
       }
     },
-    redisUrl: process.env.REDIS_CONN + "/1"
+    redisUrl: process.env.LOCAL_REDIS_CONN ? process.env.LOCAL_REDIS_CONN + "/1" : process.env.REDIS_CONN + "/1"
   },
   applications: {
     type: "api",
@@ -115,7 +115,7 @@ const config = {
     clientID: process.env.AAD_SHD_APP_ID
   },
   notifications: {
-    connectionString: process.env.REDIS_CONN + "/4?tls=true",
+    connectionString: process.env.LOCAL_REDIS_CONN ? process.env.LOCAL_REDIS_CONN + "/4" : process.env.REDIS_CONN + "/4?tls=true",
     slackWebHookUrl: process.env.PLATFORM_GLOBAL_SLACK_FEED,
     envName: process.env.ENVIRONMENT_NAME
   },
@@ -145,4 +145,4 @@ function mimicLegacySettings(config) {
 
 mimicLegacySettings(config);
 
-module.exports = config; 
+module.exports = config;

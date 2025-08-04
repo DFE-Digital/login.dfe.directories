@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "setup": "./generate-certs.sh",
-    "dev": "settings='./config/login.dfe.directories.dev.json' PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
+    "dev": "PORT=4439 NODE_ENV=dev NODE_TLS_REJECT_UNAUTHORIZED=0 node src/index.js ",
     "dev:checks": "npm run lint && npm run test",
     "format": "prettier . --write",
     "lint": "eslint .",

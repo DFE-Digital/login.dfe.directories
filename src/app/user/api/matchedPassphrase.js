@@ -16,7 +16,7 @@ const matchedPassphrase = async (req, res) => {
       `perfomed a passord match  ${req.params.uid} with (reason: removed)`,
       { correlationId },
     );
-    return res.send(results);
+    return results ? res.send(results) : res.sendStatus(404);
   } catch (e) {
     logger.error(e);
     res.status(500).send(e);

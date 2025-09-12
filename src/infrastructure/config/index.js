@@ -25,7 +25,6 @@ const config = {
     }
   },
   hostingEnvironment: {
-    useDevViews: false,
     env: process.env.LOCAL_ENV || "azure",
     host: process.env.LOCAL_HOST || process.env.STANDALONE_DIRECTORIES_HOST_NAME,
     port: process.env.LOCAL_PORT_DIRECTRORIES || 443,

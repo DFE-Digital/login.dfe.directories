@@ -5,12 +5,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const http = require("http");
 const https = require("https");
-const expressLayouts = require("express-ejs-layouts");
-const path = require("path");
 const users = require("./app/user/api");
 const userCodes = require("./app/userCodes/api");
 const invitations = require("./app/invitations/api");
-const dev = require("./app/dev");
 const healthCheck = require("login.dfe.healthcheck");
 const { getErrorHandler } = require("login.dfe.express-error-handling");
 const configSchema = require("./infrastructure/config/schema");
@@ -67,18 +64,6 @@ app.use(
     },
   }),
 );
-
-if (config.hostingEnvironment.useDevViews) {
-  app.use(expressLayouts);
-  app.set("view engine", "ejs");
-  app.set("views", path.resolve(__dirname, "app"));
-  app.set("layout", "layouts/layout");
-
-  app.get("/", (req, res) => {
-    res.redirect("/manage");
-  });
-  app.use("/manage", dev);
-}
 
 // TODO Once the deprecated APIs are gone, this mount can be /users...
 app.use("/", users);

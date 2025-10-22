@@ -68,6 +68,8 @@ const notificationsSchema = new SimpleSchema({
   connectionString: patterns.redis,
   slackWebHookUrl: String,
   envName: String,
+  genericEmailStrings: [String],
+  supportTeamEmail: String,
 });
 
 const togglesSchema = new SimpleSchema({

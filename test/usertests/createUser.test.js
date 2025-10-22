@@ -16,6 +16,8 @@ jest.mock("./../../src/infrastructure/config", () => {
   return {
     notifications: {
       connectionString: "notifications-connection-string",
+      genericEmailStrings: ["head", "ht", "admin"],
+      supportTeamEmail: "support@example.com",
     },
     toggles: {
       notificationsEnabled: true,
@@ -23,7 +25,10 @@ jest.mock("./../../src/infrastructure/config", () => {
   };
 });
 
-const { ServiceNotificationsClient } = require("login.dfe.jobs-client");
+const {
+  ServiceNotificationsClient,
+  NotificationClient,
+} = require("login.dfe.jobs-client");
 const {
   findByUsername,
   create,
@@ -41,6 +46,10 @@ const newUser = {
 
 const serviceNotificationsClient = {
   notifyUserUpdated: jest.fn(),
+};
+
+const notificationClient = {
+  sendSupportRequest: jest.fn(),
 };
 
 describe("When creating a user", () => {
@@ -77,6 +86,8 @@ describe("When creating a user", () => {
     ServiceNotificationsClient.mockReset().mockImplementation(
       () => serviceNotificationsClient,
     );
+    notificationClient.sendSupportRequest.mockReset();
+    NotificationClient.mockReset().mockImplementation(() => notificationClient);
   });
 
   afterEach(() => {
@@ -228,5 +239,65 @@ describe("When creating a user", () => {
       expectedRequestCorrelationId,
       "d0c342aa-549f-4992-ae00-e8fdc47592a9",
     ]);
+  });
+
+  it.each([
+    "testhead@example.com",
+    "TESTHEAD@example.com",
+    "tEsThEaD@example.com",
+    "testdraught@example.com",
+    "TESTDRAUGHT@example.com",
+    "tEsTdRaUgHt@example.com",
+    "testadmin@example.com",
+    "TESTADMIN@example.com",
+    "tEsTaDmIn@example.com",
+  ])(
+    "should send a support request if the user's email address username contains any of the generic email strings (case-insensitive): %s",
+    async (email) => {
+      const firstName = "TestFirst";
+      const lastName = "TestLast";
+      req.body.email = email;
+      req.body.firstName = firstName;
+      req.body.lastName = lastName;
+
+      await createUser(req, res);
+
+      expect(NotificationClient).toHaveBeenCalledTimes(1);
+      expect(NotificationClient).toHaveBeenCalledWith({
+        connectionString: "notifications-connection-string",
+      });
+      expect(logger.info).toHaveBeenCalled();
+      expect(logger.info).toHaveBeenCalledWith(
+        "User with id [some-new-id] has a potentially generic email address. Creating a support request to review it.",
+        { correlationId: expectedRequestCorrelationId },
+      );
+      expect(notificationClient.sendSupportRequest).toHaveBeenCalledTimes(1);
+      expect(notificationClient.sendSupportRequest).toHaveBeenCalledWith(
+        "",
+        "support@example.com",
+        undefined,
+        "potential-generic-email-address",
+        undefined,
+        undefined,
+        undefined,
+        `New user has a potentially generic email address, please review the user: ${email} (${firstName} ${lastName}).`,
+      );
+    },
+  );
+
+  it("should not send a support request if the user's email address domain contains any of the generic email strings", async () => {
+    req.body.email = "john.doe@example-head.com";
+
+    await createUser(req, res);
+
+    expect(notificationClient.sendSupportRequest).not.toHaveBeenCalled();
+  });
+
+  it("should not send a support request if the user's email address username doesn't contain any of the generic email strings", async () => {
+    req.body.email = "john.doe@example.com";
+
+    await createUser(req, res);
+
+    expect(notificationClient.sendSupportRequest).not.toHaveBeenCalled();
   });
 });

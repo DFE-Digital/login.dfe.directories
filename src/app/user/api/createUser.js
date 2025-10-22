@@ -1,8 +1,16 @@
-const { ServiceNotificationsClient } = require("login.dfe.jobs-client");
+const {
+  ServiceNotificationsClient,
+  NotificationClient,
+} = require("login.dfe.jobs-client");
 const { findByUsername, create, findByEntraOid } = require("../adapter");
 const logger = require("../../../infrastructure/logger");
 const config = require("../../../infrastructure/config");
 const { safeUser } = require("../../../utils");
+
+const genericEmailStrings =
+  config.notifications.genericEmailStrings.map?.((string) =>
+    string.toUpperCase(),
+  ) ?? [];
 
 const createUser = async (req, res) => {
   const correlationId = req.header("x-correlation-id");
@@ -66,6 +74,27 @@ const createUser = async (req, res) => {
       logger.info(
         `Send user updated notification for ${user.sub} with job id ${jobId} (reason: create)`,
         { correlationId },
+      );
+    }
+
+    const emailUsername = email.toUpperCase().split("@")[0];
+    if (genericEmailStrings.some((string) => emailUsername.includes(string))) {
+      const notificationClient = new NotificationClient({
+        connectionString: config.notifications.connectionString,
+      });
+      logger.info(
+        `User with id [${user.sub}] has a potentially generic email address. Creating a support request to review it.`,
+        { correlationId },
+      );
+      await notificationClient.sendSupportRequest(
+        "",
+        config.notifications.supportTeamEmail,
+        undefined,
+        "potential-generic-email-address",
+        undefined,
+        undefined,
+        undefined,
+        `New user has a potentially generic email address, please review the user: ${email} (${firstName} ${lastName}).`,
       );
     }
 

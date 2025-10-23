@@ -1,12 +1,18 @@
 const {
   PublicApiClient,
   ServiceNotificationsClient,
+  NotificationClient,
 } = require("login.dfe.jobs-client");
 const config = require("../../../infrastructure/config");
 const logger = require("../../../infrastructure/logger");
 const { getUserInvitation, updateInvitation } = require("../data");
 const { create } = require("../../user/adapter");
 const { safeUser } = require("../../../utils");
+
+const genericEmailStrings =
+  config.notifications.genericEmailStrings.map?.((string) =>
+    string.toUpperCase(),
+  ) ?? [];
 
 const createUser = async (req, res) => {
   try {
@@ -54,6 +60,27 @@ const createUser = async (req, res) => {
       connectionString: config.notifications.connectionString,
     });
     await publicApiClient.sendInvitationComplete(user.id, invitation.callbacks);
+
+    const emailUsername = invitation.email.toUpperCase().split("@")[0];
+    if (genericEmailStrings.some((string) => emailUsername.includes(string))) {
+      const notificationClient = new NotificationClient({
+        connectionString: config.notifications.connectionString,
+      });
+      logger.info(
+        `User with id [${user.id}] has a potentially generic email address. Creating a support request to review it.`,
+        { correlationId },
+      );
+      await notificationClient.sendSupportRequest(
+        "",
+        config.notifications.supportTeamEmail,
+        undefined,
+        "potential-generic-email-address",
+        undefined,
+        undefined,
+        undefined,
+        `New user has a potentially generic email address, please review the user: ${invitation.email} (${invitation.firstName} ${invitation.lastName}).`,
+      );
+    }
 
     return res.status(201).send(safeUser(user));
   } catch (e) {

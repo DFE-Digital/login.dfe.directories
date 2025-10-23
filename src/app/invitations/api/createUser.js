@@ -5,13 +5,14 @@ const {
 const config = require("../../../infrastructure/config");
 const logger = require("../../../infrastructure/logger");
 const { getUserInvitation, updateInvitation } = require("../data");
-const userStorage = require("../../user/adapter");
+const { create } = require("../../user/adapter");
 const { safeUser } = require("../../../utils");
 
 const createUser = async (req, res) => {
   try {
     const invId = req.params.id;
     const { password, entraOid } = req.body;
+    const correlationId = req.header("x-correlation-id");
 
     if (!invId) {
       return res.status(400).send();
@@ -22,22 +23,19 @@ const createUser = async (req, res) => {
       });
     }
 
-    const invitation = await getUserInvitation(
-      req.params.id,
-      req.header("x-correlation-id"),
-    );
+    const invitation = await getUserInvitation(req.params.id, correlationId);
     if (!invitation) {
       return res.status(404).send();
     }
 
-    const user = await userStorage.create(
+    const user = await create(
       invitation.email,
       password,
       invitation.firstName,
       invitation.lastName,
       null,
       null,
-      req.header("x-correlation-id"),
+      correlationId,
       entraOid,
     );
 

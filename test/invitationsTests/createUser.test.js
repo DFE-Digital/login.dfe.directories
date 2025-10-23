@@ -62,20 +62,26 @@ describe("createUser", () => {
   let res;
   let safeUserMock;
   let resSendSpy;
+  const expectedRequestCorrelationId = "some-correlation-id";
 
   beforeEach(() => {
     req = {
       params: { id: "inv-id" },
       body: { password: "password" },
-      header: jest.fn(),
+      headers: {
+        "x-correlation-id": expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
+      },
     };
     res = httpMocks.createResponse();
 
     safeUserMock = {
       id: "user-id",
       email: "john.doe@test.com",
-      firstName: "John",
-      lastName: "Doe",
+      given_name: "John",
+      family_name: "Doe",
     };
 
     safeUser.mockReturnValue(safeUserMock);
@@ -126,7 +132,6 @@ describe("createUser", () => {
   });
 
   it("should respond with a 404 status code if no invitation is found for the invitation id", async () => {
-    req.header.mockReturnValue("correlation-id");
     getUserInvitation.mockResolvedValue(undefined);
 
     await createUser(req, res);
@@ -140,44 +145,49 @@ describe("createUser", () => {
       email: "john.doe@test.com",
       firstName: "John",
       lastName: "Doe",
-      callbacks: "http:test/auth/cb",
+      callbacks: [
+        {
+          sourceId: "service-user-id",
+          callback: "http:test/auth/cb",
+          clientId: "service-client-id",
+        },
+      ],
     };
     const user = {
       id: "user-id",
+      sub: "user-id",
       email: "john.doe@test.com",
-      firstName: "John",
-      lastName: "Doe",
+      given_name: "John",
+      family_name: "Doe",
       password: "test-password",
     };
-
-    req.header.mockReturnValue("correlation-id");
     getUserInvitation.mockResolvedValue(invitation);
     userStorage.create.mockResolvedValue(user);
 
     await createUser(req, res);
 
     expect(userStorage.create).toHaveBeenCalledWith(
-      "john.doe@test.com",
-      "password",
-      "John",
-      "Doe",
+      invitation.email,
+      req.body.password,
+      invitation.firstName,
+      invitation.lastName,
       null,
       null,
-      "correlation-id",
+      expectedRequestCorrelationId,
       undefined,
     );
     expect(updateInvitation).toHaveBeenCalledWith({
       ...invitation,
       isCompleted: true,
-      userId: "user-id",
+      userId: user.id,
     });
     expect(safeUser).toHaveBeenCalled();
     expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledTimes(
       1,
     );
     expect(publicApiClient.sendInvitationComplete).toHaveBeenCalledWith(
-      "user-id",
-      "http:test/auth/cb",
+      user.id,
+      invitation.callbacks,
     );
     expect(res.statusCode).toBe(201);
     expect(resSendSpy).toHaveBeenCalledWith(safeUserMock);
@@ -186,7 +196,6 @@ describe("createUser", () => {
   it("should return 500 if an error is thrown", async () => {
     req.params.id = "123";
     req.body = { password: "pass" };
-    req.header.mockReturnValue("correlation-id");
     getUserInvitation.mockRejectedValue(new Error("Test error"));
 
     await createUser(req, res);

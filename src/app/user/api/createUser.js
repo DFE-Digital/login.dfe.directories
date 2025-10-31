@@ -9,7 +9,7 @@ const { safeUser } = require("../../../utils");
 
 const genericEmailStrings =
   config.notifications.genericEmailStrings.map?.((string) =>
-    string.toUpperCase(),
+    string.toUpperCase?.(),
   ) ?? [];
 
 const createUser = async (req, res) => {
@@ -77,6 +77,11 @@ const createUser = async (req, res) => {
       );
     }
 
+    /*
+      Checks if the user's email username could possibly be generic, if it is we generate a support request to
+      review the account. This is to avoid false positives blocking the account creation journey but still ensures
+      we catch and deactivate generic emails according to our Ts&Cs.
+    */
     const emailUsername = email.toUpperCase().split("@")[0];
     if (genericEmailStrings.some((string) => emailUsername.includes(string))) {
       const notificationClient = new NotificationClient({

@@ -68,7 +68,13 @@ const notificationsSchema = new SimpleSchema({
   connectionString: patterns.redis,
   slackWebHookUrl: String,
   envName: String,
-  genericEmailStrings: [String],
+  genericEmailStrings: {
+    type: Array,
+    minCount: 1,
+  },
+  "genericEmailStrings.$": {
+    type: String
+  },
   supportTeamEmail: String,
 });
 

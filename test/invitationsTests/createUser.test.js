@@ -1,6 +1,7 @@
 const {
   PublicApiClient,
   ServiceNotificationsClient,
+  NotificationClient,
 } = require("login.dfe.jobs-client");
 const httpMocks = require("node-mocks-http");
 const createUser = require("../../src/app/invitations/api/createUser");
@@ -31,6 +32,8 @@ jest.mock("../../src/infrastructure/config", () => ({
   },
   notifications: {
     connectionString: "test",
+    genericEmailStrings: ["head", "ht", "admin"],
+    supportTeamEmail: "support@example.com",
   },
 }));
 jest.mock("../../src/infrastructure/logger");
@@ -56,26 +59,35 @@ const serviceNotificationsClient = {
 const publicApiClient = {
   sendInvitationComplete: jest.fn(),
 };
+const notificationClient = {
+  sendSupportRequest: jest.fn(),
+};
 
 describe("createUser", () => {
   let req;
   let res;
   let safeUserMock;
   let resSendSpy;
+  const expectedRequestCorrelationId = "some-correlation-id";
 
   beforeEach(() => {
     req = {
       params: { id: "inv-id" },
       body: { password: "password" },
-      header: jest.fn(),
+      headers: {
+        "x-correlation-id": expectedRequestCorrelationId,
+      },
+      header(header) {
+        return this.headers[header];
+      },
     };
     res = httpMocks.createResponse();
 
     safeUserMock = {
       id: "user-id",
       email: "john.doe@test.com",
-      firstName: "John",
-      lastName: "Doe",
+      given_name: "John",
+      family_name: "Doe",
     };
 
     safeUser.mockReturnValue(safeUserMock);
@@ -88,6 +100,7 @@ describe("createUser", () => {
     );
     publicApiClient.sendInvitationComplete.mockReset();
     PublicApiClient.mockReset().mockImplementation(() => publicApiClient);
+    NotificationClient.mockReset().mockImplementation(() => notificationClient);
   });
 
   afterEach(() => {
@@ -126,7 +139,6 @@ describe("createUser", () => {
   });
 
   it("should respond with a 404 status code if no invitation is found for the invitation id", async () => {
-    req.header.mockReturnValue("correlation-id");
     getUserInvitation.mockResolvedValue(undefined);
 
     await createUser(req, res);
@@ -140,53 +152,137 @@ describe("createUser", () => {
       email: "john.doe@test.com",
       firstName: "John",
       lastName: "Doe",
-      callbacks: "http:test/auth/cb",
+      callbacks: [
+        {
+          sourceId: "service-user-id",
+          callback: "http:test/auth/cb",
+          clientId: "service-client-id",
+        },
+      ],
     };
     const user = {
       id: "user-id",
+      sub: "user-id",
       email: "john.doe@test.com",
-      firstName: "John",
-      lastName: "Doe",
+      given_name: "John",
+      family_name: "Doe",
       password: "test-password",
     };
-
-    req.header.mockReturnValue("correlation-id");
     getUserInvitation.mockResolvedValue(invitation);
     userStorage.create.mockResolvedValue(user);
 
     await createUser(req, res);
 
     expect(userStorage.create).toHaveBeenCalledWith(
-      "john.doe@test.com",
-      "password",
-      "John",
-      "Doe",
+      invitation.email,
+      req.body.password,
+      invitation.firstName,
+      invitation.lastName,
       null,
       null,
-      "correlation-id",
+      expectedRequestCorrelationId,
       undefined,
     );
     expect(updateInvitation).toHaveBeenCalledWith({
       ...invitation,
       isCompleted: true,
-      userId: "user-id",
+      userId: user.id,
     });
     expect(safeUser).toHaveBeenCalled();
     expect(serviceNotificationsClient.notifyUserUpdated).toHaveBeenCalledTimes(
       1,
     );
     expect(publicApiClient.sendInvitationComplete).toHaveBeenCalledWith(
-      "user-id",
-      "http:test/auth/cb",
+      user.id,
+      invitation.callbacks,
     );
     expect(res.statusCode).toBe(201);
     expect(resSendSpy).toHaveBeenCalledWith(safeUserMock);
   });
 
+  it.each([
+    "testhead@example.com",
+    "TESTHEAD@example.com",
+    "tEsThEaD@example.com",
+    "testdraught@example.com",
+    "TESTDRAUGHT@example.com",
+    "tEsTdRaUgHt@example.com",
+    "testadmin@example.com",
+    "TESTADMIN@example.com",
+    "tEsTaDmIn@example.com",
+  ])(
+    "should send a support request if the user's email address username contains any of the generic email strings (case-insensitive): %s",
+    async (email) => {
+      const invitation = {
+        email,
+        firstName: "John",
+        lastName: "Doe",
+      };
+      const user = {
+        id: "user-id",
+        sub: "user-id",
+        email: "john.doe@test.com",
+        given_name: "John",
+        family_name: "Doe",
+        password: "test-password",
+      };
+      getUserInvitation.mockResolvedValue(invitation);
+      userStorage.create.mockResolvedValue(user);
+
+      await createUser(req, res);
+
+      expect(NotificationClient).toHaveBeenCalledTimes(1);
+      expect(NotificationClient).toHaveBeenCalledWith({
+        connectionString: "test",
+      });
+      expect(logger.info).toHaveBeenCalled();
+      expect(logger.info).toHaveBeenCalledWith(
+        `User with id [${user.id}] has a potentially generic email address. Creating a support request to review it.`,
+        { correlationId: expectedRequestCorrelationId },
+      );
+      expect(notificationClient.sendSupportRequest).toHaveBeenCalledTimes(1);
+      expect(notificationClient.sendSupportRequest).toHaveBeenCalledWith(
+        "",
+        "support@example.com",
+        undefined,
+        "potential-generic-email-address",
+        undefined,
+        undefined,
+        undefined,
+        `New user has a potentially generic email address, please review the user: ${email} (${invitation.firstName} ${invitation.lastName}).`,
+      );
+    },
+  );
+
+  it("should not send a support request if the user's email address domain contains any of the generic email strings", async () => {
+    const invitation = {
+      email: "john.doe@example-head.com",
+      firstName: "John",
+      lastName: "Doe",
+    };
+    getUserInvitation.mockResolvedValue(invitation);
+
+    await createUser(req, res);
+
+    expect(notificationClient.sendSupportRequest).not.toHaveBeenCalled();
+  });
+
+  it("should not send a support request if the user's email address username doesn't contain any of the generic email strings", async () => {
+    const invitation = {
+      email: "john.doe@example.com",
+      firstName: "John",
+      lastName: "Doe",
+    };
+    getUserInvitation.mockResolvedValue(invitation);
+
+    await createUser(req, res);
+
+    expect(notificationClient.sendSupportRequest).not.toHaveBeenCalled();
+  });
+
   it("should return 500 if an error is thrown", async () => {
     req.params.id = "123";
     req.body = { password: "pass" };
-    req.header.mockReturnValue("correlation-id");
     getUserInvitation.mockRejectedValue(new Error("Test error"));
 
     await createUser(req, res);

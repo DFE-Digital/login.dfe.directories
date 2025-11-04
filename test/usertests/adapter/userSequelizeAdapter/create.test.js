@@ -19,7 +19,9 @@ jest.mock(
     findByUsernameHelper: jest.fn(),
   }),
 );
-
+jest.mock("../../../../src/infrastructure/logger", () => ({
+  info: jest.fn(),
+}));
 jest.mock("../../../../src/infrastructure/repository/db", () => ({
   user: {
     create: jest.fn().mockResolvedValue({ entra_linked: new Date() }),

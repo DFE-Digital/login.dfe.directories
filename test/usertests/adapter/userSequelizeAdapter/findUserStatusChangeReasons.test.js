@@ -9,7 +9,10 @@ jest.mock(
     findByUsernameHelper: jest.fn(),
   }),
 );
-
+jest.mock("../../../../src/infrastructure/logger", () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+}));
 jest.mock("../../../../src/infrastructure/repository/db", () => ({
   userStatusChangeReasons: {
     findAll: jest.fn(),

@@ -35,7 +35,7 @@
     "lodash": "^4.17.21",
     "login.dfe.api-client": "^1.0.58",
     "login.dfe.api.auth": "^2.3.4",
-    "login.dfe.audit.transporter": "^4.0.3",
+    "login.dfe.audit.transporter": "^4.0.4-alpha.1",
     "login.dfe.audit.winston-sequelize-transport": "^3.2.6",
     "login.dfe.config.schema.common": "^2.1.8",
     "login.dfe.entra-auth-extensions": "^1.0.20",

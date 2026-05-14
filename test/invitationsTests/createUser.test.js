@@ -8,7 +8,10 @@ const createUser = require("../../src/app/invitations/api/createUser");
 const {
   getUserInvitation,
   updateInvitation,
+  listInvitationsForEmail,
+  deleteInvitation,
 } = require("../../src/app/invitations/data/index");
+const { removeUserFromSearchIndex } = require("login.dfe.api-client/users");
 const userStorage = require("../../src/app/user/adapter");
 const { safeUser } = require("../../src/utils/index");
 const logger = require("../../src/infrastructure/logger");
@@ -43,6 +46,7 @@ jest.mock("../../src/utils/index", () => ({
   safeUser: jest.fn(),
 }));
 jest.mock("login.dfe.jobs-client");
+jest.mock("login.dfe.api-client/users");
 jest.mock("sequelize");
 jest.mock("../../src/infrastructure/repository/db", () => ({
   user: {
@@ -93,6 +97,10 @@ describe("createUser", () => {
     safeUser.mockReturnValue(safeUserMock);
 
     resSendSpy = jest.spyOn(res, "send");
+
+    listInvitationsForEmail.mockResolvedValue([]);
+    deleteInvitation.mockResolvedValue();
+    removeUserFromSearchIndex.mockResolvedValue();
 
     serviceNotificationsClient.notifyUserUpdated.mockReset();
     ServiceNotificationsClient.mockReset().mockImplementation(
@@ -278,6 +286,115 @@ describe("createUser", () => {
     await createUser(req, res);
 
     expect(notificationClient.sendSupportRequest).not.toHaveBeenCalled();
+  });
+
+  describe("stale sibling invitation cleanup", () => {
+    const baseInvitation = {
+      id: "inv-id",
+      email: "john.doe@test.com",
+      firstName: "John",
+      lastName: "Doe",
+      callbacks: [],
+    };
+    const baseUser = {
+      id: "user-id",
+      email: "john.doe@test.com",
+    };
+
+    beforeEach(() => {
+      getUserInvitation.mockResolvedValue(baseInvitation);
+      userStorage.create.mockResolvedValue(baseUser);
+    });
+
+    it("should not call deleteInvitation when there are no other invitations for the email", async () => {
+      listInvitationsForEmail.mockResolvedValue([baseInvitation]);
+
+      await createUser(req, res);
+
+      expect(deleteInvitation).not.toHaveBeenCalled();
+      expect(removeUserFromSearchIndex).not.toHaveBeenCalled();
+    });
+
+    it("should delete and remove from search index each incomplete sibling invitation", async () => {
+      const stale1 = {
+        id: "stale-1",
+        email: "john.doe@test.com",
+        isCompleted: false,
+      };
+      const stale2 = {
+        id: "stale-2",
+        email: "john.doe@test.com",
+        isCompleted: false,
+      };
+      listInvitationsForEmail.mockResolvedValue([
+        baseInvitation,
+        stale1,
+        stale2,
+      ]);
+
+      await createUser(req, res);
+
+      expect(deleteInvitation).toHaveBeenCalledTimes(2);
+      expect(deleteInvitation).toHaveBeenCalledWith(
+        "stale-1",
+        expectedRequestCorrelationId,
+      );
+      expect(deleteInvitation).toHaveBeenCalledWith(
+        "stale-2",
+        expectedRequestCorrelationId,
+      );
+      expect(removeUserFromSearchIndex).toHaveBeenCalledTimes(2);
+      expect(removeUserFromSearchIndex).toHaveBeenCalledWith({
+        id: "inv-stale-1",
+      });
+      expect(removeUserFromSearchIndex).toHaveBeenCalledWith({
+        id: "inv-stale-2",
+      });
+    });
+
+    it("should not delete sibling invitations that are already completed", async () => {
+      const completedSibling = {
+        id: "completed-1",
+        email: "john.doe@test.com",
+        isCompleted: true,
+      };
+      listInvitationsForEmail.mockResolvedValue([
+        baseInvitation,
+        completedSibling,
+      ]);
+
+      await createUser(req, res);
+
+      expect(deleteInvitation).not.toHaveBeenCalled();
+      expect(removeUserFromSearchIndex).not.toHaveBeenCalled();
+    });
+
+    it("should not delete the current invitation even if it appears in the list", async () => {
+      listInvitationsForEmail.mockResolvedValue([baseInvitation]);
+
+      await createUser(req, res);
+
+      expect(deleteInvitation).not.toHaveBeenCalledWith(
+        "inv-id",
+        expect.anything(),
+      );
+    });
+
+    it("should log each stale invitation deletion with the correlationId", async () => {
+      const stale = {
+        id: "stale-1",
+        email: "john.doe@test.com",
+        isCompleted: false,
+      };
+      listInvitationsForEmail.mockResolvedValue([baseInvitation, stale]);
+
+      await createUser(req, res);
+
+      expect(logger.info).toHaveBeenCalledWith(
+        `Deleting stale invitation stale-1 for email john.doe@test.com following completion of invitation inv-id`,
+        { correlationId: expectedRequestCorrelationId },
+      );
+    });
   });
 
   it("should return 500 if an error is thrown", async () => {

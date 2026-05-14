@@ -259,6 +259,37 @@ const findInvitationForEmail = async (
   }
 };
 
+const listInvitationsForEmail = async (
+  email,
+  excludeComplete,
+  correlationId,
+) => {
+  try {
+    const where = {
+      email: {
+        [Op.eq]: email,
+      },
+    };
+    if (excludeComplete) {
+      where.completed = {
+        [Op.eq]: false,
+      };
+    }
+    const entities = await db.invitation.findAll({
+      where,
+      include: ["callbacks"],
+    });
+
+    return entities.map(mapEntityToInvitation);
+  } catch (e) {
+    logger.error(`Error listing invitations for email - ${e.message}`, {
+      correlationId,
+      stack: e.stack,
+    });
+    throw e;
+  }
+};
+
 module.exports = {
   list,
   deleteInvitation,
@@ -266,4 +297,5 @@ module.exports = {
   getUserInvitation,
   updateInvitation,
   findInvitationForEmail,
+  listInvitationsForEmail,
 };

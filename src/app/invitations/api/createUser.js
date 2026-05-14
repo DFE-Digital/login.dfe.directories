@@ -5,7 +5,13 @@ const {
 } = require("login.dfe.jobs-client");
 const config = require("../../../infrastructure/config");
 const logger = require("../../../infrastructure/logger");
-const { getUserInvitation, updateInvitation } = require("../data");
+const {
+  getUserInvitation,
+  updateInvitation,
+  listInvitationsForEmail,
+  deleteInvitation,
+} = require("../data");
+const { removeUserFromSearchIndex } = require("login.dfe.api-client/users");
 const { create } = require("../../user/adapter");
 const { safeUser } = require("../../../utils");
 
@@ -50,6 +56,23 @@ const createUser = async (req, res) => {
       userId: user.id,
     });
     await updateInvitation(completedInvitation);
+
+    const allInvitationsForEmail = await listInvitationsForEmail(
+      invitation.email,
+      false,
+      correlationId,
+    );
+    const staleInvitations = allInvitationsForEmail.filter(
+      (inv) => inv.id !== invId && !inv.isCompleted,
+    );
+    for (const stale of staleInvitations) {
+      logger.info(
+        `Deleting stale invitation ${stale.id} for email ${invitation.email} following completion of invitation ${invId}`,
+        { correlationId },
+      );
+      await deleteInvitation(stale.id, correlationId);
+      await removeUserFromSearchIndex({ id: `inv-${stale.id}` });
+    }
 
     const serviceNotificationsClient = new ServiceNotificationsClient({
       connectionString: config.notifications.connectionString,

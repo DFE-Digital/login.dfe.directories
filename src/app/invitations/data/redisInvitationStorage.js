@@ -219,6 +219,34 @@ const findInvitationForEmail = async (
   }
 };
 
+const listInvitationsForEmail = async (
+  email,
+  excludeComplete,
+  correlationId,
+) => {
+  try {
+    logger.info(`List UserInvitations for request: ${correlationId}`, {
+      correlationId,
+    });
+
+    const allKeys = await getAllKeys();
+    return await findInvitationsMatching(
+      allKeys,
+      undefined,
+      (invitation) =>
+        invitation.email &&
+        invitation.email.toLowerCase() === email.toLowerCase() &&
+        (!excludeComplete || !invitation.isCompleted),
+    );
+  } catch (e) {
+    logger.error(
+      `List UserInvitations failed for request ${correlationId} error: ${e}`,
+      { correlationId },
+    );
+    throw e;
+  }
+};
+
 module.exports = {
   list,
   deleteInvitation,
@@ -226,4 +254,5 @@ module.exports = {
   getUserInvitation,
   updateInvitation,
   findInvitationForEmail,
+  listInvitationsForEmail,
 };

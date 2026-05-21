@@ -1,11 +1,20 @@
 jest.mock("login.dfe.jobs-client");
+jest.mock("login.dfe.api-client/users", () => ({
+  getUserServicesRaw: jest.fn(),
+  getUserOrganisationsRaw: jest.fn(),
+}));
 const httpMocks = require("node-mocks-http");
 const getUserStatus = require("../../src/app/user/api/getUserStatus");
 const activateUser = require("../../src/app/user/api/activateUser");
 const deactivateUser = require("../../src/app/user/api/deactivateUser");
+const {
+  getUserServicesRaw,
+  getUserOrganisationsRaw,
+} = require("login.dfe.api-client/users");
 
 jest.mock("../../src/infrastructure/logger", () => ({
   info: jest.fn(),
+  warn: jest.fn(),
   error: jest.fn(),
 }));
 
@@ -186,10 +195,24 @@ describe("When activating a user", () => {
       () => serviceNotificationsClient,
     );
 
+    getUserServicesRaw.mockReset().mockResolvedValue([
+      {
+        serviceId: "service1",
+        organisationId: "organisation1",
+        roles: [{ id: "role1", code: "ROLE-ONE", numericId: 1 }],
+      },
+    ]);
+    getUserOrganisationsRaw.mockReset().mockResolvedValue([
+      {
+        organisation: { id: "organisation1", legacyId: 123 },
+        numericIdentifier: "sauser1",
+      },
+    ]);
+
     logger.error.mockReset();
   });
 
-  it("then it notifies when the user is updated", async () => {
+  it("then it notifies when the user is updated, including the access snapshot", async () => {
     await activateUser(req, res);
 
     expect(adapter.changeStatus).toHaveBeenCalledWith(
@@ -197,6 +220,12 @@ describe("When activating a user", () => {
       1,
       expectedRequestCorrelationId,
     );
+    expect(getUserServicesRaw).toHaveBeenCalledWith({
+      userId: "a516696c-168c-4680-8dfb-1512d6fc234c",
+    });
+    expect(getUserOrganisationsRaw).toHaveBeenCalledWith({
+      userId: "a516696c-168c-4680-8dfb-1512d6fc234c",
+    });
     expect(ServiceNotificationsClient).toHaveBeenCalledWith({
       connectionString: "notifications-connection-string",
     });
@@ -208,6 +237,19 @@ describe("When activating a user", () => {
       email: "test@local",
       job_title: "Manager",
       status: 1,
+      userServices: [
+        {
+          serviceId: "service1",
+          organisationId: "organisation1",
+          roles: [{ id: "role1", code: "ROLE-ONE", numericId: 1 }],
+        },
+      ],
+      userOrganisations: [
+        {
+          organisation: { id: "organisation1", legacyId: 123 },
+          numericIdentifier: "sauser1",
+        },
+      ],
     });
   });
 
@@ -263,12 +305,51 @@ describe("When deactivating a user", () => {
       () => serviceNotificationsClient,
     );
 
+    getUserServicesRaw.mockReset().mockResolvedValue([
+      {
+        serviceId: "service1",
+        organisationId: "organisation1",
+        roles: [{ id: "role1", code: "ROLE-ONE", numericId: 1 }],
+      },
+    ]);
+    getUserOrganisationsRaw.mockReset().mockResolvedValue([
+      {
+        organisation: { id: "organisation1", legacyId: 123 },
+        numericIdentifier: "sauser1",
+      },
+    ]);
+
     logger.error.mockReset();
   });
 
-  it("then it notifies when the user is updated", async () => {
+  it("then it notifies when the user is updated, including the access snapshot captured before deactivation", async () => {
+    const callOrder = [];
+    getUserServicesRaw.mockImplementationOnce(async () => {
+      callOrder.push("snapshot");
+      return [
+        {
+          serviceId: "service1",
+          organisationId: "organisation1",
+          roles: [{ id: "role1", code: "ROLE-ONE", numericId: 1 }],
+        },
+      ];
+    });
+    adapter.changeStatus.mockImplementationOnce(async () => {
+      callOrder.push("changeStatus");
+      return {
+        id: "a516696c-168c-4680-8dfb-1512d6fc234c",
+        sub: "a516696c-168c-4680-8dfb-1512d6fc234c",
+        given_name: "Test",
+        family_name: "Tester",
+        email: "test@local",
+        job_title: "Manager",
+        status: 0,
+      };
+    });
+
     await deactivateUser(req, res);
 
+    expect(callOrder).toEqual(["snapshot", "changeStatus"]);
     expect(adapter.changeStatus).toHaveBeenCalledWith(
       "a516696c-168c-4680-8dfb-1512d6fc234c",
       0,
@@ -292,6 +373,19 @@ describe("When deactivating a user", () => {
       email: "test@local",
       job_title: "Manager",
       status: 0,
+      userServices: [
+        {
+          serviceId: "service1",
+          organisationId: "organisation1",
+          roles: [{ id: "role1", code: "ROLE-ONE", numericId: 1 }],
+        },
+      ],
+      userOrganisations: [
+        {
+          organisation: { id: "organisation1", legacyId: 123 },
+          numericIdentifier: "sauser1",
+        },
+      ],
     });
   });
 

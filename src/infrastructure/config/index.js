@@ -108,6 +108,34 @@ const config = {
       }
     }
   },
+  access: {
+    type: "api",
+    service: {
+      url: "https://" + process.env.STANDALONE_ACCESS_HOST_NAME,
+      auth: {
+        type: "aad",
+        tenant: process.env.PLATFORM_GLOBAL_TENANT_DOMAIN,
+        authorityHostUrl: process.env.TENANT_URL,
+        clientId: process.env.AAD_SHD_CLIENT_ID,
+        clientSecret: process.env.AAD_SHD_CLIENT_SECRET,
+        resource: process.env.AAD_SHD_APP_ID
+      }
+    }
+  },
+  organisations: {
+    type: "api",
+    service: {
+      url: "https://" + process.env.STANDALONE_ORGANISATIONS_HOST_NAME,
+      auth: {
+        type: "aad",
+        tenant: process.env.PLATFORM_GLOBAL_TENANT_DOMAIN,
+        authorityHostUrl: process.env.TENANT_URL,
+        clientId: process.env.AAD_SHD_CLIENT_ID,
+        clientSecret: process.env.AAD_SHD_CLIENT_SECRET,
+        resource: process.env.AAD_SHD_APP_ID
+      }
+    }
+  },
   auth: {
     type: "aad",
     identityMetadata: process.env.TENANT_URL + "/.well-known/openid-configuration",

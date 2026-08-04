@@ -45,6 +45,20 @@ const linkUserWithEntraOid = async (
 
     return updatedUser;
   } catch (e) {
+    if (e.name === "SequelizeUniqueConstraintError") {
+      const winningUser = await findUserByEntraOidHelper(
+        entraOid,
+        correlationId,
+      );
+      if (winningUser) {
+        logger.info(
+          `Link entra oid race detected for DSI user '${uid}' - entra oid '${entraOid}' was already linked to DSI user '${winningUser.sub}' by a concurrent request, returning the winning record (correlation id: ${correlationId})`,
+          { correlationId },
+        );
+        return winningUser;
+      }
+    }
+
     logger.error(
       `linkUserWithEntra failed for request ${correlationId} error: ${e}`,
       { correlationId },

@@ -518,7 +518,32 @@ const create = async (
     is_internal_user: false,
   };
 
-  const createdUser = await db.user.create(newUser);
+  let createdUser;
+  try {
+    createdUser = await db.user.create(newUser);
+  } catch (err) {
+    if (err.name === "SequelizeUniqueConstraintError") {
+      const collidedFields = err.fields || {};
+      let winningUser = null;
+
+      if (Object.prototype.hasOwnProperty.call(collidedFields, "email")) {
+        winningUser = await findByUsernameHelper(username, correlationId);
+      } else if (
+        Object.prototype.hasOwnProperty.call(collidedFields, "entra_oid")
+      ) {
+        winningUser = await findUserByEntraOidHelper(entraOid, correlationId);
+      }
+
+      if (winningUser) {
+        logger.info(
+          `Create user race detected for request ${correlationId} - a concurrent request already created the user, returning the winning record`,
+          { correlationId },
+        );
+        return winningUser;
+      }
+    }
+    throw err;
+  }
 
   await db.userPasswordPolicy.create({
     id: uuid(),

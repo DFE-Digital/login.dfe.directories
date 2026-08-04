@@ -175,7 +175,12 @@ describe("linkUserWithEntraOid function", () => {
 
     it("should return the winning user record when the update raises a realistic (fields-less) unique constraint violation for a self-race", async () => {
       const updateError = realisticUniqueConstraintError();
-      const winningUser = { sub: userId, entra_oid: entraOid };
+      // The mssql driver returns uniqueidentifier columns in UPPERCASE
+      // (tedious defaults to bufferToUpperCaseGuid), while the uid param
+      // arrives lowercase from the .NET caller (Guid.ToString("D")) - the
+      // comparison in linkDsiUserWithEntraHelper.js must be case-insensitive
+      // or this self-race match never fires in production.
+      const winningUser = { sub: userId.toUpperCase(), entra_oid: entraOid };
 
       findUserById.mockResolvedValue({
         update: jest.fn().mockRejectedValue(updateError),

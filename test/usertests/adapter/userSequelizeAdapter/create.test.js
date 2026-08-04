@@ -25,6 +25,7 @@ jest.mock(
 );
 jest.mock("../../../../src/infrastructure/logger", () => ({
   info: jest.fn(),
+  error: jest.fn(),
 }));
 jest.mock("../../../../src/infrastructure/repository/db", () => ({
   user: {
@@ -250,19 +251,29 @@ describe("userSequelizeAdapter.create", () => {
   });
 
   describe("when a concurrent registration causes a unique constraint violation", () => {
-    const uniqueConstraintError = (fields) => {
-      const err = new Error("Validation error");
+    // IMPORTANT: this deliberately does NOT set `err.fields` to anything
+    // useful, because that's what Sequelize's mssql dialect actually
+    // produces for the unique INDEX (not a named `unique:` constraint on
+    // the model) that the companion dsi-platform migration adds - see
+    // node_modules/sequelize/lib/dialects/mssql/query.js `formatError`:
+    // the "duplicate key row ... with unique index" message has only one
+    // capture group (the index name), so `match[3]` is undefined and
+    // `fields` is left as `{}`. The recovery logic must not depend on
+    // `err.fields` at all - it re-queries using the values this request
+    // was itself trying to create.
+    const realisticUniqueConstraintError = () => {
+      const err = new Error(
+        "Cannot insert duplicate key row in object 'dbo.user' with unique index 'IDX__user__email__unique'.",
+      );
       err.name = "SequelizeUniqueConstraintError";
-      err.fields = fields;
+      err.fields = {};
       return err;
     };
 
-    it("should return the winning user record when the email unique constraint is violated by a concurrent request", async () => {
+    it("should return the winning user record found by email when create() throws a realistic (fields-less) SequelizeUniqueConstraintError", async () => {
       const winningUser = { sub: "winning-id", email: "john.doe@test.com" };
 
-      db.user.create.mockRejectedValueOnce(
-        uniqueConstraintError({ email: "john.doe@test.com" }),
-      );
+      db.user.create.mockRejectedValueOnce(realisticUniqueConstraintError());
       findByUsernameHelper
         .mockResolvedValueOnce(null) // initial existence check
         .mockResolvedValueOnce(winningUser); // recovery re-query
@@ -283,18 +294,20 @@ describe("userSequelizeAdapter.create", () => {
         "john.doe@test.com",
         "correlationId",
       );
+      expect(findUserByEntraOidHelper).not.toHaveBeenCalled();
       expect(result).toBe(winningUser);
       expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
       expect(db.userLegacyUsername.create).not.toHaveBeenCalled();
     });
 
-    it("should return the winning user record when the entra_oid unique constraint is violated by a concurrent request", async () => {
+    it("should fall back to an entra_oid re-query when the email re-query finds nothing and an entraOid was provided", async () => {
       const winningUser = { sub: "winning-id", entra_oid: "entraId" };
 
-      db.user.create.mockRejectedValueOnce(
-        uniqueConstraintError({ entra_oid: "entraId" }),
-      );
-      findUserByEntraOidHelper.mockResolvedValueOnce(winningUser);
+      db.user.create.mockRejectedValueOnce(realisticUniqueConstraintError());
+      findByUsernameHelper
+        .mockResolvedValueOnce(null) // initial existence check
+        .mockResolvedValueOnce(null); // recovery re-query by email finds nothing
+      findUserByEntraOidHelper.mockResolvedValueOnce(winningUser); // recovery re-query by entra_oid
 
       const result = await create(
         "john.doe@test.com",
@@ -307,6 +320,7 @@ describe("userSequelizeAdapter.create", () => {
         "entraId",
       );
 
+      expect(findByUsernameHelper).toHaveBeenCalledTimes(2);
       expect(findUserByEntraOidHelper).toHaveBeenCalledWith(
         "entraId",
         "correlationId",
@@ -316,30 +330,31 @@ describe("userSequelizeAdapter.create", () => {
       expect(db.userLegacyUsername.create).not.toHaveBeenCalled();
     });
 
-    it("should rethrow the original error if the winning row cannot be found on re-query", async () => {
-      const err = uniqueConstraintError({ email: "john.doe@test.com" });
+    it("should rethrow the original error if neither re-query finds a winning row", async () => {
+      const err = realisticUniqueConstraintError();
       db.user.create.mockRejectedValueOnce(err);
       findByUsernameHelper
         .mockResolvedValueOnce(null) // initial existence check
         .mockResolvedValueOnce(null); // recovery re-query finds nothing
+      findUserByEntraOidHelper.mockResolvedValueOnce(null);
 
       await expect(
         create(
           "john.doe@test.com",
-          "password",
+          undefined,
           "John",
           "Doe",
           null,
           null,
           "correlationId",
-          undefined,
+          "entraId",
         ),
       ).rejects.toBe(err);
 
       expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
     });
 
-    it("should rethrow errors that are not unique constraint violations", async () => {
+    it("should rethrow errors that are not unique constraint violations, without attempting any recovery re-query", async () => {
       const err = new Error("connection timeout");
       db.user.create.mockRejectedValueOnce(err);
 
@@ -358,6 +373,31 @@ describe("userSequelizeAdapter.create", () => {
 
       expect(findByUsernameHelper).toHaveBeenCalledTimes(1);
       expect(findUserByEntraOidHelper).not.toHaveBeenCalled();
+      expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
+    });
+
+    it("should rethrow the ORIGINAL constraint error, not a recovery re-query failure, if the re-query itself throws", async () => {
+      const originalError = realisticUniqueConstraintError();
+      const requeryError = new Error("transient db error during recovery");
+
+      db.user.create.mockRejectedValueOnce(originalError);
+      findByUsernameHelper
+        .mockResolvedValueOnce(null) // initial existence check
+        .mockRejectedValueOnce(requeryError); // recovery re-query fails
+
+      await expect(
+        create(
+          "john.doe@test.com",
+          "password",
+          "John",
+          "Doe",
+          null,
+          null,
+          "correlationId",
+          undefined,
+        ),
+      ).rejects.toBe(originalError);
+
       expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
     });
   });

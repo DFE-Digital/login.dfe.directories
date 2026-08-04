@@ -523,15 +523,25 @@ const create = async (
     createdUser = await db.user.create(newUser);
   } catch (err) {
     if (err.name === "SequelizeUniqueConstraintError") {
-      const collidedFields = err.fields || {};
+      // Note: `err.fields` cannot be relied on here to tell us which column
+      // collided - for a unique INDEX violation (as opposed to a named
+      // unique constraint declared via the Sequelize model's `unique:`
+      // option, which this model does not use) the mssql dialect's
+      // formatError leaves `fields` empty. Instead, re-query using the
+      // values this request was itself trying to create, mirroring
+      // dsi-platform's CreateUserUseCase.cs recovery approach.
       let winningUser = null;
-
-      if (Object.prototype.hasOwnProperty.call(collidedFields, "email")) {
+      try {
         winningUser = await findByUsernameHelper(username, correlationId);
-      } else if (
-        Object.prototype.hasOwnProperty.call(collidedFields, "entra_oid")
-      ) {
-        winningUser = await findUserByEntraOidHelper(entraOid, correlationId);
+        if (!winningUser && entraOid) {
+          winningUser = await findUserByEntraOidHelper(entraOid, correlationId);
+        }
+      } catch (requeryErr) {
+        logger.error(
+          `Create user race recovery re-query failed for request ${correlationId} - ${requeryErr.message}`,
+          { correlationId },
+        );
+        throw err;
       }
 
       if (winningUser) {

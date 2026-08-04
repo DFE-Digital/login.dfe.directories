@@ -1,5 +1,6 @@
 jest.mock("../../../../../src/infrastructure/logger", () => ({
   error: jest.fn(),
+  info: jest.fn(),
 }));
 
 jest.mock(
@@ -148,5 +149,99 @@ describe("linkUserWithEntraOid function", () => {
       "linkUserWithEntra failed for request testCorrelationId error: Error",
       { correlationId },
     );
+  });
+
+  describe("when a concurrent request has already linked the entra oid", () => {
+    const entraOid = "78071717-4247-480d-90a3-3d531379ebf8";
+    const userId = "98071717-4247-480d-90a3-3d531379ebf9";
+
+    const uniqueConstraintError = () => {
+      const err = new Error("Validation error");
+      err.name = "SequelizeUniqueConstraintError";
+      err.fields = { entra_oid: entraOid };
+      return err;
+    };
+
+    it("should return the winning user record when the update raises a unique constraint violation", async () => {
+      const updateError = uniqueConstraintError();
+      const winningUser = { sub: "winning-sub", entra_oid: entraOid };
+
+      findUserById.mockResolvedValue({
+        update: jest.fn().mockRejectedValue(updateError),
+      });
+
+      findUserByEntraOidHelper
+        .mockResolvedValueOnce(null) // initial not-already-linked check
+        .mockResolvedValueOnce(winningUser); // recovery re-query after race
+
+      const result = await linkUserWithEntraOid(
+        userId,
+        entraOid,
+        undefined,
+        undefined,
+        correlationId,
+      );
+
+      expect(findUserByEntraOidHelper).toHaveBeenNthCalledWith(
+        2,
+        entraOid,
+        correlationId,
+      );
+      expect(result).toBe(winningUser);
+      expect(logger.error).not.toHaveBeenCalled();
+    });
+
+    it("should log and rethrow the original error if the winning row cannot be found on re-query", async () => {
+      const updateError = uniqueConstraintError();
+
+      findUserById.mockResolvedValue({
+        update: jest.fn().mockRejectedValue(updateError),
+      });
+
+      findUserByEntraOidHelper
+        .mockResolvedValueOnce(null) // initial not-already-linked check
+        .mockResolvedValueOnce(null); // recovery re-query finds nothing
+
+      await expect(
+        linkUserWithEntraOid(
+          userId,
+          entraOid,
+          undefined,
+          undefined,
+          correlationId,
+        ),
+      ).rejects.toBe(updateError);
+
+      expect(logger.error).toHaveBeenCalledWith(
+        `linkUserWithEntra failed for request ${correlationId} error: ${updateError}`,
+        { correlationId },
+      );
+    });
+
+    it("should log and rethrow when the update fails with a non unique-constraint error", async () => {
+      const updateError = new Error("connection timeout");
+
+      findUserById.mockResolvedValue({
+        update: jest.fn().mockRejectedValue(updateError),
+      });
+
+      findUserByEntraOidHelper.mockResolvedValueOnce(null); // initial not-already-linked check
+
+      await expect(
+        linkUserWithEntraOid(
+          userId,
+          entraOid,
+          undefined,
+          undefined,
+          correlationId,
+        ),
+      ).rejects.toBe(updateError);
+
+      expect(findUserByEntraOidHelper).toHaveBeenCalledTimes(1);
+      expect(logger.error).toHaveBeenCalledWith(
+        `linkUserWithEntra failed for request ${correlationId} error: ${updateError}`,
+        { correlationId },
+      );
+    });
   });
 });

@@ -10,6 +10,7 @@ const {
 const {
   findByUsernameHelper,
 } = require("../../../../src/app/user/adapter/userSequelizeHelpers/findByUsernameHelper");
+const findUserByEntraOidHelper = require("../../../../src/app/user/adapter/userSequelizeHelpers/findUserByEntraOidHelper");
 const generateSalt = require("../../../../src/app/user/utils/generateSalt");
 const db = require("../../../../src/infrastructure/repository/db");
 
@@ -18,6 +19,9 @@ jest.mock(
   () => ({
     findByUsernameHelper: jest.fn(),
   }),
+);
+jest.mock(
+  "../../../../src/app/user/adapter/userSequelizeHelpers/findUserByEntraOidHelper",
 );
 jest.mock("../../../../src/infrastructure/logger", () => ({
   info: jest.fn(),
@@ -61,6 +65,7 @@ describe("userSequelizeAdapter.create", () => {
     hashPassword.mockResolvedValue("hashedPassword");
     getLatestPolicyCode.mockReturnValue("v3");
     findByUsernameHelper.mockResolvedValue(null);
+    findUserByEntraOidHelper.mockResolvedValue(null);
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -241,6 +246,119 @@ describe("userSequelizeAdapter.create", () => {
     expect(db.userLegacyUsername.create).toHaveBeenCalledWith({
       legacy_username: "johnDoeLegacyUsername",
       uid: "newId",
+    });
+  });
+
+  describe("when a concurrent registration causes a unique constraint violation", () => {
+    const uniqueConstraintError = (fields) => {
+      const err = new Error("Validation error");
+      err.name = "SequelizeUniqueConstraintError";
+      err.fields = fields;
+      return err;
+    };
+
+    it("should return the winning user record when the email unique constraint is violated by a concurrent request", async () => {
+      const winningUser = { sub: "winning-id", email: "john.doe@test.com" };
+
+      db.user.create.mockRejectedValueOnce(
+        uniqueConstraintError({ email: "john.doe@test.com" }),
+      );
+      findByUsernameHelper
+        .mockResolvedValueOnce(null) // initial existence check
+        .mockResolvedValueOnce(winningUser); // recovery re-query
+
+      const result = await create(
+        "john.doe@test.com",
+        "password",
+        "John",
+        "Doe",
+        null,
+        null,
+        "correlationId",
+        undefined,
+      );
+
+      expect(findByUsernameHelper).toHaveBeenNthCalledWith(
+        2,
+        "john.doe@test.com",
+        "correlationId",
+      );
+      expect(result).toBe(winningUser);
+      expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
+      expect(db.userLegacyUsername.create).not.toHaveBeenCalled();
+    });
+
+    it("should return the winning user record when the entra_oid unique constraint is violated by a concurrent request", async () => {
+      const winningUser = { sub: "winning-id", entra_oid: "entraId" };
+
+      db.user.create.mockRejectedValueOnce(
+        uniqueConstraintError({ entra_oid: "entraId" }),
+      );
+      findUserByEntraOidHelper.mockResolvedValueOnce(winningUser);
+
+      const result = await create(
+        "john.doe@test.com",
+        undefined,
+        "John",
+        "Doe",
+        undefined,
+        null,
+        "correlationId",
+        "entraId",
+      );
+
+      expect(findUserByEntraOidHelper).toHaveBeenCalledWith(
+        "entraId",
+        "correlationId",
+      );
+      expect(result).toBe(winningUser);
+      expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
+      expect(db.userLegacyUsername.create).not.toHaveBeenCalled();
+    });
+
+    it("should rethrow the original error if the winning row cannot be found on re-query", async () => {
+      const err = uniqueConstraintError({ email: "john.doe@test.com" });
+      db.user.create.mockRejectedValueOnce(err);
+      findByUsernameHelper
+        .mockResolvedValueOnce(null) // initial existence check
+        .mockResolvedValueOnce(null); // recovery re-query finds nothing
+
+      await expect(
+        create(
+          "john.doe@test.com",
+          "password",
+          "John",
+          "Doe",
+          null,
+          null,
+          "correlationId",
+          undefined,
+        ),
+      ).rejects.toBe(err);
+
+      expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
+    });
+
+    it("should rethrow errors that are not unique constraint violations", async () => {
+      const err = new Error("connection timeout");
+      db.user.create.mockRejectedValueOnce(err);
+
+      await expect(
+        create(
+          "john.doe@test.com",
+          "password",
+          "John",
+          "Doe",
+          null,
+          null,
+          "correlationId",
+          undefined,
+        ),
+      ).rejects.toBe(err);
+
+      expect(findByUsernameHelper).toHaveBeenCalledTimes(1);
+      expect(findUserByEntraOidHelper).not.toHaveBeenCalled();
+      expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
     });
   });
 });

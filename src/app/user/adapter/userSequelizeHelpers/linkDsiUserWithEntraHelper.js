@@ -60,7 +60,7 @@ const linkUserWithEntraOid = async (
       }
 
       if (winningUser) {
-        if (winningUser.sub === uid) {
+        if (winningUser.sub?.toLowerCase() === uid?.toLowerCase()) {
           logger.info(
             `Link entra oid race detected for DSI user '${uid}' - entra oid '${entraOid}' was already linked to DSI user '${winningUser.sub}' by a concurrent request, returning the winning record (correlation id: ${correlationId})`,
             { correlationId },

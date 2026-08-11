@@ -115,7 +115,6 @@ const config = {
   },
   notifications: {
     connectionString: process.env.LOCAL_REDIS_CONN ? process.env.LOCAL_REDIS_CONN + "/4" : process.env.REDIS_CONN + "/4?tls=true",
-    slackWebHookUrl: process.env.PLATFORM_GLOBAL_SLACK_FEED,
     envName: process.env.ENVIRONMENT_NAME,
     genericEmailStrings: JSON.parse(process.env.GENERIC_EMAIL_STRINGS ?? '[]'),
     supportTeamEmail: process.env.SUPPORT_TEAM_EMAIL,

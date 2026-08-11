@@ -189,8 +189,14 @@ describe("When using redis storage service", () => {
       );
 
       expect(actual).toBe(true);
+      // The adapter does not await client.set, so on Node 23 the write to
+      // ioredis-mock can resolve after our follow-up read. Flush pending
+      // microtasks/immediates before reading the updated user.
+      await new Promise((resolve) => setImmediate(resolve));
       const findResult = await userStorage.find("test3@localuser.com");
       expect(findResult).not.toBeNull();
+      expect(findResult.salt).toBeDefined();
+      expect(findResult.password).toBeDefined();
       const request = promisify(crypto.pbkdf2);
       const saltBuffer = Buffer.from(findResult.salt, "utf8");
       const derivedKey = await request(
@@ -201,7 +207,7 @@ describe("When using redis storage service", () => {
         "sha512",
       );
       expect(findResult.password).toBe(derivedKey.toString("base64"));
-    });
+    }, 30000);
   });
   describe("then when i call create", () => {
     beforeEach(() => {

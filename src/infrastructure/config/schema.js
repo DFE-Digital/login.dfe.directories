@@ -66,7 +66,6 @@ const invitationsSchema = new SimpleSchema({
 
 const notificationsSchema = new SimpleSchema({
   connectionString: patterns.redis,
-  slackWebHookUrl: String,
   envName: String,
   genericEmailStrings: {
     type: Array,

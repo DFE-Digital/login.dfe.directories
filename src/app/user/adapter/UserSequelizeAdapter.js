@@ -518,7 +518,55 @@ const create = async (
     is_internal_user: false,
   };
 
-  const createdUser = await db.user.create(newUser);
+  let createdUser;
+  try {
+    createdUser = await db.user.create(newUser);
+  } catch (err) {
+    if (err.name === "SequelizeUniqueConstraintError") {
+      // Note: `err.fields` cannot be relied on here to tell us which column
+      // collided - for a unique INDEX violation (as opposed to a named
+      // unique constraint declared via the Sequelize model's `unique:`
+      // option, which this model does not use) the mssql dialect's
+      // formatError leaves `fields` empty. Instead, re-query using the
+      // values this request was itself trying to create, mirroring
+      // dsi-platform's CreateUserUseCase.cs recovery approach.
+      //
+      // A genuine self-race is the SAME Entra identity's own concurrent
+      // request landing first - that row must match both email and
+      // entra_oid (when this request has one). A row matching only one of
+      // the two (e.g. this email is already used by a different Entra
+      // identity, or this entra_oid is already linked to a different
+      // email) is a real conflict, not a self-race, and must not be
+      // silently returned as if this request had succeeded.
+      let winningUser = null;
+      try {
+        winningUser = await db.user.findOne({
+          tableHint: TableHints.NOLOCK,
+          where: entraOid
+            ? {
+                email: { [Op.eq]: username },
+                entra_oid: { [Op.eq]: entraOid },
+              }
+            : { email: { [Op.eq]: username } },
+        });
+      } catch (requeryErr) {
+        logger.error(
+          `Create user race recovery re-query failed for request ${correlationId} - ${requeryErr.message}`,
+          { correlationId },
+        );
+        throw err;
+      }
+
+      if (winningUser) {
+        logger.info(
+          `Create user race detected for request ${correlationId} - a concurrent request already created the user, returning the winning record`,
+          { correlationId },
+        );
+        return winningUser;
+      }
+    }
+    throw err;
+  }
 
   await db.userPasswordPolicy.create({
     id: uuid(),

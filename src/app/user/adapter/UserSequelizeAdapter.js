@@ -530,12 +530,25 @@ const create = async (
       // formatError leaves `fields` empty. Instead, re-query using the
       // values this request was itself trying to create, mirroring
       // dsi-platform's CreateUserUseCase.cs recovery approach.
+      //
+      // A genuine self-race is the SAME Entra identity's own concurrent
+      // request landing first - that row must match both email and
+      // entra_oid (when this request has one). A row matching only one of
+      // the two (e.g. this email is already used by a different Entra
+      // identity, or this entra_oid is already linked to a different
+      // email) is a real conflict, not a self-race, and must not be
+      // silently returned as if this request had succeeded.
       let winningUser = null;
       try {
-        winningUser = await findByUsernameHelper(username, correlationId);
-        if (!winningUser && entraOid) {
-          winningUser = await findUserByEntraOidHelper(entraOid, correlationId);
-        }
+        winningUser = await db.user.findOne({
+          tableHint: TableHints.NOLOCK,
+          where: entraOid
+            ? {
+                email: { [Op.eq]: username },
+                entra_oid: { [Op.eq]: entraOid },
+              }
+            : { email: { [Op.eq]: username } },
+        });
       } catch (requeryErr) {
         logger.error(
           `Create user race recovery re-query failed for request ${correlationId} - ${requeryErr.message}`,

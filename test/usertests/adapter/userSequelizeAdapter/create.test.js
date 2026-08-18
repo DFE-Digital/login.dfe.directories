@@ -1,4 +1,5 @@
 const { v4: uuid } = require("uuid");
+const { Op, TableHints } = require("sequelize");
 const {
   hashPassword,
   getLatestPolicyCode,
@@ -270,13 +271,50 @@ describe("userSequelizeAdapter.create", () => {
       return err;
     };
 
-    it("should return the winning user record found by email when create() throws a realistic (fields-less) SequelizeUniqueConstraintError", async () => {
+    it("should return the winning user record when entraOid is provided and a single row matches both email and entra_oid", async () => {
+      const winningUser = {
+        sub: "winning-id",
+        email: "john.doe@test.com",
+        entra_oid: "entraId",
+      };
+
+      db.user.create.mockRejectedValueOnce(realisticUniqueConstraintError());
+      db.user.findOne.mockResolvedValueOnce(winningUser); // recovery re-query
+
+      const result = await create(
+        "john.doe@test.com",
+        undefined,
+        "John",
+        "Doe",
+        null,
+        null,
+        "correlationId",
+        "entraId",
+      );
+
+      // The recovery query must require BOTH email and entra_oid to match on
+      // the same row - a row matching only one of the two is a genuine
+      // conflict (e.g. this email already belongs to a different Entra
+      // identity), not a self-race, and must not be silently returned.
+      expect(db.user.findOne).toHaveBeenCalledWith({
+        tableHint: TableHints.NOLOCK,
+        where: {
+          email: { [Op.eq]: "john.doe@test.com" },
+          entra_oid: { [Op.eq]: "entraId" },
+        },
+      });
+      expect(findByUsernameHelper).toHaveBeenCalledTimes(1); // initial existence check only
+      expect(findUserByEntraOidHelper).not.toHaveBeenCalled();
+      expect(result).toBe(winningUser);
+      expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
+      expect(db.userLegacyUsername.create).not.toHaveBeenCalled();
+    });
+
+    it("should return the winning user record found by email alone when no entraOid was provided (classic password-based create)", async () => {
       const winningUser = { sub: "winning-id", email: "john.doe@test.com" };
 
       db.user.create.mockRejectedValueOnce(realisticUniqueConstraintError());
-      findByUsernameHelper
-        .mockResolvedValueOnce(null) // initial existence check
-        .mockResolvedValueOnce(winningUser); // recovery re-query
+      db.user.findOne.mockResolvedValueOnce(winningUser); // recovery re-query
 
       const result = await create(
         "john.doe@test.com",
@@ -289,54 +327,19 @@ describe("userSequelizeAdapter.create", () => {
         undefined,
       );
 
-      expect(findByUsernameHelper).toHaveBeenNthCalledWith(
-        2,
-        "john.doe@test.com",
-        "correlationId",
-      );
-      expect(findUserByEntraOidHelper).not.toHaveBeenCalled();
+      expect(db.user.findOne).toHaveBeenCalledWith({
+        tableHint: TableHints.NOLOCK,
+        where: { email: { [Op.eq]: "john.doe@test.com" } },
+      });
       expect(result).toBe(winningUser);
       expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
       expect(db.userLegacyUsername.create).not.toHaveBeenCalled();
     });
 
-    it("should fall back to an entra_oid re-query when the email re-query finds nothing and an entraOid was provided", async () => {
-      const winningUser = { sub: "winning-id", entra_oid: "entraId" };
-
-      db.user.create.mockRejectedValueOnce(realisticUniqueConstraintError());
-      findByUsernameHelper
-        .mockResolvedValueOnce(null) // initial existence check
-        .mockResolvedValueOnce(null); // recovery re-query by email finds nothing
-      findUserByEntraOidHelper.mockResolvedValueOnce(winningUser); // recovery re-query by entra_oid
-
-      const result = await create(
-        "john.doe@test.com",
-        undefined,
-        "John",
-        "Doe",
-        undefined,
-        null,
-        "correlationId",
-        "entraId",
-      );
-
-      expect(findByUsernameHelper).toHaveBeenCalledTimes(2);
-      expect(findUserByEntraOidHelper).toHaveBeenCalledWith(
-        "entraId",
-        "correlationId",
-      );
-      expect(result).toBe(winningUser);
-      expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
-      expect(db.userLegacyUsername.create).not.toHaveBeenCalled();
-    });
-
-    it("should rethrow the original error if neither re-query finds a winning row", async () => {
+    it("should rethrow the original error if the combined re-query finds no matching row", async () => {
       const err = realisticUniqueConstraintError();
       db.user.create.mockRejectedValueOnce(err);
-      findByUsernameHelper
-        .mockResolvedValueOnce(null) // initial existence check
-        .mockResolvedValueOnce(null); // recovery re-query finds nothing
-      findUserByEntraOidHelper.mockResolvedValueOnce(null);
+      db.user.findOne.mockResolvedValueOnce(null); // recovery re-query finds nothing
 
       await expect(
         create(
@@ -372,6 +375,7 @@ describe("userSequelizeAdapter.create", () => {
       ).rejects.toBe(err);
 
       expect(findByUsernameHelper).toHaveBeenCalledTimes(1);
+      expect(db.user.findOne).not.toHaveBeenCalled();
       expect(findUserByEntraOidHelper).not.toHaveBeenCalled();
       expect(db.userPasswordPolicy.create).not.toHaveBeenCalled();
     });
@@ -381,9 +385,7 @@ describe("userSequelizeAdapter.create", () => {
       const requeryError = new Error("transient db error during recovery");
 
       db.user.create.mockRejectedValueOnce(originalError);
-      findByUsernameHelper
-        .mockResolvedValueOnce(null) // initial existence check
-        .mockRejectedValueOnce(requeryError); // recovery re-query fails
+      db.user.findOne.mockRejectedValueOnce(requeryError); // recovery re-query fails
 
       await expect(
         create(

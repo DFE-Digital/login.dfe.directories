@@ -1,4 +1,7 @@
 const { ServiceNotificationsClient } = require("login.dfe.jobs-client");
+const {
+  updateUserDetailsInSearchIndex,
+} = require("login.dfe.api-client/users");
 const { find, update } = require("../adapter");
 const logger = require("../../../infrastructure/logger");
 const { safeUser } = require("../../../utils");
@@ -27,6 +30,36 @@ const validateRequestData = (req) => {
     return null;
   });
   return errorMessages.find((x) => x !== null);
+};
+
+// Search index update is patch-style (only fields explicitly passed are
+// touched, per updateUserDetailsInSearchIndex), so this can't wipe other
+// indexed fields. A 404 (user not indexed) resolves the promise with
+// `false` rather than throwing, so both outcomes are logged - swallowing
+// either would recreate the exact invisible-failure pattern that let this
+// bug go unnoticed through two live incidents.
+const syncEmailToSearchIndex = async (updatedUser, correlationId) => {
+  try {
+    const applied = await updateUserDetailsInSearchIndex({
+      userId: updatedUser.sub,
+      userEmail: updatedUser.email,
+      userPendingEmail: null,
+      userStatusId: updatedUser.status,
+      userFirstName: updatedUser.given_name,
+      userLastName: updatedUser.family_name,
+    });
+    if (!applied) {
+      logger.error(
+        `patchUser search index update did not apply for user '${updatedUser.sub}' after email change - user may no longer be indexed (correlationId: '${correlationId}')`,
+        { correlationId },
+      );
+    }
+  } catch (error) {
+    logger.error(
+      `patchUser failed to sync confirmed email change to the search index for user '${updatedUser.sub}' - ${error} (correlationId: '${correlationId}')`,
+      { correlationId },
+    );
+  }
 };
 
 const sendNotification = async (user, updatedUser, correlationId) => {
@@ -70,6 +103,15 @@ const patchUser = async (req, res) => {
   const emailAddressChanged =
     !!req.body.email &&
     req.body.email.trim().toLowerCase() !== user.email.trim().toLowerCase();
+
+  // Tracks whether updatedUser.email ends up actually persisted to
+  // directories, so the search index sync below only fires when it's true.
+  // Starts as emailAddressChanged and is only ever cleared to false further
+  // down, in the one branch where the email field specifically gets
+  // reverted (as opposed to a name-only failure, or the MFA-only Entra
+  // error, neither of which reverts the email field - see the per-field
+  // revert logic below).
+  let emailPersisted = emailAddressChanged;
 
   // Patch user
   const updatedUser = Object.assign(userModel, req.body);
@@ -136,20 +178,54 @@ const patchUser = async (req, res) => {
     if (nameChangeFailed === true || emailChangeFailed === true) {
       // All error types will revert the changes except for ChangeEmailAddressAuthenticationMethodError which is a failure of the MFA change.
       if (errorMessage.type !== "ChangeEmailAddressAuthenticationMethodError") {
+        // Computed once and written back onto updatedUser below (not just
+        // passed to update()), so a sync further down for a field that
+        // *didn't* revert (e.g. email, when only the name change failed)
+        // can't still read the other, rejected field's pre-revert value.
+        const persistedGivenName = nameChangeFailed
+          ? user.given_name
+          : updatedUser.given_name;
+        const persistedFamilyName = nameChangeFailed
+          ? user.family_name
+          : updatedUser.family_name;
+        const persistedEmail = emailChangeFailed
+          ? user.email
+          : updatedUser.email;
+
         await update(
           updatedUser.sub,
-          nameChangeFailed ? user.given_name : updatedUser.given_name,
-          nameChangeFailed ? user.family_name : updatedUser.family_name,
-          emailChangeFailed ? user.email : updatedUser.email,
+          persistedGivenName,
+          persistedFamilyName,
+          persistedEmail,
           updatedUser.job_title,
           updatedUser.phone_number,
           updatedUser.legacyUsernames,
           correlationId,
         );
+
+        updatedUser.given_name = persistedGivenName;
+        updatedUser.family_name = persistedFamilyName;
+        updatedUser.email = persistedEmail;
+
+        if (emailChangeFailed === true) {
+          emailPersisted = false;
+        }
+      }
+
+      // Even on this 500 path, the email itself may have been persisted as
+      // the new value (a name-only failure, or the MFA-only Entra error -
+      // see comment on emailPersisted above), so this can't be skipped just
+      // because the overall request is failing.
+      if (emailPersisted) {
+        await syncEmailToSearchIndex(updatedUser, correlationId);
       }
 
       return res.status(500).send(errorMessage);
     }
+  }
+
+  if (emailPersisted) {
+    await syncEmailToSearchIndex(updatedUser, correlationId);
   }
 
   await sendNotification(user, updatedUser, correlationId);

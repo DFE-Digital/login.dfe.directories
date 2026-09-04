@@ -1,4 +1,7 @@
 jest.mock("login.dfe.jobs-client");
+jest.mock("login.dfe.api-client/users", () => ({
+  updateUserDetailsInSearchIndex: jest.fn(),
+}));
 jest.mock("./../../src/app/user/adapter", () => ({
   find: jest.fn(),
   update: jest.fn(),
@@ -21,6 +24,9 @@ jest.mock("./../../src/infrastructure/logger", () => ({
 }));
 
 const { ServiceNotificationsClient } = require("login.dfe.jobs-client");
+const {
+  updateUserDetailsInSearchIndex,
+} = require("login.dfe.api-client/users");
 const httpMocks = require("node-mocks-http");
 const { find, update } = require("../../src/app/user/adapter");
 const patchUser = require("../../src/app/user/api/patchUser");
@@ -75,6 +81,8 @@ describe("When patching a user", () => {
     ServiceNotificationsClient.mockReset().mockImplementation(
       () => serviceNotificationsClient,
     );
+
+    updateUserDetailsInSearchIndex.mockReset().mockResolvedValue(true);
   });
 
   it("then it should get user from storage", async () => {
@@ -348,5 +356,140 @@ describe("When patching a user", () => {
       "patchUser req.externalAuth.changeEmail failed for user '9b543631-884c-4b39-86d5-311ad5fc6cce' with entraOid mock-entra-oid for the reason(s) ChangeEmailAddressAuthenticationMethodError: mock-error (correlationId: 'correlation-id')",
       { correlationId: "correlation-id" },
     );
+  });
+
+  describe("when syncing a confirmed email change to the search index", () => {
+    it("then it should sync the search index when the email address has changed", async () => {
+      await patchUser(req, res);
+
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledTimes(1);
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledWith({
+        userId: "9b543631-884c-4b39-86d5-311ad5fc6cce",
+        userEmail: "jenny.potter@dumbledores-army.test",
+        userPendingEmail: null,
+        userStatusId: 1,
+        userFirstName: "Jennifer",
+        userLastName: "Potter",
+      });
+      expect(res.statusCode).toBe(202);
+    });
+
+    it("then it should not sync the search index when the email address has not changed", async () => {
+      req.body.email = "jenny.weasley@dumbledores-army.test";
+
+      await patchUser(req, res);
+
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledTimes(0);
+      expect(res.statusCode).toBe(202);
+    });
+
+    it("then it should log an error and still complete the request when the search index sync throws", async () => {
+      updateUserDetailsInSearchIndex
+        .mockReset()
+        .mockRejectedValue(new Error("search index unavailable"));
+
+      await patchUser(req, res);
+
+      expect(logger.error).toHaveBeenCalledWith(
+        "patchUser failed to sync confirmed email change to the search index for user '9b543631-884c-4b39-86d5-311ad5fc6cce' - Error: search index unavailable (correlationId: 'correlation-id')",
+        { correlationId: "correlation-id" },
+      );
+      expect(res.statusCode).toBe(202);
+      expect(
+        serviceNotificationsClient.notifyUserUpdated,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it("then it should log an error when the search index does not apply the update", async () => {
+      updateUserDetailsInSearchIndex.mockReset().mockResolvedValue(false);
+
+      await patchUser(req, res);
+
+      expect(logger.error).toHaveBeenCalledWith(
+        "patchUser search index update did not apply for user '9b543631-884c-4b39-86d5-311ad5fc6cce' after email change - user may no longer be indexed (correlationId: 'correlation-id')",
+        { correlationId: "correlation-id" },
+      );
+      expect(res.statusCode).toBe(202);
+    });
+
+    it("then it should sync the search index with the new email when only the name change fails on an Entra-linked user", async () => {
+      find.mockReturnValue({
+        id: "9b543631-884c-4b39-86d5-311ad5fc6cce",
+        sub: "9b543631-884c-4b39-86d5-311ad5fc6cce",
+        given_name: "Jenny",
+        family_name: "Weasley",
+        email: "jenny.weasley@dumbledores-army.test",
+        job_title: "Manager",
+        status: 1,
+        is_entra: true,
+        entra_oid: "mock-entra-oid",
+      });
+      req.externalAuth.changeName = () => {
+        throw new Error("mock-error");
+      };
+
+      await patchUser(req, res);
+
+      expect(res.statusCode).toBe(500);
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledTimes(1);
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userEmail: "jenny.potter@dumbledores-army.test",
+          userPendingEmail: null,
+        }),
+      );
+    });
+
+    it("then it should not sync the search index when the email change is fully reverted after an Entra identity error", async () => {
+      find.mockReturnValue({
+        id: "9b543631-884c-4b39-86d5-311ad5fc6cce",
+        sub: "9b543631-884c-4b39-86d5-311ad5fc6cce",
+        given_name: "Jennifer",
+        family_name: "Potter",
+        email: "jenny.weasley@dumbledores-army.test",
+        job_title: "Manager",
+        status: 1,
+        is_entra: true,
+        entra_oid: "mock-entra-oid",
+      });
+      req.externalAuth.changeEmail = () => {
+        throw new Error("mock-error");
+      };
+
+      await patchUser(req, res);
+
+      expect(res.statusCode).toBe(500);
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledTimes(0);
+    });
+
+    it("then it should sync the search index with the new email when only the Entra MFA authentication method change fails", async () => {
+      find.mockReturnValue({
+        id: "9b543631-884c-4b39-86d5-311ad5fc6cce",
+        sub: "9b543631-884c-4b39-86d5-311ad5fc6cce",
+        given_name: "Jennifer",
+        family_name: "Potter",
+        email: "jenny.weasley@dumbledores-army.test",
+        job_title: "Manager",
+        status: 1,
+        is_entra: true,
+        entra_oid: "mock-entra-oid",
+      });
+      req.externalAuth.changeEmail = () => {
+        const err = new Error("mock-error");
+        err.name = "ChangeEmailAddressAuthenticationMethodError";
+        throw err;
+      };
+
+      await patchUser(req, res);
+
+      expect(res.statusCode).toBe(500);
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledTimes(1);
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userEmail: "jenny.potter@dumbledores-army.test",
+          userPendingEmail: null,
+        }),
+      );
+    });
   });
 });

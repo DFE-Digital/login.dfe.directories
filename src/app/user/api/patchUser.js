@@ -178,16 +178,34 @@ const patchUser = async (req, res) => {
     if (nameChangeFailed === true || emailChangeFailed === true) {
       // All error types will revert the changes except for ChangeEmailAddressAuthenticationMethodError which is a failure of the MFA change.
       if (errorMessage.type !== "ChangeEmailAddressAuthenticationMethodError") {
+        // Computed once and written back onto updatedUser below (not just
+        // passed to update()), so a sync further down for a field that
+        // *didn't* revert (e.g. email, when only the name change failed)
+        // can't still read the other, rejected field's pre-revert value.
+        const persistedGivenName = nameChangeFailed
+          ? user.given_name
+          : updatedUser.given_name;
+        const persistedFamilyName = nameChangeFailed
+          ? user.family_name
+          : updatedUser.family_name;
+        const persistedEmail = emailChangeFailed
+          ? user.email
+          : updatedUser.email;
+
         await update(
           updatedUser.sub,
-          nameChangeFailed ? user.given_name : updatedUser.given_name,
-          nameChangeFailed ? user.family_name : updatedUser.family_name,
-          emailChangeFailed ? user.email : updatedUser.email,
+          persistedGivenName,
+          persistedFamilyName,
+          persistedEmail,
           updatedUser.job_title,
           updatedUser.phone_number,
           updatedUser.legacyUsernames,
           correlationId,
         );
+
+        updatedUser.given_name = persistedGivenName;
+        updatedUser.family_name = persistedFamilyName;
+        updatedUser.email = persistedEmail;
 
         if (emailChangeFailed === true) {
           emailPersisted = false;

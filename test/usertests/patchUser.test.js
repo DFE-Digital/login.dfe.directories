@@ -432,12 +432,17 @@ describe("When patching a user", () => {
 
       expect(res.statusCode).toBe(500);
       expect(updateUserDetailsInSearchIndex).toHaveBeenCalledTimes(1);
-      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledWith(
-        expect.objectContaining({
-          userEmail: "jenny.potter@dumbledores-army.test",
-          userPendingEmail: null,
-        }),
-      );
+      expect(updateUserDetailsInSearchIndex).toHaveBeenCalledWith({
+        userId: "9b543631-884c-4b39-86d5-311ad5fc6cce",
+        userEmail: "jenny.potter@dumbledores-army.test",
+        userPendingEmail: null,
+        userStatusId: 1,
+        // The name change was rejected and reverted in directories - the
+        // sync must reflect the reverted (old) names, not the rejected new
+        // ones still sitting on updatedUser.
+        userFirstName: "Jenny",
+        userLastName: "Weasley",
+      });
     });
 
     it("then it should not sync the search index when the email change is fully reverted after an Entra identity error", async () => {

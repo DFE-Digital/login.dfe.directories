@@ -58,6 +58,24 @@ describe("userSequelizeAdapter.changeStatus", () => {
     });
   });
 
+  it("should preserve the existing deactivated_at when the user is already deactivated", async () => {
+    const update = jest.fn();
+    const existingDeactivatedAt = new Date("2026-01-01T00:00:00.000Z");
+    const userEntity = {
+      sub: userId,
+      deactivated_at: existingDeactivatedAt,
+      update,
+    };
+    db.user.findOne.mockReturnValue(userEntity);
+
+    await changeStatus(userId, 0, correlationId);
+
+    expect(update).toHaveBeenCalledWith({
+      status: 0,
+      deactivated_at: existingDeactivatedAt,
+    });
+  });
+
   it("should clear deactivated_at when the user is reactivated", async () => {
     const update = jest.fn();
     const userEntity = { sub: userId, update };

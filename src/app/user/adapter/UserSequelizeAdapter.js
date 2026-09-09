@@ -382,7 +382,8 @@ const changeStatus = async (uid, userStatus, correlationId) => {
 
     await userEntity.update({
       status: userStatus,
-      deactivated_at: userStatus === 0 ? new Date() : null,
+      deactivated_at:
+        userStatus === 0 ? (userEntity.deactivated_at ?? new Date()) : null,
     });
 
     return userEntity;

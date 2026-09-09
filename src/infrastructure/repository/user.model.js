@@ -79,6 +79,10 @@ function model(sequelize) {
       type: "DateTime",
       allowNull: true,
     },
+    deactivated_at: {
+      type: "DateTime",
+      allowNull: true,
+    },
   };
 
   const options = {

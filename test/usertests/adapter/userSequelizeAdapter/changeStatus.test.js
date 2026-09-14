@@ -54,7 +54,7 @@ describe("userSequelizeAdapter.changeStatus", () => {
 
     expect(update).toHaveBeenCalledWith({
       status: 0,
-      deactivated_at: expect.any(Date),
+      deactivated_at: expect.any(String),
     });
   });
 

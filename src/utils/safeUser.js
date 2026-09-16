@@ -18,6 +18,7 @@ const safeUser = (user) => {
     "entra_linked",
     "is_internal_user",
     "entra_defer_until",
+    "deactivated_at",
   ];
   const rawSafeUser = pick(user, safeUserFields);
   const {

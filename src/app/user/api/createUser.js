@@ -85,6 +85,11 @@ const createUser = async (req, res) => {
       entraOid,
     );
 
+    logger.info(
+      `Created user '${user.sub}' (entraOid: '${entraOid || "none"}', correlationId: '${correlationId}')`,
+      { correlationId },
+    );
+
     if (config.toggles && config.toggles.notificationsEnabled) {
       const serviceNotificationsClient = new ServiceNotificationsClient({
         connectionString: config.notifications.connectionString,

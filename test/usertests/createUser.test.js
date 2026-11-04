@@ -113,6 +113,40 @@ describe("When creating a user", () => {
     expect(res.statusCode).toBe(409);
   });
 
+  it("then if a user exists with the same email and entraOid the existing user is returned instead of a conflict", async () => {
+    req.body.password = null;
+    req.body.entraOid = "01913788-AB6A-705E-B861-DE8A60EDFDB8";
+    findByUsername.mockReturnValue({
+      sub: "existing-sub",
+      email: "TEST@local",
+      entra_oid: "01913788-ab6a-705e-b861-de8a60edfdb8",
+      status: 1,
+    });
+
+    await createUser(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res._getData().sub).toBe("existing-sub");
+    expect(create).not.toHaveBeenCalled();
+    expect(findByEntraOid).not.toHaveBeenCalled();
+  });
+
+  it("then if a user exists with the same email but a different entraOid a conflict is returned and logged", async () => {
+    req.body.password = null;
+    req.body.entraOid = "01913788-ab6a-705e-b861-de8a60edfdb8";
+    findByUsername.mockReturnValue({
+      sub: "existing-sub",
+      email: "test@local",
+      entra_oid: "99999999-ab6a-705e-b861-de8a60edfdb8",
+    });
+
+    await createUser(req, res);
+
+    expect(res.statusCode).toBe(409);
+    expect(logger.error).toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+  });
+
   it("then if the request is valid then the call is made to the repository to create the user", async () => {
     await createUser(req, res);
 

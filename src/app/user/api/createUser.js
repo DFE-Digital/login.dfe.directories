@@ -36,9 +36,30 @@ const createUser = async (req, res) => {
       return res.status(400).send();
     }
 
+    // A request that matches an existing row on BOTH email and entra_oid is the
+    // same Entra identity retrying (e.g. a concurrent or repeated token issuance
+    // for one registration), not a conflict - return the existing user so the
+    // caller can link to it instead of failing and leaving an orphaned Entra
+    // account. Anything else is a genuine conflict.
+    const isSameEntraIdentity = (user) =>
+      !!entraOid &&
+      user.entra_oid?.toLowerCase() === entraOid.toLowerCase() &&
+      user.email?.toLowerCase() === email.toLowerCase();
+
     const existingUser = await findByUsername(email, correlationId);
 
     if (existingUser) {
+      if (isSameEntraIdentity(existingUser)) {
+        logger.info(
+          `User '${existingUser.sub}' already exists for this email and entraOid, returning the existing record (correlationId: '${correlationId}')`,
+          { correlationId },
+        );
+        return res.send(safeUser(existingUser));
+      }
+      logger.error(
+        `Unable to create the user as the email is already associated with user '${existingUser.sub}' (entraOid supplied: ${!!entraOid}, correlationId: '${correlationId}')`,
+        { correlationId },
+      );
       return res.status(409).send();
     }
 

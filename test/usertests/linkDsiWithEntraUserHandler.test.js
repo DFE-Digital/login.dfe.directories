@@ -1,6 +1,7 @@
 const httpMocks = require("node-mocks-http");
 const linkDsiUserWithEntra = require("../../src/app/user/api/linkDsiUserWithEntraHandler");
 const adaptor = require("../../src/app/user/adapter");
+const logger = require("../../src/infrastructure/logger");
 
 const fakeUser = {
   sub: "78071717-4247-480d-90a3-3d531379ebf8",
@@ -31,6 +32,7 @@ jest.mock("./../../src/infrastructure/config", () => ({}));
 
 jest.mock("../../src/infrastructure/logger", () => ({
   info: jest.fn(),
+  warn: jest.fn(),
   error: jest.fn(),
 }));
 
@@ -175,12 +177,16 @@ describe("When calling the linkDsiUserWithEntra endpoint", () => {
   });
 
   it("should return 404 if linkUserWithEntraOid returns null", async () => {
-    req.params.entraOid = "78071717-4247-480d-90a3-3d531379ebf8";
+    req.body.entraOid = "78071717-4247-480d-90a3-3d531379ebf8";
     req.params.uid = "78071717-4247-480d-90a3-3d531379ebf8";
 
     adaptor.linkUserWithEntraOid.mockReturnValue(undefined);
 
     await linkDsiUserWithEntra(req, res);
     expect(res.statusCode).toBe(404);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining("Unable to link entraOid"),
+      expect.anything(),
+    );
   });
 });

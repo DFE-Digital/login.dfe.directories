@@ -31,8 +31,17 @@ const linkDsiUserWithEntra = async (req, res) => {
   );
 
   if (!updatedEntity) {
+    logger.warn(
+      `Unable to link entraOid '${entraOid}' to DSI user '${uid}', returning 404 (correlationId: '${correlationId}')`,
+      { correlationId },
+    );
     return res.status(404).send();
   }
+
+  logger.info(
+    `Linked entraOid '${entraOid}' to DSI user '${uid}' (correlationId: '${correlationId}')`,
+    { correlationId },
+  );
 
   const safeEntity = safeUser(updatedEntity);
 

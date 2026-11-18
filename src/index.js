@@ -35,6 +35,12 @@ setupApi({
     applications: {
       baseUri: config.applications.service.url,
     },
+    access: {
+      baseUri: config.access.service.url,
+    },
+    organisations: {
+      baseUri: config.organisations.service.url,
+    },
   },
 });
 

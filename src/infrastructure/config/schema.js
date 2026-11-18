@@ -119,6 +119,8 @@ const schema = new SimpleSchema({
   userCodes: userCodesSchema,
   invitations: invitationsSchema,
   applications: schemas.apiClient,
+  access: schemas.apiClient,
+  organisations: schemas.apiClient,
   auth: schemas.apiServerAuth,
   notifications: notificationsSchema,
   toggles: {
